@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/0"
     backend_host: str = "0.0.0.0"
     backend_port: int = 8000
+    auth_token_issuer: str = "d-archie-local"
+    auth_token_audience: str = "d-archie-clients"
+    event_transport_mode: str = "in_memory"
+    enable_internal_routes: bool = True
 
 
 @lru_cache

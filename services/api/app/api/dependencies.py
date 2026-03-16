@@ -5,7 +5,7 @@ from fastapi import Depends, Header, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.core.database import SessionLocal
+from app.core.database import transactional_session
 from app.core.events import DomainEventPublisher, InMemoryDomainEventPublisher
 
 
@@ -22,7 +22,7 @@ def get_request_context(
     x_actor_id: str | None = Header(default=None),
     x_roles: str | None = Header(default=None),
 ) -> RequestContext:
-    request_id = x_request_id or request.headers.get("x-request-id") or str(uuid4())
+    request_id = getattr(request.state, "request_id", None) or x_request_id or request.headers.get("x-request-id") or str(uuid4())
     raw_roles = x_roles or request.headers.get("x-roles") or ""
     roles = [role.strip() for role in raw_roles.split(",") if role.strip()]
     return RequestContext(
@@ -34,11 +34,8 @@ def get_request_context(
 
 
 def get_db_session() -> Iterator[Session]:
-    session = SessionLocal()
-    try:
+    with transactional_session() as session:
         yield session
-    finally:
-        session.close()
 
 
 def get_event_publisher(

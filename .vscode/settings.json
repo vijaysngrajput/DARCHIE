@@ -1,0 +1,11 @@
+{
+  "python.defaultInterpreterPath": "/workspace/DARCHIE/services/api/.venv/bin/python3",
+  "python.analysis.extraPaths": [
+    "/workspace/DARCHIE/services/api"
+  ],
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "app/tests"
+  ],
+  "python.testing.cwd": "/workspace/DARCHIE/services/api"
+}

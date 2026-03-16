@@ -1,0 +1,12 @@
+{
+  "name": "d-archie-web",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10",
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0 -p 3000",
+    "lint": "echo \"lint not configured yet\""
+  }
+}

@@ -19,6 +19,8 @@ from app.modules.assessment_orchestration.schemas.commands import (
 )
 from app.modules.assessment_orchestration.schemas.queries import CurrentUnitQuery, ProgressQuery, SessionAccessContext, SessionLookupQuery
 from app.modules.assessment_orchestration.schemas.responses import (
+    CandidateLandingViewResponse,
+    CandidateTaskViewResponse,
     CurrentUnitResponse,
     GatingStatusResponse,
     ProgressionDecisionResponse,
@@ -26,6 +28,8 @@ from app.modules.assessment_orchestration.schemas.responses import (
     SessionSummaryResponse,
 )
 from app.modules.assessment_orchestration.service import AssessmentSessionService
+from app.modules.response_capture.dependencies import get_response_capture_service
+from app.modules.response_capture.service import ResponseCaptureService
 
 router = APIRouter(tags=["assessment-orchestration"])
 
@@ -99,6 +103,35 @@ def get_progress(
     session_service: AssessmentSessionService = Depends(get_assessment_session_service),
 ) -> ProgressResponse:
     return session_service.get_progress(ProgressQuery(session_id=session_id), actor)
+
+
+@router.get("/candidate/sessions/{session_id}/landing-view", response_model=CandidateLandingViewResponse)
+def get_candidate_landing_view(
+    session_id: str,
+    actor: SessionAccessContext = Depends(require_candidate_session_actor),
+    session_service: AssessmentSessionService = Depends(get_assessment_session_service),
+) -> CandidateLandingViewResponse:
+    session, current_unit, progress = session_service.build_candidate_landing_view(SessionLookupQuery(session_id=session_id), actor)
+    return CandidateLandingViewResponse(session=session, current_unit=current_unit, progress=progress)
+
+
+@router.get("/candidate/sessions/{session_id}/task-view", response_model=CandidateTaskViewResponse)
+def get_candidate_task_view(
+    session_id: str,
+    actor: SessionAccessContext = Depends(require_candidate_session_actor),
+    session_service: AssessmentSessionService = Depends(get_assessment_session_service),
+    response_service: ResponseCaptureService = Depends(get_response_capture_service),
+) -> CandidateTaskViewResponse:
+    session, current_unit, progress = session_service.build_candidate_landing_view(SessionLookupQuery(session_id=session_id), actor)
+    draft = None
+    response_summary = None
+    if current_unit.task_id:
+        try:
+            draft = response_service.get_draft(session_id, current_unit.task_id, actor.actor_id)
+        except Exception:
+            draft = None
+        response_summary = response_service.get_response_summary(session_id, current_unit.task_id, actor.actor_id)
+    return CandidateTaskViewResponse(session=session, current_unit=current_unit, progress=progress, draft=draft, response_summary=response_summary)
 
 
 @router.post("/sessions/{session_id}/tasks/{task_id}/mark-submitted", response_model=ProgressionDecisionResponse)

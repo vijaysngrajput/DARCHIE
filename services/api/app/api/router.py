@@ -19,7 +19,7 @@ def create_api_router(settings: Settings | None = None) -> APIRouter:
     def healthcheck() -> dict[str, str]:
         return {"status": "ok"}
 
-    if settings.enable_internal_routes:
+    if settings.internal_routes_enabled:
 
         @api_router.get("/internal/request-context", tags=["platform"])
         def read_request_context(

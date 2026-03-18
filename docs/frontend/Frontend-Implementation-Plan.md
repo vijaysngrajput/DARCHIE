@@ -1,85 +1,95 @@
 # D-ARCHIE Frontend Implementation Plan
 
 ## 1. Objective
-Implement the shared web app shell and the first candidate-facing vertical slice.
+Implement the shared web app shell and the candidate-first redesign on top of a stable design-system layer.
 
 Primary source docs:
+- [`Frontend-Design-Spec.md`](/Users/varshasingh/Desktop/code_practise/PORTFOLIO/DARCHIE/docs/frontend/Frontend-Design-Spec.md)
 - [`Frontend-CDS.md`](/Users/varshasingh/Desktop/code_practise/PORTFOLIO/DARCHIE/docs/frontend/Frontend-CDS.md)
 - [`Frontend-Task-Pack.md`](/Users/varshasingh/Desktop/code_practise/PORTFOLIO/DARCHIE/docs/frontend/Frontend-Task-Pack.md)
 - [`Implementation-Roadmap.md`](/Users/varshasingh/Desktop/code_practise/PORTFOLIO/DARCHIE/docs/platform/Implementation-Roadmap.md)
 
 Milestone placement:
-- Milestone 0 for shell
-- Milestones 1 through 4 for candidate slice
+- Milestone 0: shell and design tokens
+- Milestones 1 through 4: candidate-first redesign
+- Later milestones: recruiting, admin, reviewer shells and pages
 
 ## 2. Prerequisites and Dependents
 Prerequisites:
 - backend shell for API targets
 - identity APIs for auth gate
 - orchestration APIs for session and current-unit
-- response APIs for draft save
+- response APIs for draft save/finalize
 
 Downstream consumers:
 - later recruiting/admin/reviewer areas
+- reporting-oriented internal experiences
 
 ## 3. Local Execution Order
-### Phase 1: Route Skeleton
-- implement public login route
-- implement role-based layout skeletons
-- implement candidate session and task routes
+### Phase 0: Design System and Shell Freeze
+- freeze shell variants from the design spec
+- freeze route-to-layout mapping
+- freeze design tokens for color, typography, spacing, radius, shadows, and motion
+- freeze utility footer and sidebar behavior
 
-### Phase 2: API Client Layer
-- implement `lib/api/auth.ts`
-- implement `lib/api/sessions.ts`
-- implement `lib/api/responses.ts`
+### Phase 1: Shared Shell Chrome
+- implement `AppHeader`
+- implement `SideNav`
+- implement `UtilityFooter`
+- implement public, candidate, recruiting, admin, and reviewer layout shells
 
-### Phase 3: State and Hooks
-- implement auth state store
-- implement candidate session state store
-- implement `useCurrentUser`
-- implement `useCandidateSession`
-- implement `useAutosaveDraft`
+### Phase 2: Candidate Route Redesign
+- redesign public login route inside public shell
+- redesign candidate session landing inside candidate shell
+- redesign candidate task workspace with left rail + editor surface
+- redesign completion page inside candidate shell
 
-### Phase 4: Candidate Components
-- implement `AuthGate`
-- implement `SessionLandingCard`
-- implement `TaskShell`
-- implement `ResponseEditorShell`
-- implement `ProgressHeader`
-- implement `AutosaveStatusBadge`
+### Phase 3: Shared Primitives and State UX
+- implement `PageSection`, `SurfaceCard`, `InfoTile`, `ActionBar`, `StatusBadge`
+- align loading, error, and empty states to shared shell patterns
+- keep delayed transition feedback and stable loading skeleton behavior
 
-### Phase 5: Tests
-- add component tests
-- add hook tests
-- add route tests for candidate flow and auth guard behavior
+### Phase 4: Recruiting/Admin/Reviewer Shell Baselines
+- create recruiting list/detail shell placeholders
+- create admin canvas/inspector shell placeholders
+- create reviewer queue/workspace shell placeholders
+- keep these implementation-light but architecturally complete
+
+### Phase 5: Tests and Verification
+- add shell-layout tests
+- update candidate route/component tests
+- verify responsive behavior manually for desktop/tablet/mobile
 
 ## 4. First Files and Components
 Implement first:
-- `app/(public)/login/page.tsx`
+- `app/layout.tsx`
+- `app/(public)/layout.tsx`
 - `app/candidate/layout.tsx`
-- `app/candidate/sessions/[sessionId]/page.tsx`
-- `lib/api/auth.ts`
-- `lib/api/sessions.ts`
+- `components/shell/AppHeader.tsx`
+- `components/shell/SideNav.tsx`
+- `components/shell/UtilityFooter.tsx`
+- `app/globals.css`
 
-Core components/hooks:
-- `AuthGate`
+Core redesign components:
 - `SessionLandingCard`
 - `TaskShell`
 - `ResponseEditorShell`
-- `useCurrentUser`
-- `useCandidateSession`
-- `useAutosaveDraft`
+- `ProgressHeader`
+- `TransitionOverlay`
+- `CandidatePageSkeletons`
 
 ## 5. Local Completion Criteria
-- candidate routes are guarded
-- session landing page renders from live API data
-- current task shell renders from orchestration APIs
-- autosave status updates correctly
-- local editor state survives save failure
-- frontend route/component/hook tests pass
+- protected role areas share a stable top-header + left-nav shell
+- public entry uses a lighter shell with utility footer
+- candidate session/task/complete screens match the design spec layout grammar
+- candidate task page keeps editor dominant and rail compact
+- loading, error, and status regions no longer cause layout instability
+- route/component/hook tests pass
+- recruiting/admin/reviewer shells exist as structural baselines even if content is still skeletal
 
 ## 6. Handoff
 This component hands off:
-- candidate first-view demo for validation
-- route and layout baseline for later recruiting/admin/reviewer areas
-- API client patterns for later frontend features
+- candidate-first redesigned product surface for validation
+- shared shell framework for all later role areas
+- design-token and primitive patterns for all future frontend work
+- route and layout baseline for recruiting/admin/reviewer implementation

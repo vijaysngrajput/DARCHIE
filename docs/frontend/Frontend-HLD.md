@@ -47,16 +47,18 @@ This HLD covers:
 - frontend integration with backend APIs,
 - high-level interaction flows for candidate, recruiter, hiring manager, admin, and reviewer roles,
 - quality attributes and failure considerations,
-- handoff points for LLD.
+- handoff points for LLD,
+- shell-driven UI architecture direction.
 
 This HLD does not cover:
 - backend business logic,
 - workflow decision ownership,
 - scoring or reporting business semantics,
 - identity policy ownership,
-- detailed UI screen design,
 - component-level frontend code structure,
 - endpoint-level API contracts.
+
+Detailed UI screen design, route-to-layout mapping, shell grammar, and design-system rules are defined in [`Frontend-Design-Spec.md`](/Users/varshasingh/Desktop/code_practise/PORTFOLIO/DARCHIE/docs/frontend/Frontend-Design-Spec.md).
 
 ## 2. Component Summary
 
@@ -84,7 +86,7 @@ The frontend acts as:
 - the coordinator of role-based navigation and client-side experience boundaries,
 - the consumer of backend APIs and access context.
 
-It is not the owner of business rules for workflow, scoring, content semantics, identity policy, or reporting generation.
+It is not the owner of business rules for workflow, scoring, content, identity policy, or reporting generation.
 
 ## 3. Goals and Responsibilities
 
@@ -103,13 +105,14 @@ It is not the owner of business rules for workflow, scoring, content semantics, 
   - hiring manager,
   - admin / assessment designer,
   - reviewer,
+- provide stable shell chrome across protected areas,
 - support candidate assessment-taking interactions,
 - support recruiter/hiring-manager result-viewing interactions,
 - support admin content-management access,
 - support reviewer score/review interactions,
 - manage role-aware navigation and presentation state,
 - interact with backend APIs for all user-facing operations,
-- present progress, status, and error states clearly,
+- present progress, status, loading, and error states clearly,
 - support autosave and recovery UX through backend-integrated patterns.
 
 ### 3.3 Explicitly Not Owned by This Component
@@ -120,13 +123,13 @@ It is not the owner of business rules for workflow, scoring, content semantics, 
 - score generation,
 - report-generation logic,
 - persistence ownership,
-- advanced visual diagramming/tooling as active MVP behavior.
+- advanced visual tooling as required MVP behavior.
 
 ## 4. In Scope / Out of Scope
 
 ### 4.1 In Scope for MVP
 - one shared web app,
-- role-based areas for candidate, recruiter, hiring manager, admin, and reviewer,
+- role-based shell variants for candidate, recruiting, admin, and reviewer areas,
 - candidate assessment-taking flows,
 - coding-task, structured-response, and scenario-task interaction shells,
 - progress display and autosave-oriented UX,
@@ -140,12 +143,11 @@ It is not the owner of business rules for workflow, scoring, content semantics, 
 - frontend-owned workflow decisions,
 - frontend-owned access-policy decisions,
 - heavy visual design tooling as a required MVP capability,
-- advanced interactive architecture-diagram editors as active MVP behavior,
-- endpoint/schema-level API definition,
-- detailed screen inventory.
+- advanced interactive editors as active MVP behavior,
+- endpoint/schema-level API definition.
 
 ### 4.3 Deferred to Later Phases
-- richer visual design/diagramming tools,
+- richer visual diagramming tools,
 - collaborative editing experiences,
 - more advanced internal dashboards,
 - richer offline/resume behavior,
@@ -188,6 +190,7 @@ The frontend begins when a user interacts with the web application and ends when
 It owns:
 - presentation,
 - user interaction structure,
+- app shell chrome,
 - role-based navigation,
 - client-side experience state,
 - UX handling for autosave/progress/error/loading patterns.
@@ -214,343 +217,52 @@ The frontend depends on:
 - scoring/review-backed reviewer APIs,
 - reporting-backed result-view APIs.
 
-### 6.4 Synchronous Interactions
-- page/area load,
-- task retrieval,
-- report retrieval,
-- content management retrieval,
-- review-action submission,
-- progress/status fetches.
-
-### 6.5 Asynchronous Interactions
-- autosave UX with backend-triggered persistence,
-- progress refresh,
-- report refresh after backend updates,
-- future richer async interaction tooling.
-
-### 6.6 Critical Dependency Rules
-- frontend renders role-aware experience but does not own access policy,
-- frontend must not own branching or workflow logic,
-- frontend must not compute scores or report summaries itself,
-- backend remains the single API surface,
-- advanced future interaction tooling must stay an explicit extension boundary.
-
-## 7. Internal Logical Decomposition
-
-The frontend should be logically organized into the following capability areas.
-
-### 7.1 App Shell and Role-Based Navigation
-Responsible for:
-- shared app layout,
-- role-aware navigation,
-- route or area separation by experience type,
-- entry into candidate, recruiter, hiring manager, admin, and reviewer sections.
-
-### 7.2 Candidate Assessment Experience
-Responsible for:
-- assessment entry,
-- task rendering shells,
-- coding and structured-response interactions,
-- progress display,
-- autosave-aware UX,
-- candidate-friendly status and continuity behavior.
-
-### 7.3 Recruiter / Hiring Manager Experience
-Responsible for:
-- candidate result viewing,
-- scorecard display,
-- component-insight access,
-- comparison-view access where provided by backend.
-
-### 7.4 Admin Content Management Experience
-Responsible for:
-- access to assessment authoring views,
-- draft/review/publish lifecycle interaction surfaces,
-- content-library access and management entry points.
-
-### 7.5 Reviewer Experience
-Responsible for:
-- review-task access,
-- evaluation/review action surfaces,
-- status visibility for review-related work.
-
-### 7.6 Frontend API Integration Layer
-Responsible for:
-- consuming backend APIs,
-- mapping backend responses into frontend state,
-- isolating UI from transport and integration concerns.
-
-### 7.7 UX State and Resilience Layer
-Responsible for:
-- loading/error/empty states,
-- autosave indicators,
-- progress continuity,
-- role-aware session-state presentation.
-
-### 7.8 Future Rich Interaction Extension Boundary
-Responsible for:
-- preserving room for future richer editors, visual tools, and advanced interactive workflows,
-- keeping those capabilities outside MVP core assumptions.
-
-### 7.9 Internal Logical Decomposition Diagram
-
-```mermaid
-flowchart TB
-    USER["User"] --> SHELL["App Shell and Role-Based Navigation"]
-    SHELL --> CAND["Candidate Assessment Experience"]
-    SHELL --> RHM["Recruiter / Hiring Manager Experience"]
-    SHELL --> ADMIN["Admin Content Management Experience"]
-    SHELL --> REVIEW["Reviewer Experience"]
-    CAND --> API["Frontend API Integration Layer"]
-    RHM --> API
-    ADMIN --> API
-    REVIEW --> API
-    SHELL --> UX["UX State and Resilience Layer"]
-    API -. future .-> EXT["Future Rich Interaction Extension Boundary"]
-```
-
-## 8. Frontend Interaction Flows
-
-### 8.1 Candidate Assessment Flow
-
-Flow:
-1. Candidate enters the application.
-2. Frontend resolves role-aware entry using backend-provided identity/access context.
-3. Candidate Assessment Experience loads the active assessment/session view.
-4. Task content is rendered through backend-provided state.
-5. Autosave/progress/status UX is maintained as the candidate interacts.
-
-### 8.2 Recruiter / Hiring Manager Reporting Flow
-
-Flow:
-1. Recruiter or hiring manager enters the application.
-2. Frontend resolves role-aware navigation.
-3. Reporting views are requested from backend.
-4. Candidate scorecards, component insights, and summary views are displayed.
-
-### 8.3 Admin Content-Management Flow
-
-Flow:
-1. Admin accesses content-management area.
-2. Frontend presents assessment authoring/navigation areas.
-3. Backend-backed content operations are invoked for draft, review, and publish workflows.
-4. Frontend reflects content lifecycle state and authoring progress.
-
-### 8.4 Reviewer Flow
-
-Flow:
-1. Reviewer accesses review-related area.
-2. Frontend loads review-relevant tasks and status.
-3. Review actions are submitted through backend.
-4. Updated review status is reflected in the reviewer experience.
-
-### 8.5 Primary Candidate-First Flow Diagram
-
-```mermaid
-flowchart TD
-    START["User enters app"] --> ROLE["Resolve role-aware area"]
-    ROLE --> CAND{"Candidate?"}
-    CAND -- Yes --> LOAD["Load assessment/session view"]
-    LOAD --> TASK["Render task and progress UX"]
-    TASK --> SAVE["Show autosave/progress status"]
-    CAND -- No --> OTHER["Load internal role area"]
-    OTHER --> VIEW["Render reporting / content / review area"]
-```
-
-### 8.6 Optional Role-Based Area Flow Diagram
-
-```mermaid
-flowchart LR
-    SHELL["App Shell"] --> C["Candidate Area"]
-    SHELL --> R["Recruiter / Hiring Manager Area"]
-    SHELL --> A["Admin Area"]
-    SHELL --> V["Reviewer Area"]
-```
-
-## 9. High-Level Interfaces and Contracts
-
-This section defines frontend-facing architectural contracts, not detailed APIs.
-
-### 9.1 Interfaces Provided by Frontend
-
-#### User -> Frontend
-High-level operations:
-- access role-based app areas,
-- take assessments,
-- view reports,
-- manage content,
-- perform review actions.
-
-Interaction type:
-- interactive UI.
-
-### 9.2 Interfaces Consumed by Frontend
-
-#### Frontend -> Backend API
-High-level operations:
-- authenticate/initiate role-aware app access through backend-mediated identity context,
-- retrieve assessment/session/task state,
-- submit responses and draft updates,
-- retrieve reports,
-- retrieve content-management views/actions,
-- retrieve and submit review actions.
-
-Interaction type:
-- synchronous request/response plus async refresh patterns.
-
-#### Frontend -> Identity and Access Context
-High-level operations:
-- determine current role-aware experience,
-- render allowed navigation and protected views.
-
-Interaction type:
-- backend-mediated access context consumption.
-
-### 9.3 Events Emitted or Consumed
-
-Events consumed:
-- backend-driven state refreshes where reflected in UI
-
-Events emitted:
-- user interaction events relevant to analytics or observability
-
-## 10. Domain Concepts and Data Ownership
-
-### 10.1 Platform Concepts Referenced by Frontend
-- `User`
-- `Role`
-- `Assessment`
-- `Assessment Version`
-- `Session`
-- `Response`
-- `Review`
-- `Result Summary`
-
-### 10.2 Platform Concepts Owned by Frontend
-The frontend does not own core business-domain concepts. It owns:
-- UI presentation state,
-- navigation state,
-- local interaction state,
-- role-aware client experience state.
-
-### 10.3 System-of-Record Responsibilities
-Frontend is not system-of-record for platform business data.
-
-Frontend is effectively system-of-record only for:
-- transient client-side interaction state,
-- temporary presentation and navigation state.
-
-### 10.4 Persistence Responsibilities
-Frontend may coordinate temporary client-side state handling for UX continuity, but persistent system-of-record ownership remains with backend-hosted modules.
-
-### 10.5 Records / Artifacts Produced
-- UI interaction state,
-- client-side navigation state,
-- user-triggered actions sent to backend,
-- frontend observability and telemetry markers where appropriate.
-
-## 11. Security, Reliability, Scalability, and Observability
-
-### 11.1 Security
-- frontend must respect role-aware access context,
-- protected views should not be exposed without validated backend-mediated identity context,
-- sensitive data should only be rendered for authorized roles,
-- frontend must not become a source of security-policy truth.
-
-### 11.2 Reliability
-- candidate progress UX should remain resilient during long assessment sessions,
-- autosave and progress feedback should reduce user uncertainty,
-- frontend should handle backend failures gracefully,
-- role-based experiences should degrade safely when dependent data is unavailable.
-
-### 11.3 Scalability
-- one shared app should support multiple role experiences without becoming an undifferentiated UI,
-- candidate-heavy traffic should not compromise internal-role usability,
-- richer future interaction modules should be addable without restructuring the entire frontend boundary.
-
-### 11.4 Observability
-- trace critical candidate flows,
-- monitor frontend errors in assessment-taking experiences,
-- monitor latency and failures for report and content-management views,
-- record user-facing failure states for support diagnostics.
-
-## 12. Risks and Failure Considerations
-
-### 12.1 Likely Failure Modes
-- frontend accidentally absorbing workflow or scoring logic,
-- unclear role boundaries in one shared app,
-- candidate assessment UX suffering because internal-role complexity dominates architecture,
-- stale UI after backend state changes,
-- overdesigning rich interaction tooling too early.
-
-### 12.2 Architectural Risks
-- a single web app may become hard to reason about if role separation is weak,
-- UI complexity may grow quickly across candidate, admin, recruiter, and reviewer experiences,
-- autosave/progress UX can become confusing if not clearly aligned with backend-backed state.
-
-### 12.3 Mitigation Direction
-- keep frontend responsibilities presentation-oriented,
-- prioritize candidate workflow in MVP design,
-- use clear role-based area separation,
-- keep advanced future interaction tooling behind explicit extension boundaries,
-- let backend remain the source of truth for business state.
-
-## 13. Deferred Decisions for LLD
-
-The following decisions are intentionally deferred to LLD:
-- exact route structure,
-- page/screen inventory,
-- component hierarchy,
-- client state-management detail,
-- autosave UX implementation detail,
-- exact API binding contracts,
-- visual design system specifics,
-- frontend telemetry schema,
-- future rich-editor integration approach.
-
-## 14. Handoff to LLD
-
-The LLD for Frontend should define:
-- route and role-area structure,
-- page and screen map,
-- UI state model,
-- backend integration contracts,
-- autosave/progress interaction behavior,
-- access-guard implementation pattern,
-- component decomposition,
-- error/loading/empty-state behavior,
-- frontend observability hooks.
-
-## 15. Acceptance Checklist
-
-This HLD is acceptable if:
-- frontend is clearly defined as one shared web app with role-based areas,
-- candidate workflow is clearly prioritized for MVP,
-- recruiter/hiring-manager, admin, and reviewer experiences are all represented,
-- frontend ownership remains presentation-oriented,
-- business logic ownership stays in backend, orchestration, content, scoring, reporting, and identity,
-- future richer interaction capabilities remain extension boundaries only,
-- deferred decisions are explicit enough for LLD work.
-
-## 16. Future Extension Points
-
-### 16.1 Rich Visual / Interactive Tasking
-Future versions may add richer diagramming, architecture-design tooling, or other highly interactive task experiences.
-
-Architectural position:
-- explicit extension boundary,
-- not a required MVP capability.
-
-### 16.2 Broader Internal Workbench Experiences
-Future versions may add richer internal workbenches for admins, reviewers, and hiring teams.
-
-### 16.3 Advanced Offline / Resume UX
-Future versions may improve resume continuity and resilience for long-running candidate sessions.
-
-## 17. Executive Summary
-
-The D-ARCHIE Frontend is one shared web application with role-based areas for candidates, recruiters, hiring managers, admins, and reviewers. It prioritizes candidate assessment-taking workflows in MVP while still supporting internal-role experiences for reporting, content management, and review.
-
-It owns presentation, interaction, and role-based navigation, but not platform business logic. Backend remains the single API surface, while identity, orchestration, content, scoring, and reporting retain their respective ownership.
-
-This HLD defines the MVP frontend boundary needed to deliver a coherent product experience without blurring the architectural responsibilities already established in the rest of the HLD set.
+## 7. Shell and Area Strategy
+
+### 7.1 Shared Product Strategy
+The application must feel like one product with multiple role areas.
+
+High-level shell strategy:
+- protected areas use a stable top header,
+- protected areas use left navigation on desktop,
+- public entry uses a lighter shell,
+- utility footer is global and lightweight,
+- candidate task-taking uses a specialized workspace inside the shared shell.
+
+### 7.2 Role Areas
+- public
+- candidate
+- recruiting
+- admin
+- reviewer
+
+Hiring manager uses recruiting area with narrower access.
+
+### 7.3 Candidate-First Priority
+The candidate flow is the first detailed UI area and the standard for perceived quality. Candidate-first means:
+- strongest polish and continuity,
+- stable shell-driven navigation,
+- focused assessment workspace,
+- minimized layout shift,
+- clear progress and save/submit feedback.
+
+## 8. Quality Attributes
+The frontend must optimize for:
+- clarity,
+- continuity,
+- shell stability,
+- fast perceived navigation,
+- role-aware separation,
+- recoverable errors,
+- responsive behavior across desktop/tablet/mobile.
+
+## 9. Handoff to LLD and Design Spec
+The HLD hands off:
+- role-area structure,
+- shared shell direction,
+- frontend boundaries,
+- candidate-first quality expectations,
+- dependency expectations,
+- responsibility split between shell architecture and detailed screen design.
+
+Detailed route inventory, shell variants, layout grammar, design tokens, and component ownership live in [`Frontend-Design-Spec.md`](/Users/varshasingh/Desktop/code_practise/PORTFOLIO/DARCHIE/docs/frontend/Frontend-Design-Spec.md).

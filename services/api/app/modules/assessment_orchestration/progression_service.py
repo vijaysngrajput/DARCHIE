@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.core.database import utc_now
+from app.modules.assessment_orchestration.errors import TaskStateNotFoundError
 from app.modules.assessment_orchestration.events import SessionCompletedEvent, TaskSubmittedForProgressionEvent, to_payload
 from app.modules.assessment_orchestration.models import WorkflowTransitionLogModel
 from app.modules.assessment_orchestration.schemas.commands import EvaluateNextCommand, MarkTaskSubmittedCommand
@@ -34,6 +35,8 @@ class ProgressionService:
     def mark_task_submitted(self, session_id: str, command: MarkTaskSubmittedCommand, actor: SessionAccessContext) -> ProgressionDecisionResponse:
         session = self.session_repository.lock_by_id(session_id)
         task_state = self.task_repository.get(session_id, command.task_id)
+        if task_state is None:
+            raise TaskStateNotFoundError(command.task_id)
         self.state_machine.assert_command_allowed(session.session_state, "mark_task_submitted")
         self.policy_service.assert_attempt_allowed(task_state, command.attempt_no)
         previous_state = task_state.state
@@ -160,6 +163,8 @@ class ProgressionService:
 
     def release_after_gating(self, session_id: str, task_id: str) -> ProgressionDecisionResponse:
         task_state = self.task_repository.get(session_id, task_id)
+        if task_state is None:
+            raise TaskStateNotFoundError(task_id)
         task_state.gated = False
         task_state.state = self.state_machine.transition_task(task_state.state, "completed")
         task_state.completed_at = utc_now()

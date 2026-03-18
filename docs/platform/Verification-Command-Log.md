@@ -143,3 +143,31 @@ When a new backend slice is implemented, append:
 - the automated verification command(s)
 - the minimal manual smoke commands
 - the expected result or success condition
+
+## Frontend Candidate Slice Verification
+Run frontend tests:
+```bash
+pnpm --dir apps/web test
+```
+
+Run production build:
+```bash
+pnpm --dir apps/web build
+```
+
+Run the frontend locally:
+```bash
+pnpm --dir apps/web dev
+```
+
+Open the UI:
+- `http://localhost:3000/login`
+
+Manual flow:
+1. Sign in with `candidate@example.com` / `secret123`
+2. Confirm redirect to `/candidate/sessions/<sessionId>`
+3. Start the session and continue to the task page
+4. Type into the editor and confirm autosave status changes
+5. Finalize the response and confirm redirect to the completion page
+
+6. Confirm no console or server errors during the full journey

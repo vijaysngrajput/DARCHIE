@@ -31,17 +31,19 @@ SEED_USERS = (
 
 def bootstrap_runtime(settings: Settings | None = None) -> None:
     settings = settings or get_settings()
-    if not settings.enable_runtime_bootstrap:
+    if not settings.runtime_bootstrap_enabled:
         return
     Base.metadata.create_all(bind=engine)
-    if settings.seed_dev_data:
+    if settings.dev_data_seeding_enabled:
         with transactional_session() as session:
             seed_local_runtime_data(session)
 
 
 def seed_local_runtime_data(session: Session) -> None:
     for seed_user in SEED_USERS:
-        user = session.scalar(select(UserAccountModel).where(UserAccountModel.email == seed_user.email))
+        user = session.scalar(select(UserAccountModel).where(UserAccountModel.user_id == seed_user.user_id))
+        if user is None:
+            user = session.scalar(select(UserAccountModel).where(UserAccountModel.email == seed_user.email))
         if user is None:
             user = UserAccountModel(
                 user_id=seed_user.user_id,
@@ -49,10 +51,6 @@ def seed_local_runtime_data(session: Session) -> None:
                 password_hash=AuthenticationService._hash_password(seed_user.password),
                 display_name=seed_user.display_name,
             )
-            session.add(user)
-            session.flush()
-        elif user.user_id != seed_user.user_id:
-            user.user_id = seed_user.user_id
             session.add(user)
             session.flush()
         role = session.scalar(

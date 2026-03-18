@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from app.modules.response_capture.schemas.responses import DraftSaveResponse, ResponseSummaryResponse
+
 
 class SessionSummaryResponse(BaseModel):
     session_id: str
@@ -51,3 +53,17 @@ class ProgressionDecisionResponse(BaseModel):
     gating_status: str | None
     next_component_id: str | None
     next_task_id: str | None
+
+
+class CandidateLandingViewResponse(BaseModel):
+    session: SessionSummaryResponse
+    current_unit: CurrentUnitResponse
+    progress: ProgressResponse
+
+
+class CandidateTaskViewResponse(BaseModel):
+    session: SessionSummaryResponse
+    current_unit: CurrentUnitResponse
+    progress: ProgressResponse
+    draft: DraftSaveResponse | None
+    response_summary: ResponseSummaryResponse | None

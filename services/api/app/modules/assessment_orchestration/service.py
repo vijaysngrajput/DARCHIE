@@ -70,6 +70,11 @@ class AssessmentSessionService:
             expires_at=session.expires_at,
         )
 
+    def build_candidate_landing_view(self, query: SessionLookupQuery, actor: SessionAccessContext) -> tuple[SessionSummaryResponse, CurrentUnitResponse, ProgressResponse]:
+        session = self._get_session_or_raise(query.session_id)
+        self._assert_can_access(session, actor)
+        return self._to_summary(session), self.progression_service.resolve_current_unit(session), self.get_progress(ProgressQuery(session_id=query.session_id), actor)
+
     def create_session(self, command: CreateSessionCommand, actor: SessionAccessContext) -> SessionSummaryResponse:
         if actor.actor_id is None or "candidate" not in actor.roles:
             raise SessionAccessDeniedError("Candidate role required to create a session")

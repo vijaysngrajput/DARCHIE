@@ -15,6 +15,8 @@ class RefreshSessionRequest(BaseModel):
 class AuthSessionResponse(BaseModel):
     access_session_id: str
     user_id: str
+    email: EmailStr
+    display_name: str
     roles: list[str]
     expires_at: datetime
 

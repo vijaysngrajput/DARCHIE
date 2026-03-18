@@ -63,6 +63,8 @@ class AuthenticationService:
         return AuthSessionResponse(
             access_session_id=session.access_session_id,
             user_id=user.user_id,
+            email=user.email,
+            display_name=user.display_name,
             roles=roles,
             expires_at=session.expires_at,
         )
@@ -81,10 +83,15 @@ class AuthenticationService:
 
     def refresh(self, command: RefreshSessionRequest) -> AuthSessionResponse:
         session = self.access_session_service.refresh(command.access_session_id)
+        user = self.user_repository.get_by_id(session.user_id)
+        if user is None:
+            raise UserNotFoundError()
         roles = [role.role_name for role in self.role_repository.list_roles_for_user(session.user_id)]
         return AuthSessionResponse(
             access_session_id=session.access_session_id,
             user_id=session.user_id,
+            email=user.email,
+            display_name=user.display_name,
             roles=roles,
             expires_at=session.expires_at,
         )

@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.pnpm-store/
+
 # Test and tool caches
 .pytest_cache/
 .ruff_cache/

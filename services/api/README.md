@@ -6,7 +6,8 @@ This is the Python backend service for D-ARCHIE.
 Current state:
 - FastAPI backend shell is implemented.
 - Shared app boot, router registration, request context, DB wiring, error handling, and event staging are available.
-- Business domains are present as placeholder module routers and will be implemented incrementally.
+- Identity and access plus the first orchestration runtime slice are implemented.
+- Runtime startup now bootstraps the local database schema and seeds a small dev user set for manual testing.
 
 ## Stack
 - Python 3.12
@@ -33,6 +34,24 @@ From `/workspace/DARCHIE/services/api`:
 uv run pytest
 ```
 
+## Local Runtime Bootstrap
+On server startup, the backend now:
+- creates the SQLAlchemy tables in the configured database
+- seeds local dev users and roles when `SEED_DEV_DATA=true`
+
+Default seeded users:
+- candidate: `candidate-1` / `candidate@example.com` / password `secret123`
+- admin: `admin-1` / `admin@example.com` / password `admin123`
+- recruiter: `recruiter-1` / `recruiter@example.com` / password `recruiter123`
+- reviewer: `reviewer-1` / `reviewer@example.com` / password `review123`
+
+Useful manual-test headers:
+
+```bash
+x-actor-id: candidate-1
+x-roles: candidate
+```
+
 ## Important Environment
 Expected from the devcontainer:
 
@@ -41,16 +60,6 @@ DATABASE_URL
 REDIS_URL
 BACKEND_HOST
 BACKEND_PORT
+ENABLE_RUNTIME_BOOTSTRAP
+SEED_DEV_DATA
 ```
-
-## Current Coverage
-Implemented now:
-- backend shell
-- placeholder routers for all platform backend modules
-- backend shell tests
-
-Not yet implemented:
-- identity logic
-- orchestration logic
-- response capture logic
-- content, scoring, reporting, support internals

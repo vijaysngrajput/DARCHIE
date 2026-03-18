@@ -1,1 +1,1 @@
-"""Domain module placeholder."""
+"""Response capture and persistence domain module."""

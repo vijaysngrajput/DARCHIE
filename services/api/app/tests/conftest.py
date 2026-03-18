@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Generator
 from datetime import timedelta
+
+os.environ.setdefault("ENABLE_RUNTIME_BOOTSTRAP", "false")
+os.environ.setdefault("SEED_DEV_DATA", "false")
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,6 +16,23 @@ from sqlalchemy.pool import StaticPool
 from app.api import dependencies as api_dependencies
 from app.core.database import Base, utc_now
 from app.main import app
+from app.modules.assessment_orchestration.dependencies import (
+    get_assessment_session_repository,
+    get_content_client,
+    get_gating_state_repository,
+    get_response_checkpoint_client,
+    get_scoring_status_client,
+    get_session_component_state_repository,
+    get_session_task_state_repository,
+    get_workflow_transition_log_repository,
+)
+from app.modules.assessment_orchestration.repositories import (
+    SQLAlchemyAssessmentSessionRepository,
+    SQLAlchemyGatingStateRepository,
+    SQLAlchemySessionComponentStateRepository,
+    SQLAlchemySessionTaskStateRepository,
+    SQLAlchemyWorkflowTransitionLogRepository,
+)
 from app.modules.identity_access.auth_service import AuthenticationService
 from app.modules.identity_access.dependencies import (
     get_access_session_repository,
@@ -35,6 +56,55 @@ from app.modules.identity_access.repositories import (
 from app.modules.identity_access.session_service import AccessSessionService
 from app.modules.identity_access.user_admin_service import UserAdministrationService
 from app.modules.identity_access.authorization_service import AuthorizationService
+from app.modules.response_capture.dependencies import (
+    get_orchestration_eligibility_client,
+    get_response_artifact_repository,
+    get_response_capture_service,
+    get_response_checkpoint_repository,
+    get_response_draft_repository,
+    get_response_submission_repository,
+)
+from app.modules.response_capture.repositories import (
+    SQLAlchemyResponseArtifactRepository,
+    SQLAlchemyResponseCheckpointRepository,
+    SQLAlchemyResponseDraftRepository,
+    SQLAlchemyResponseSubmissionRepository,
+)
+
+
+class StubContentClient:
+    def get_published_assessment_version(self, assessment_version_id: str) -> dict:
+        return {
+            "assessment_version_id": assessment_version_id,
+            "timing_policy": {"session_duration_minutes": 60},
+            "attempt_policy": {"max_attempts": 1},
+            "components": [
+                {
+                    "component_id": f"component-{assessment_version_id}-1",
+                    "sequence_no": 1,
+                    "tasks": [
+                        {
+                            "task_id": f"task-{assessment_version_id}-1",
+                            "sequence_no": 1,
+                            "evaluation_mode": "rule_based",
+                        }
+                    ],
+                }
+            ],
+        }
+
+
+class StubResponseCheckpointClient:
+    def get_task_checkpoint(self, session_id: str, task_id: str) -> dict | None:
+        return None
+
+
+class StubScoringStatusClient:
+    def get_task_readiness(self, session_id: str, task_id: str) -> dict:
+        return {"ready": True}
+
+    def publish_progression_hold(self, session_id: str, task_id: str, evaluation_mode: str) -> None:
+        return None
 
 
 @pytest.fixture()
@@ -71,6 +141,15 @@ def repositories(db_session: Session):
         "sessions": SQLAlchemyAccessSessionRepository(db_session),
         "grants": SQLAlchemyResourceGrantRepository(db_session),
         "audit": SQLAlchemySecurityAuditEventRepository(db_session),
+        "assessment_sessions": SQLAlchemyAssessmentSessionRepository(db_session),
+        "component_states": SQLAlchemySessionComponentStateRepository(db_session),
+        "task_states": SQLAlchemySessionTaskStateRepository(db_session),
+        "gating_states": SQLAlchemyGatingStateRepository(db_session),
+        "transition_logs": SQLAlchemyWorkflowTransitionLogRepository(db_session),
+        "response_drafts": SQLAlchemyResponseDraftRepository(db_session),
+        "response_submissions": SQLAlchemyResponseSubmissionRepository(db_session),
+        "response_artifacts": SQLAlchemyResponseArtifactRepository(db_session),
+        "response_checkpoints": SQLAlchemyResponseCheckpointRepository(db_session),
     }
 
 
@@ -170,6 +249,18 @@ def client(db_session: Session, repositories, event_publisher) -> Generator[Test
     app.dependency_overrides[get_user_admin_service] = lambda: UserAdministrationService(
         repositories["users"], repositories["roles"], repositories["audit"], event_publisher
     )
+    app.dependency_overrides[get_assessment_session_repository] = lambda: repositories["assessment_sessions"]
+    app.dependency_overrides[get_session_component_state_repository] = lambda: repositories["component_states"]
+    app.dependency_overrides[get_session_task_state_repository] = lambda: repositories["task_states"]
+    app.dependency_overrides[get_gating_state_repository] = lambda: repositories["gating_states"]
+    app.dependency_overrides[get_workflow_transition_log_repository] = lambda: repositories["transition_logs"]
+    app.dependency_overrides[get_content_client] = lambda: StubContentClient()
+    app.dependency_overrides[get_response_checkpoint_client] = lambda: StubResponseCheckpointClient()
+    app.dependency_overrides[get_scoring_status_client] = lambda: StubScoringStatusClient()
+    app.dependency_overrides[get_response_draft_repository] = lambda: repositories["response_drafts"]
+    app.dependency_overrides[get_response_submission_repository] = lambda: repositories["response_submissions"]
+    app.dependency_overrides[get_response_artifact_repository] = lambda: repositories["response_artifacts"]
+    app.dependency_overrides[get_response_checkpoint_repository] = lambda: repositories["response_checkpoints"]
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()

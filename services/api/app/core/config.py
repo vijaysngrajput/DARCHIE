@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     auth_token_audience: str = "d-archie-clients"
     event_transport_mode: str = "in_memory"
     enable_internal_routes: bool = True
+    enable_runtime_bootstrap: bool = True
+    seed_dev_data: bool = True
 
 
 @lru_cache

@@ -7,6 +7,7 @@ from app.api.exception_handlers import register_exception_handlers
 from app.api.router import create_api_router
 from app.core.config import get_settings
 from app.core.logging import get_logger, log_request_completion
+from app.core.runtime_bootstrap import bootstrap_runtime
 
 
 LOGGER = get_logger()
@@ -15,6 +16,10 @@ LOGGER = get_logger()
 def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(title=settings.app_name)
+
+    @app.on_event("startup")
+    def initialize_runtime() -> None:
+        bootstrap_runtime(settings)
 
     @app.middleware("http")
     async def request_lifecycle_middleware(request: Request, call_next):

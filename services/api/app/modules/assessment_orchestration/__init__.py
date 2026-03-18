@@ -1,1 +1,1 @@
-"""Domain module placeholder."""
+"""Assessment orchestration domain module."""

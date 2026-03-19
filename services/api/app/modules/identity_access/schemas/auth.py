@@ -26,3 +26,5 @@ class CurrentUserResponse(BaseModel):
     email: EmailStr
     display_name: str
     roles: list[str]
+    access_session_id: str | None = None
+    expires_at: datetime | None = None

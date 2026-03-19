@@ -3,6 +3,11 @@ import { render, screen } from "@testing-library/react";
 
 import { AuthGate } from "@/components/auth/AuthGate";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/candidate",
+}));
+
 vi.mock("@/hooks/useCurrentUser", () => ({
   useCurrentUser: () => ({ user: { userId: "candidate-1", roles: ["candidate"] }, loading: false, error: null }),
 }));

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import datetime
 
 from app.modules.identity_access.errors import AuthenticationFailedError, UserNotFoundError
 from app.modules.identity_access.events import LoginFailedEvent, LoginSucceededEvent
@@ -96,16 +97,23 @@ class AuthenticationService:
             expires_at=session.expires_at,
         )
 
-    def get_current_user(self, actor_id: str) -> CurrentUserResponse:
+    def get_current_user(
+        self,
+        actor_id: str,
+        access_session_id: str | None = None,
+        expires_at: datetime | None = None,
+    ) -> CurrentUserResponse:
         user = self.user_repository.get_by_id(actor_id)
         if user is None:
             raise UserNotFoundError()
         roles = [role.role_name for role in self.role_repository.list_roles_for_user(actor_id)]
         return CurrentUserResponse(
-            user_id=user.user_id,
+            user_id=actor_id,
             email=user.email,
             display_name=user.display_name,
             roles=roles,
+            access_session_id=access_session_id,
+            expires_at=expires_at,
         )
 
     @staticmethod

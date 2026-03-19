@@ -18,6 +18,7 @@ from app.core.database import Base, utc_now
 from app.main import app
 from app.modules.assessment_orchestration.dependencies import (
     get_assessment_session_repository,
+    get_candidate_assignment_repository,
     get_content_client,
     get_gating_state_repository,
     get_response_checkpoint_client,
@@ -28,11 +29,13 @@ from app.modules.assessment_orchestration.dependencies import (
 )
 from app.modules.assessment_orchestration.repositories import (
     SQLAlchemyAssessmentSessionRepository,
+    SQLAlchemyCandidateAssignmentRepository,
     SQLAlchemyGatingStateRepository,
     SQLAlchemySessionComponentStateRepository,
     SQLAlchemySessionTaskStateRepository,
     SQLAlchemyWorkflowTransitionLogRepository,
 )
+from app.modules.assessment_orchestration.models import CandidateAssignmentModel
 from app.modules.identity_access.auth_service import AuthenticationService
 from app.modules.identity_access.dependencies import (
     get_access_session_repository,
@@ -142,6 +145,7 @@ def repositories(db_session: Session):
         "grants": SQLAlchemyResourceGrantRepository(db_session),
         "audit": SQLAlchemySecurityAuditEventRepository(db_session),
         "assessment_sessions": SQLAlchemyAssessmentSessionRepository(db_session),
+        "candidate_assignments": SQLAlchemyCandidateAssignmentRepository(db_session),
         "component_states": SQLAlchemySessionComponentStateRepository(db_session),
         "task_states": SQLAlchemySessionTaskStateRepository(db_session),
         "gating_states": SQLAlchemyGatingStateRepository(db_session),
@@ -205,6 +209,20 @@ def seeded_users(repositories):
 
 
 @pytest.fixture()
+def seeded_assignments(repositories, seeded_users):
+    assignment = repositories["candidate_assignments"].create(
+        CandidateAssignmentModel(
+            assignment_id="assignment-ui-1",
+            candidate_user_id=seeded_users["candidate"].user_id,
+            assessment_version_id="assessment-ui-v1",
+            assignment_state="invited",
+            invite_expires_at=utc_now() + timedelta(days=7),
+        )
+    )
+    return {"default": assignment}
+
+
+@pytest.fixture()
 def access_session_factory(repositories):
     def factory(user_id: str, state: str = "active") -> AccessSessionModel:
         session = repositories["sessions"].create(
@@ -250,6 +268,7 @@ def client(db_session: Session, repositories, event_publisher) -> Generator[Test
         repositories["users"], repositories["roles"], repositories["audit"], event_publisher
     )
     app.dependency_overrides[get_assessment_session_repository] = lambda: repositories["assessment_sessions"]
+    app.dependency_overrides[get_candidate_assignment_repository] = lambda: repositories["candidate_assignments"]
     app.dependency_overrides[get_session_component_state_repository] = lambda: repositories["component_states"]
     app.dependency_overrides[get_session_task_state_repository] = lambda: repositories["task_states"]
     app.dependency_overrides[get_gating_state_repository] = lambda: repositories["gating_states"]

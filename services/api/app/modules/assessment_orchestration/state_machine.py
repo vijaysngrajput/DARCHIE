@@ -3,9 +3,10 @@ from app.modules.assessment_orchestration.errors import InvalidSessionStateError
 
 class SessionStateMachine:
     SESSION_TRANSITIONS = {
-        "created": {"active", "cancelled"},
-        "active": {"completed", "cancelled", "paused"},
-        "paused": {"active", "cancelled"},
+        "created": {"active", "cancelled", "expired"},
+        "active": {"completed", "cancelled", "paused", "expired"},
+        "paused": {"active", "cancelled", "expired"},
+        "expired": set(),
         "cancelled": set(),
         "completed": set(),
     }
@@ -18,12 +19,12 @@ class SessionStateMachine:
     }
     COMMAND_STATES = {
         "start_session": {"created"},
-        "resume_session": {"paused"},
+        "resume_session": {"paused", "active"},
         "cancel_session": {"created", "active", "paused"},
         "mark_task_submitted": {"active"},
         "evaluate_next": {"active"},
-        "get_current_unit": {"created", "active", "paused", "completed"},
-        "get_progress": {"created", "active", "paused", "completed", "cancelled"},
+        "get_current_unit": {"created", "active", "paused", "completed", "expired"},
+        "get_progress": {"created", "active", "paused", "completed", "cancelled", "expired"},
     }
 
     def transition_session(self, current_state: str, target_state: str) -> str:

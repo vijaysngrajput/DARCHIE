@@ -43,10 +43,13 @@ def logout(
 
 @router.get("/auth/me", response_model=CurrentUserResponse)
 def get_me(
-    request_context: RequestContext = Depends(get_request_context),
+    access_context: AccessContextResponse = Depends(get_access_context),
     auth_service: AuthenticationService = Depends(get_authentication_service),
 ) -> CurrentUserResponse:
-    return auth_service.get_current_user(request_context.actor_id or "")
+    return auth_service.get_current_user(
+        access_context.actor_id,
+        access_session_id=access_context.access_session_id,
+    )
 
 
 @router.post("/auth/session/refresh", response_model=AuthSessionResponse)

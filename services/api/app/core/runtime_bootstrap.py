@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
-from app.core.database import Base, engine, transactional_session
+from app.core.database import Base, engine, transactional_session, utc_now
 from app.modules.assessment_orchestration import models as orchestration_models  # noqa: F401
+from app.modules.assessment_orchestration.models import CandidateAssignmentModel
 from app.modules.identity_access.auth_service import AuthenticationService
 from app.modules.identity_access.models import ResourceGrantModel, RoleAssignmentModel, UserAccountModel
 
@@ -78,6 +80,22 @@ def seed_local_runtime_data(session: Session) -> None:
                 resource_type="report",
                 resource_id="candidate-1",
                 action="view",
+            )
+        )
+        session.flush()
+
+    invited_assignment = session.scalar(
+        select(CandidateAssignmentModel).where(CandidateAssignmentModel.assignment_id == "assignment-ui-1")
+    )
+    if invited_assignment is None:
+        session.add(
+            CandidateAssignmentModel(
+                assignment_id="assignment-ui-1",
+                candidate_user_id="candidate-1",
+                assessment_version_id="assessment-ui-v1",
+                assignment_state="invited",
+                invite_expires_at=utc_now() + timedelta(days=7),
+                invited_at=utc_now(),
             )
         )
         session.flush()

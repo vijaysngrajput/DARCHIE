@@ -7,6 +7,21 @@ describe("TaskShell", () => {
   it("renders current task details and progress", () => {
     render(
       <TaskShell
+        session={{
+          session_id: "session-1",
+          assignment_id: "assignment-1",
+          assessment_version_id: "assessment-v1",
+          session_state: "active",
+          current_component_id: "component-1",
+          current_task_id: "task-1",
+          started_at: "2026-03-18T00:00:00Z",
+          expires_at: "2026-03-18T01:00:00Z",
+          is_resumable: true,
+          is_expired: false,
+          is_completed: false,
+          next_route: "/candidate/sessions/session-1/task",
+          time_remaining_seconds: 3600,
+        }}
         currentUnit={{
           session_id: "session-1",
           component_id: "component-1",
@@ -33,10 +48,13 @@ describe("TaskShell", () => {
         autosaveError={null}
         lastSavedAt={null}
         submitting={false}
+        timerLabel="59:59 remaining"
+        timerWarning={false}
       />,
     );
 
     expect(screen.getByText("task-1")).toBeInTheDocument();
     expect(screen.getByText(/0%/)).toBeInTheDocument();
+    expect(screen.getByText(/59:59 remaining/)).toBeInTheDocument();
   });
 });

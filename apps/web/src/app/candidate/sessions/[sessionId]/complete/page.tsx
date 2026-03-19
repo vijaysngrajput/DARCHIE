@@ -35,8 +35,11 @@ export default function CandidateCompletePage({ params }: { params: Promise<{ se
         </p>
 
         <div className="button-row">
-          <Link className="button" href={routes.login}>
-            Start another session
+          <Link className="button" href={routes.candidateHome}>
+            Return to dashboard
+          </Link>
+          <Link className="secondary-button" href={routes.login}>
+            Sign in again
           </Link>
         </div>
       </div>

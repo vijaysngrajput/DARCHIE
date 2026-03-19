@@ -1,4 +1,5 @@
 export type DraftSaveStatus = "idle" | "saving" | "saved" | "error";
+export type CandidateAssignmentState = "invited" | "in_progress" | "completed" | "expired" | "cancelled" | "reopened";
 
 export interface CurrentUser {
   userId: string;
@@ -7,6 +8,7 @@ export interface CurrentUser {
   roles: string[];
   accessSessionId?: string | null;
   authFresh?: boolean;
+  expiresAt?: string | null;
 }
 
 export interface SessionSummary {
@@ -18,6 +20,11 @@ export interface SessionSummary {
   current_task_id: string | null;
   started_at: string | null;
   expires_at: string | null;
+  is_resumable: boolean;
+  is_expired: boolean;
+  is_completed: boolean;
+  next_route: string;
+  time_remaining_seconds: number | null;
 }
 
 export interface CurrentUnit {
@@ -38,6 +45,34 @@ export interface ProgressState {
   submitted_tasks: number;
   current_index: number;
   percent_complete: number;
+}
+
+export interface CandidateProfile {
+  user_id: string;
+  email: string | null;
+  display_name: string | null;
+}
+
+export interface CandidateAssignmentSummary {
+  assignment_id: string;
+  assessment_version_id: string;
+  assignment_state: CandidateAssignmentState;
+  invite_expires_at: string | null;
+  current_session_id: string | null;
+  latest_completed_session_id: string | null;
+  latest_progress_summary: ProgressState | null;
+  primary_action: string | null;
+  primary_route: string | null;
+  secondary_action: string | null;
+  secondary_route: string | null;
+  current_task_id: string | null;
+  current_session_expires_at: string | null;
+  time_remaining_seconds: number | null;
+}
+
+export interface CandidateHomeView {
+  candidate_profile: CandidateProfile;
+  assignments: CandidateAssignmentSummary[];
 }
 
 export interface DraftSaveRequest {

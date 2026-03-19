@@ -12,6 +12,7 @@ from app.modules.assessment_orchestration.schemas.responses import CurrentUnitRe
 class ProgressionService:
     def __init__(
         self,
+        assignment_repository,
         session_repository,
         component_repository,
         task_repository,
@@ -22,6 +23,7 @@ class ProgressionService:
         response_client,
         event_publisher,
     ):
+        self.assignment_repository = assignment_repository
         self.session_repository = session_repository
         self.component_repository = component_repository
         self.task_repository = task_repository
@@ -95,6 +97,13 @@ class ProgressionService:
             session.current_task_id = None
             session.completed_at = utc_now()
             self.session_repository.update(session)
+            assignment = self.assignment_repository.get_by_id(session.assignment_id)
+            if assignment is not None:
+                assignment.assignment_state = "completed"
+                assignment.latest_completed_session_id = session.session_id
+                assignment.current_session_id = None
+                assignment.completed_at = session.completed_at
+                self.assignment_repository.update(assignment)
             for component in component_states:
                 if component.state != "completed":
                     component.state = "completed"
@@ -121,6 +130,11 @@ class ProgressionService:
         session.current_component_id = next_task.component_id
         session.current_task_id = next_task.task_id
         self.session_repository.update(session)
+        assignment = self.assignment_repository.get_by_id(session.assignment_id)
+        if assignment is not None and assignment.assignment_state != "in_progress":
+            assignment.assignment_state = "in_progress"
+            assignment.current_session_id = session.session_id
+            self.assignment_repository.update(assignment)
         component = self.component_repository.get(session_id, next_task.component_id)
         if component and component.state == "pending":
             component.state = "in_progress"

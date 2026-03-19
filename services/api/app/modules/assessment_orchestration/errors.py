@@ -39,3 +39,8 @@ class GatingNotSatisfiedError(AppError):
 class TaskStateNotFoundError(AppError):
     def __init__(self, task_id: str) -> None:
         super().__init__("RESOURCE_NOT_FOUND", f"Task {task_id} not found for session", 404)
+
+
+class AssignmentNotFoundError(AppError):
+    def __init__(self, message: str = "Assignment not found") -> None:
+        super().__init__("RESOURCE_NOT_FOUND", message, 404)

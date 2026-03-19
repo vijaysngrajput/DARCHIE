@@ -12,6 +12,7 @@ interface LoginResponse {
   email: string;
   display_name: string;
   roles: string[];
+  expires_at: string;
 }
 
 interface CurrentUserResponse {
@@ -19,6 +20,8 @@ interface CurrentUserResponse {
   email: string;
   display_name: string;
   roles: string[];
+  access_session_id?: string | null;
+  expires_at?: string | null;
 }
 
 export async function login(input: LoginInput): Promise<CurrentUser> {
@@ -33,6 +36,7 @@ export async function login(input: LoginInput): Promise<CurrentUser> {
     roles: result.roles,
     accessSessionId: result.access_session_id,
     authFresh: true,
+    expiresAt: result.expires_at,
   };
 }
 
@@ -43,5 +47,13 @@ export async function fetchCurrentUser(): Promise<CurrentUser> {
     email: me.email,
     displayName: me.display_name,
     roles: me.roles,
+    accessSessionId: me.access_session_id ?? null,
+    expiresAt: me.expires_at ?? null,
   };
+}
+
+export async function logout(): Promise<void> {
+  await apiRequest<void>("/auth/logout", {
+    method: "POST",
+  });
 }

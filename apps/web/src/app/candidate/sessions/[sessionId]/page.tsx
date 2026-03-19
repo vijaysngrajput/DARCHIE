@@ -7,6 +7,7 @@ import { CandidateErrorBanner } from "@/components/candidate/CandidateErrorBanne
 import { SessionLandingCard } from "@/components/candidate/SessionLandingCard";
 import { SessionLandingSkeleton } from "@/components/candidate/CandidatePageSkeletons";
 import { useCandidateSession } from "@/hooks/useCandidateSession";
+import { useSessionTimer } from "@/hooks/useSessionTimer";
 import { routes } from "@/lib/routing/routes";
 import { TransitionOverlay } from "@/components/shared/TransitionOverlay";
 import { useDelayedFlag } from "@/hooks/useDelayedFlag";
@@ -16,12 +17,35 @@ export default function CandidateSessionPage({ params }: { params: Promise<{ ses
   const [busy, setBusy] = useState(false);
   const { sessionId } = use(params);
   const viewModel = useCandidateSession(sessionId);
+  const timer = useSessionTimer(viewModel.session?.expires_at);
   const showTransitionOverlay = useDelayedFlag(busy);
 
   useEffect(() => {
+    router.prefetch(routes.candidateHome);
     router.prefetch(routes.candidateTask(sessionId));
     router.prefetch(routes.candidateComplete(sessionId));
+    router.prefetch(routes.candidateExpired(sessionId));
   }, [router, sessionId]);
+
+  useEffect(() => {
+    if (viewModel.errorStatus === 401) {
+      router.replace(routes.candidateAccessLost);
+      return;
+    }
+    if (viewModel.errorStatus === 403) {
+      router.replace(routes.candidateUnauthorized);
+    }
+  }, [router, viewModel.errorStatus]);
+
+  useEffect(() => {
+    if (!viewModel.session) {
+      return;
+    }
+    const expectedLandingRoute = routes.candidateSession(sessionId);
+    if (viewModel.session.next_route !== expectedLandingRoute) {
+      router.replace(viewModel.session.next_route);
+    }
+  }, [router, sessionId, viewModel.session]);
 
   if (viewModel.loading && !viewModel.session) {
     return <SessionLandingSkeleton />;
@@ -36,11 +60,7 @@ export default function CandidateSessionPage({ params }: { params: Promise<{ ses
     try {
       const session = await viewModel.startOrResume();
       startTransition(() => {
-        if (session.session_state === "completed") {
-          router.push(routes.candidateComplete(session.session_id));
-          return;
-        }
-        router.push(routes.candidateTask(session.session_id));
+        router.push(session.next_route);
       });
     } finally {
       setBusy(false);
@@ -49,7 +69,7 @@ export default function CandidateSessionPage({ params }: { params: Promise<{ ses
 
   return (
     <main className="page-shell">
-      {showTransitionOverlay ? <TransitionOverlay label="Opening your task..." /> : null}
+      {showTransitionOverlay ? <TransitionOverlay label="Opening your assessment workspace..." /> : null}
       <SessionLandingCard
         session={viewModel.session}
         currentUnit={viewModel.currentUnit}
@@ -57,6 +77,8 @@ export default function CandidateSessionPage({ params }: { params: Promise<{ ses
         onContinue={handleContinue}
         busy={busy}
         refreshing={viewModel.refreshing}
+        timerLabel={timer.label}
+        timerWarning={timer.warning}
       />
     </main>
   );

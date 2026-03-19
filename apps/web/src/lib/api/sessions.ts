@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api/http";
-import type { CandidateLandingView, CandidateTaskView, CurrentUnit, ProgressState, SessionSummary } from "@/lib/types";
+import type { CandidateHomeView, CandidateLandingView, CandidateTaskView, CurrentUnit, ProgressState, SessionSummary } from "@/lib/types";
 
 export async function createSession(input: { assignmentId: string; assessmentVersionId: string }): Promise<SessionSummary> {
   return apiRequest<SessionSummary>("/sessions", {
@@ -11,8 +11,21 @@ export async function createSession(input: { assignmentId: string; assessmentVer
   });
 }
 
+export async function startAssignmentSession(assignmentId: string): Promise<SessionSummary> {
+  return apiRequest<SessionSummary>(`/candidate/assignments/${assignmentId}/start-session`, {
+    method: "POST",
+  });
+}
+
 export async function startSession(sessionId: string): Promise<SessionSummary> {
   return apiRequest<SessionSummary>(`/sessions/${sessionId}/start`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
+export async function resumeSession(sessionId: string): Promise<SessionSummary> {
+  return apiRequest<SessionSummary>(`/sessions/${sessionId}/resume`, {
     method: "POST",
     body: JSON.stringify({}),
   });
@@ -28,6 +41,10 @@ export async function fetchCurrentUnit(sessionId: string): Promise<CurrentUnit> 
 
 export async function fetchProgress(sessionId: string): Promise<ProgressState> {
   return apiRequest<ProgressState>(`/sessions/${sessionId}/progress`);
+}
+
+export async function fetchCandidateHomeView(): Promise<CandidateHomeView> {
+  return apiRequest<CandidateHomeView>(`/candidate/home-view`);
 }
 
 export async function fetchCandidateLandingView(sessionId: string): Promise<CandidateLandingView> {

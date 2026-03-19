@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { fetchCandidateLandingView, startSession } from "@/lib/api/sessions";
+import { ApiError } from "@/lib/api/http";
+import { fetchCandidateLandingView, resumeSession, startSession } from "@/lib/api/sessions";
 import type { CandidateLandingView, CurrentUnit, ProgressState, SessionSummary } from "@/lib/types";
 
 export interface CandidateSessionViewModel {
@@ -12,6 +13,7 @@ export interface CandidateSessionViewModel {
   loading: boolean;
   refreshing: boolean;
   error: string | null;
+  errorStatus: number | null;
   startOrResume: () => Promise<SessionSummary>;
   refresh: () => Promise<void>;
 }
@@ -23,12 +25,14 @@ export function useCandidateSession(sessionId: string): CandidateSessionViewMode
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   async function applyLandingView(view: CandidateLandingView) {
     setSession(view.session);
     setCurrentUnit(view.current_unit);
     setProgress(view.progress);
     setError(null);
+    setErrorStatus(null);
   }
 
   async function load(background = false) {
@@ -46,6 +50,7 @@ export function useCandidateSession(sessionId: string): CandidateSessionViewMode
       await applyLandingView(view);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Unable to load session.");
+      setErrorStatus(loadError instanceof ApiError ? loadError.status : null);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -57,9 +62,22 @@ export function useCandidateSession(sessionId: string): CandidateSessionViewMode
   }, [sessionId]);
 
   async function startOrResume() {
-    const nextSession = await startSession(sessionId);
-    setSession(nextSession);
-    await load(true);
+    if (!session) {
+      throw new Error("Session unavailable.");
+    }
+    let nextSession = session;
+    if (session.session_state === "created") {
+      nextSession = await startSession(sessionId);
+      setSession(nextSession);
+      await load(true);
+      return nextSession;
+    }
+    if (session.session_state === "paused") {
+      nextSession = await resumeSession(sessionId);
+      setSession(nextSession);
+      await load(true);
+      return nextSession;
+    }
     return nextSession;
   }
 
@@ -70,6 +88,7 @@ export function useCandidateSession(sessionId: string): CandidateSessionViewMode
     loading,
     refreshing,
     error,
+    errorStatus,
     startOrResume,
     refresh: async () => load(true),
   };

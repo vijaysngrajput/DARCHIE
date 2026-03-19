@@ -16,7 +16,12 @@ def test_login_and_me_flow(client, seeded_users, repositories) -> None:
 
     me_response = client.get(
         "/auth/me",
-        headers={"x-actor-id": seeded_users["candidate"].user_id, "x-roles": "candidate"},
+        headers={
+            "x-actor-id": seeded_users["candidate"].user_id,
+            "x-roles": "candidate",
+            "x-access-session-id": payload["access_session_id"],
+        },
     )
     assert me_response.status_code == 200
     assert me_response.json()["roles"] == ["candidate"]
+    assert me_response.json()["access_session_id"] == payload["access_session_id"]

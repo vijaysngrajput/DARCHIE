@@ -9,6 +9,25 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base, utc_now
 
 
+class CandidateAssignmentModel(Base):
+    __tablename__ = "candidate_assignments"
+
+    assignment_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    candidate_user_id: Mapped[str] = mapped_column(String(36), index=True)
+    assessment_version_id: Mapped[str] = mapped_column(String(64), index=True)
+    assignment_state: Mapped[str] = mapped_column(String(32), default="invited", index=True)
+    invite_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    current_session_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    latest_completed_session_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    invited_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reopened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
 class AssessmentSessionModel(Base):
     __tablename__ = "assessment_sessions"
 

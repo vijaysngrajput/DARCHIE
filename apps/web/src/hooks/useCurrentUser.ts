@@ -30,7 +30,8 @@ export function useCurrentUser(): { user: CurrentUser | null; loading: boolean; 
         const nextUser: CurrentUser = {
           ...storedUser,
           ...liveUser,
-          accessSessionId: storedUser.accessSessionId ?? liveUser.accessSessionId ?? null,
+          accessSessionId: liveUser.accessSessionId ?? storedUser.accessSessionId ?? null,
+          expiresAt: liveUser.expiresAt ?? storedUser.expiresAt ?? null,
           authFresh: false,
         };
         writeAuthSession(nextUser);

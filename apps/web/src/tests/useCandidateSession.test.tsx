@@ -12,6 +12,11 @@ const fetchCandidateLandingViewMock = vi.fn(async () => ({
     current_task_id: "task-1",
     started_at: null,
     expires_at: null,
+    is_resumable: true,
+    is_expired: false,
+    is_completed: false,
+    next_route: "/candidate/sessions/session-1",
+    time_remaining_seconds: null,
   },
   current_unit: {
     session_id: "session-1",
@@ -40,18 +45,40 @@ const startSessionMock = vi.fn(async () => ({
   current_component_id: "component-1",
   current_task_id: "task-1",
   started_at: "2026-03-18T00:00:00Z",
-  expires_at: null,
+  expires_at: "2026-03-18T01:00:00Z",
+  is_resumable: true,
+  is_expired: false,
+  is_completed: false,
+  next_route: "/candidate/sessions/session-1/task",
+  time_remaining_seconds: 3600,
+}));
+const resumeSessionMock = vi.fn(async () => ({
+  session_id: "session-1",
+  assignment_id: "assignment-1",
+  assessment_version_id: "assessment-v1",
+  session_state: "active",
+  current_component_id: "component-1",
+  current_task_id: "task-1",
+  started_at: "2026-03-18T00:00:00Z",
+  expires_at: "2026-03-18T01:00:00Z",
+  is_resumable: true,
+  is_expired: false,
+  is_completed: false,
+  next_route: "/candidate/sessions/session-1/task",
+  time_remaining_seconds: 3500,
 }));
 
 vi.mock("@/lib/api/sessions", () => ({
   fetchCandidateLandingView: (...args: unknown[]) => fetchCandidateLandingViewMock(...args),
   startSession: (...args: unknown[]) => startSessionMock(...args),
+  resumeSession: (...args: unknown[]) => resumeSessionMock(...args),
 }));
 
 describe("useCandidateSession", () => {
   beforeEach(() => {
     fetchCandidateLandingViewMock.mockClear();
     startSessionMock.mockClear();
+    resumeSessionMock.mockClear();
   });
 
   it("loads the candidate session view model and can start the session", async () => {

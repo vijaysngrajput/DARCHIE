@@ -19,6 +19,7 @@ from app.modules.assessment_orchestration.schemas.commands import (
 )
 from app.modules.assessment_orchestration.schemas.queries import CurrentUnitQuery, ProgressQuery, SessionAccessContext, SessionLookupQuery
 from app.modules.assessment_orchestration.schemas.responses import (
+    CandidateHomeViewResponse,
     CandidateLandingViewResponse,
     CandidateTaskViewResponse,
     CurrentUnitResponse,
@@ -46,6 +47,23 @@ def create_session(
     session_service: AssessmentSessionService = Depends(get_assessment_session_service),
 ) -> SessionSummaryResponse:
     return session_service.create_session(command, actor)
+
+
+@router.get("/candidate/home-view", response_model=CandidateHomeViewResponse)
+def get_candidate_home_view(
+    actor: SessionAccessContext = Depends(require_candidate_session_actor),
+    session_service: AssessmentSessionService = Depends(get_assessment_session_service),
+) -> CandidateHomeViewResponse:
+    return session_service.build_candidate_home_view(actor)
+
+
+@router.post("/candidate/assignments/{assignment_id}/start-session", response_model=SessionSummaryResponse)
+def start_assignment_session(
+    assignment_id: str,
+    actor: SessionAccessContext = Depends(require_candidate_session_actor),
+    session_service: AssessmentSessionService = Depends(get_assessment_session_service),
+) -> SessionSummaryResponse:
+    return session_service.start_assignment_session(assignment_id, actor)
 
 
 @router.post("/sessions/{session_id}/start", response_model=SessionSummaryResponse)

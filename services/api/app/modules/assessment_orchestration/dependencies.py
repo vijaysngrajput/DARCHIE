@@ -10,6 +10,7 @@ from app.modules.assessment_orchestration.policy_service import TimingAttemptPol
 from app.modules.assessment_orchestration.progression_service import ProgressionService
 from app.modules.assessment_orchestration.repositories import (
     SQLAlchemyAssessmentSessionRepository,
+    SQLAlchemyCandidateAssignmentRepository,
     SQLAlchemyGatingStateRepository,
     SQLAlchemySessionComponentStateRepository,
     SQLAlchemySessionTaskStateRepository,
@@ -20,6 +21,10 @@ from app.modules.assessment_orchestration.service import AssessmentSessionServic
 from app.modules.assessment_orchestration.state_machine import SessionStateMachine
 from app.modules.identity_access.dependencies import get_access_context, require_role
 from app.modules.identity_access.schemas.access import AccessContextResponse
+
+
+def get_candidate_assignment_repository(session: Session = Depends(get_db_session)) -> SQLAlchemyCandidateAssignmentRepository:
+    return SQLAlchemyCandidateAssignmentRepository(session)
 
 
 def get_assessment_session_repository(session: Session = Depends(get_db_session)) -> SQLAlchemyAssessmentSessionRepository:
@@ -71,6 +76,7 @@ def get_gating_service(
 
 
 def get_progression_service(
+    assignment_repository: SQLAlchemyCandidateAssignmentRepository = Depends(get_candidate_assignment_repository),
     session_repository: SQLAlchemyAssessmentSessionRepository = Depends(get_assessment_session_repository),
     component_repository: SQLAlchemySessionComponentStateRepository = Depends(get_session_component_state_repository),
     task_repository: SQLAlchemySessionTaskStateRepository = Depends(get_session_task_state_repository),
@@ -82,6 +88,7 @@ def get_progression_service(
     event_publisher=Depends(get_event_publisher),
 ) -> ProgressionService:
     return ProgressionService(
+        assignment_repository,
         session_repository,
         component_repository,
         task_repository,
@@ -96,6 +103,7 @@ def get_progression_service(
 
 def get_assessment_session_service(
     session: Session = Depends(get_db_session),
+    assignment_repository: SQLAlchemyCandidateAssignmentRepository = Depends(get_candidate_assignment_repository),
     session_repository: SQLAlchemyAssessmentSessionRepository = Depends(get_assessment_session_repository),
     component_repository: SQLAlchemySessionComponentStateRepository = Depends(get_session_component_state_repository),
     task_repository: SQLAlchemySessionTaskStateRepository = Depends(get_session_task_state_repository),
@@ -108,6 +116,7 @@ def get_assessment_session_service(
     event_publisher=Depends(get_event_publisher),
 ) -> AssessmentSessionService:
     return AssessmentSessionService(
+        assignment_repository,
         session_repository,
         component_repository,
         task_repository,

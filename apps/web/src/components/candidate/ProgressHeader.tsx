@@ -1,12 +1,28 @@
 import type { ProgressState } from "@/lib/types";
 
-export function ProgressHeader({ progress }: { progress: ProgressState }) {
+export function ProgressHeader({
+  progress,
+  sessionState,
+  timerLabel,
+  timerWarning = false,
+}: {
+  progress: ProgressState;
+  sessionState?: string;
+  timerLabel?: string | null;
+  timerWarning?: boolean;
+}) {
   return (
     <section className="card surface-card progress-panel">
       <div className="rail-panel-header">
         <span className="eyebrow">Progress</span>
         <h2 className="rail-title">Session progress</h2>
-        <p className="muted-inline">A compact view of where the candidate stands right now.</p>
+        <p className="muted-inline">A compact view of task completion, session state, and the time remaining in the current attempt.</p>
+      </div>
+      <div className="progress-status-row">
+        {sessionState ? <span className="status-inline">State: {sessionState}</span> : null}
+        {timerLabel ? (
+          <span className={timerWarning ? "status-inline status-inline-warning" : "status-inline"}>{timerLabel}</span>
+        ) : null}
       </div>
       <div className="progress-grid">
         <div className="progress-tile">

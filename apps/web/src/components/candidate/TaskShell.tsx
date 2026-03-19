@@ -1,9 +1,10 @@
-import type { CurrentUnit, ProgressState } from "@/lib/types";
+import type { CurrentUnit, ProgressState, SessionSummary } from "@/lib/types";
 
 import { ProgressHeader } from "@/components/candidate/ProgressHeader";
 import { ResponseEditorShell } from "@/components/candidate/ResponseEditorShell";
 
 export function TaskShell({
+  session,
   currentUnit,
   progress,
   value,
@@ -15,7 +16,10 @@ export function TaskShell({
   lastSavedAt,
   submitting,
   refreshing,
+  timerLabel,
+  timerWarning = false,
 }: {
+  session: SessionSummary;
   currentUnit: CurrentUnit;
   progress: ProgressState;
   value: string;
@@ -27,17 +31,24 @@ export function TaskShell({
   lastSavedAt: string | null;
   submitting: boolean;
   refreshing?: boolean;
+  timerLabel?: string | null;
+  timerWarning?: boolean;
 }) {
   return (
     <div className="page-shell task-page-shell">
       <div className="task-workspace">
         <aside className="task-rail">
-          <ProgressHeader progress={progress} />
+          <ProgressHeader
+            progress={progress}
+            sessionState={session.session_state}
+            timerLabel={timerLabel}
+            timerWarning={timerWarning}
+          />
           <section className="card surface-card task-context-panel">
             <div className="rail-panel-header">
               <span className="eyebrow">Current task</span>
               <h2 className="rail-title">Task context</h2>
-              <p className="muted-inline">A compact summary of the task and workflow state stays visible while the editor remains the primary workspace.</p>
+              <p className="muted-inline">The left rail stays compact and stable so timing, task metadata, and workflow context remain visible while the editor leads the page.</p>
             </div>
             {refreshing ? <div className="status-inline">Refreshing task state...</div> : null}
             <div className="task-summary-list">
@@ -56,6 +67,10 @@ export function TaskShell({
               <div className="task-summary-item">
                 <span className="task-summary-key">Evaluation mode</span>
                 <span className="task-summary-value">{currentUnit.evaluation_mode ?? "pending"}</span>
+              </div>
+              <div className="task-summary-item">
+                <span className="task-summary-key">Expires at</span>
+                <span className="task-summary-value">{session.expires_at ? new Date(session.expires_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "No timer"}</span>
               </div>
             </div>
           </section>

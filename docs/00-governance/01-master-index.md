@@ -63,6 +63,13 @@ Use numbered markdown documents so the pack can be consumed in sequence by both 
 - `23-prompt-pack-for-code-engine.md`
 - `24-launch-readiness-checklist.md`
 - `25-tech-stack-decision.md`
+- `26-visual-direction-spec.md`
+- `27-component-style-spec.md`
+- `28-motion-spec.md`
+- `29-screen-content-spec.md`
+- `30-high-fidelity-screen-specs.md`
+- `31-implementation-change-log.md`
+- `32-implementation-context-log.md`
 
 ## Document Inventory
 | ID | Path | Owner | Status | Depends On | Consumed By | Completion Criteria |
@@ -92,14 +99,30 @@ Use numbered markdown documents so the pack can be consumed in sequence by both 
 | 23 | `docs/04-delivery/23-prompt-pack-for-code-engine.md` | Product/tech lead | Complete | 22 plus all design and architecture docs | Build execution | Prompt set can be handed to a code engine directly |
 | 24 | `docs/04-delivery/24-launch-readiness-checklist.md` | Founder/ops | Complete | 03, 18, 19, 20, 21, 22 | Launch | Go-live checks and rollback readiness documented |
 | 25 | `docs/00-governance/25-tech-stack-decision.md` | Tech/product lead | Complete | 02, 04, 07, 11, 22 | Build execution, bootstrap | Final frontend and backend stack explicitly approved |
+| 26 | `docs/02-design/26-visual-direction-spec.md` | Design lead | Complete | 07, 08, 02 | 27, 28, 29, 30, implementation | Final visual direction and theme rules are explicit |
+| 27 | `docs/02-design/27-component-style-spec.md` | Design/FE lead | Complete | 08, 09, 26 | 30, implementation | Core component appearance and states are implementation-ready |
+| 28 | `docs/02-design/28-motion-spec.md` | Design lead | Complete | 07, 26, 27 | implementation | Motion tokens and animation rules are explicit |
+| 29 | `docs/02-design/29-screen-content-spec.md` | Product/design | Complete | 06, 26, 27 | 30, implementation | Page structure, copy tone, and CTA patterns are locked |
+| 30 | `docs/02-design/30-high-fidelity-screen-specs.md` | Design lead | Complete | 10, 26, 27, 28, 29 | implementation | First-page screen specs are implementation-ready |
+| 31 | `docs/00-governance/31-implementation-change-log.md` | Tech/product lead | Complete | 01 plus active implementation state | Ongoing implementation, doc review | Meaningful implementation-to-doc deltas are captured append-only |
+| 32 | `docs/00-governance/32-implementation-context-log.md` | Tech/product lead | Complete | 01 plus active implementation state | Ongoing implementation handoff | Current implementation truth, placeholders, risks, and next task are always current |
 
 ## Review Rules
 The pack is valid only if all of the following are true:
+- Implementation is not treated as complete when it changes intended behavior without syncing affected docs.
+- The implementation context log is refreshed at the end of every meaningful implementation slice.
 - Every build-critical decision has exactly one owning document.
 - No document leaves product, design, architecture, or delivery decisions as `TBD`.
 - Public website and authenticated app are both covered.
 - Visual builder logic is specified separately from general frontend docs.
 - The pack can be executed incrementally by a code engine without missing dependencies.
+
+## Documentation Sync Rules
+- `docs/00-governance/31-implementation-change-log.md` owns the history of meaningful differences between planned docs and implemented code.
+- `docs/00-governance/32-implementation-context-log.md` owns active execution memory, placeholders, unfinished work, and next pickup points.
+- Always update formal docs when implemented UI, route structure, shell behavior, content hierarchy, tech stack, architecture, API contracts, testing approach, or chosen placeholder direction diverges from the current spec.
+- Do not force broad doc edits for tiny refactors with no product, design, or architecture impact.
+- Minimum post-slice sync check: relevant design docs, relevant architecture docs, `31-implementation-change-log.md`, and `32-implementation-context-log.md`.
 
 ## Final Review Checklist
 - Product strategy is coherent from vision through pricing and launch assumptions.

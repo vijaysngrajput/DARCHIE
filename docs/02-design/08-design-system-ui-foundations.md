@@ -31,7 +31,7 @@ Design-system foundation document.
 DARCHIE should feel technical, modern, and focused, with a studio-like interface rather than a corporate dashboard. The tone should communicate precision and calm confidence.
 
 ## Visual Language
-- Primary mood: deep slate, warm off-white, steel blue, muted teal accents
+- Primary mood: deep navy, ink blue, soft ice, and muted sand accents
 - Surface treatment: layered panels with subtle gradients and low-noise texture
 - Shapes: rounded but not playful, using 12px and 16px radii
 - Illustration style: simple line diagrams, data-flow motifs, node-link visuals
@@ -42,19 +42,28 @@ DARCHIE should feel technical, modern, and focused, with a studio-like interface
 - Code/editor text: `JetBrains Mono`
 
 ## Color Tokens
-- `bg.base`: `#0F1722`
-- `bg.surface`: `#162131`
-- `bg.panel`: `#1B2A3D`
-- `bg.elevated`: `#22334A`
-- `text.primary`: `#F4F7FB`
-- `text.secondary`: `#B6C2D2`
-- `text.muted`: `#7F93AA`
-- `accent.primary`: `#4FB3D9`
-- `accent.secondary`: `#60D5B0`
-- `accent.warning`: `#F6C177`
-- `accent.error`: `#F17C7C`
-- `border.soft`: `rgba(182, 194, 210, 0.18)`
-- `border.strong`: `rgba(182, 194, 210, 0.35)`
+### Core brand palette
+- `brand.deep-navy`: `#293B5F`
+- `brand.steel-blue`: `#47597E`
+- `brand.soft-ice`: `#DBE6FD`
+- `brand.warm-sand`: `#B2AB8C`
+- `brand.ink`: `#2C2E43`
+
+### Default dark-theme tokens
+- `bg.base`: `#2C2E43`
+- `bg.surface`: `#293B5F`
+- `bg.panel`: `#33486E`
+- `bg.elevated`: `#47597E`
+- `text.primary`: `#DBE6FD`
+- `text.secondary`: `#C9D5EE`
+- `text.muted`: `#9EABC2`
+- `accent.primary`: `#B2AB8C`
+- `accent.secondary`: `#DBE6FD`
+- `accent.warning`: `#D9A441`
+- `accent.error`: `#D46A6A`
+- `accent.success`: `#5BB98C`
+- `border.soft`: `rgba(219, 230, 253, 0.14)`
+- `border.strong`: `rgba(219, 230, 253, 0.24)`
 
 ## Spacing Scale
 - `4, 8, 12, 16, 24, 32, 40, 48, 64`

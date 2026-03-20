@@ -1,1 +1,0 @@
-"""Assessment orchestration domain module."""

@@ -1,26 +1,24 @@
 [project]
-name = "d-archie-api"
+name = "darchie-api"
 version = "0.1.0"
-description = "D-ARCHIE backend"
+description = "DARCHIE backend service"
 requires-python = ">=3.12"
 dependencies = [
-  "fastapi>=0.116,<1.0",
-  "uvicorn>=0.35,<1.0",
-  "sqlalchemy>=2.0,<3.0",
-  "pydantic-settings>=2.10,<3.0",
-  "psycopg[binary]>=3.2,<4.0",
-  "email-validator>=2.2,<3.0"
+  "alembic>=1.16.5",
+  "fastapi>=0.116.1",
+  "pydantic>=2.11.9",
+  "psycopg[binary]>=3.2.10",
+  "redis>=6.4.0",
+  "sqlalchemy>=2.0.43",
+  "uvicorn[standard]>=0.35.0",
 ]
 
 [dependency-groups]
 dev = [
-  "httpx>=0.28,<1.0",
-  "pytest>=8.4,<9.0"
+  "httpx>=0.28.1",
+  "pytest>=8.4.2",
+  "pytest-asyncio>=1.2.0",
 ]
-
-[tool.pytest.ini_options]
-testpaths = ["app/tests"]
-pythonpath = ["."]
 
 [tool.uv]
 package = false

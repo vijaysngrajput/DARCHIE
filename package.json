@@ -1,0 +1,12 @@
+{
+  "name": "darchie",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "install:web": "pnpm --filter darchie-web install",
+    "dev:web": "pnpm --filter darchie-web dev",
+    "build:web": "pnpm --filter darchie-web build",
+    "test:web": "pnpm --filter darchie-web test"
+  }
+}

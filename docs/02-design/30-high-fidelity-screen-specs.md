@@ -130,12 +130,12 @@ High-fidelity text specification for primary screens.
 
 ## Practice Workspaces
 ### Desktop
-- Focused SQL and Python exercise routes use a slimmer top app header rather than the heavier desktop sidebar
+- Focused SQL, Python, and Data Modeling exercise routes use a slimmer top app header rather than the heavier desktop sidebar
 - Exercise header sits above a three-column grid: sticky prompt rail, central module surface, and sticky result panel
 - Primary actions such as `Reset`, `Run`, and `Submit` sit directly beneath the editor in one aligned row
 - Status messaging stays grouped with the editor action area rather than floating elsewhere on the page
-- SQL keeps schema/reference material beneath the editor and Python keeps input/review reference material beneath the editor
-- Data modeling and pipeline builder still use the shared mocked workspace shell until their dedicated focus-mode workspaces are built
+- SQL keeps schema/reference material beneath the editor, Python keeps input/review reference material beneath the editor, and Data Modeling is the builder-first exception: no route-level exercise header card, sticky prompt on the left, dominant React Flow canvas in the center, sticky builder palette on the right, and validation/review moved into a full-width bottom surface
+- Pipeline Builder still uses the shared mocked workspace shell until its dedicated focus-mode workspace is built
 
 ### Mobile
 - Workspace collapses into segmented tabs for prompt, workspace, and review
@@ -152,4 +152,5 @@ High-fidelity text specification for primary screens.
 - Page specs should continue using reusable section primitives rather than custom wrappers per screen
 - Marketing pages should preserve the editorial, calmer hierarchy introduced in the premium redesign
 - Dashboard and app pages should continue reusing `PageHeader`, `Panel`, and shell primitives rather than inventing dashboard-specific chrome
-- Practice pages should keep using shared workspace primitives, but SQL and Python now justify dedicated focus-mode exercise layouts because they are editor-heavy routes with sticky context and review needs
+- Practice pages should keep using shared workspace primitives, but SQL, Python, and Data Modeling now justify dedicated focus-mode exercise layouts because they rely on sticky context and a dominant central work surface
+- Data Modeling should continue using a curated hybrid shape set for architectural expression, while blocking validation remains scoped to ERD entities and relationships

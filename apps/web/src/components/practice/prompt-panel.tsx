@@ -28,10 +28,12 @@ export function PromptPanel({
           </div>
         ))}
       </div>
-      <div className="mt-6 rounded-[var(--radius-md)] border border-[color-mix(in_oklab,var(--accent-secondary)_28%,transparent)] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,transparent)] px-4 py-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-secondary)]">Starter hint</p>
-        <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{starterHint}</p>
-      </div>
+      {starterHint.trim() ? (
+        <div className="mt-6 rounded-[var(--radius-md)] border border-[color-mix(in_oklab,var(--accent-secondary)_28%,transparent)] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,transparent)] px-4 py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-secondary)]">Starter hint</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{starterHint}</p>
+        </div>
+      ) : null}
     </Panel>
   );
 }

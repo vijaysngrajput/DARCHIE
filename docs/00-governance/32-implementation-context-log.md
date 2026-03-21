@@ -31,7 +31,7 @@ Short operational markdown updated in place after each meaningful implementation
 - This file reflects the latest verified state of the repo
 
 ## Current Focus
-Frontend foundation, premium UI, practice layout, a functional SQL module slice, and mirrored focus-mode Python exercise UX are implemented. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
+Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned Data Modeling builder are implemented. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
 
 ## Completed Recently
 - Bootstrapped `apps/web` with Next.js App Router, theme provider, font setup, dark/light token system, and marketing/auth/app route shells
@@ -46,6 +46,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Implemented the first functional SQL module path with a Monaco editor, schema browser, draft save, run preview, submit feedback, a new FastAPI backend slice, and backend tests for the starter SQL sandbox
 - Reworked SQL exercise pages into a focus-mode editor layout with top app header chrome, sticky prompt/review rails, aligned action row placement, and improved sidebar reopen behavior on non-focus routes
 - Mirrored the same focus-mode exercise layout for Python so SQL and Python now share one coherent premium workspace UX, even though Python run/submit behavior remains mocked
+- Implemented Data Modeling as a dedicated focus-mode React Flow builder with a sticky prompt rail, curated right-side palette, hybrid ERD/support-shape canvas, real frontend ERD validation, and mocked submit/review output in a full-width review surface beneath the canvas
 
 ## In Progress
 - Governance layer for documentation sync is active and should continue after each implementation slice
@@ -56,7 +57,9 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Progress and settings pages are still shell-level placeholders
 - SQL now has a first functional preview path, but draft storage is still in-memory and the backend sandbox is still a starter implementation rather than the final isolated MySQL worker shape
 - Python now has a dedicated Monaco-based focus-mode workspace and mocked review flow, but it is still frontend-only and not backed by a Python execution service
-- Data-modeling and pipeline-builder workspaces still use the older generic mocked shell
+- Data Modeling now has an interactive frontend builder, but it is still local-only with no backend persistence or scoring engine behind it
+- Data Modeling support shapes currently improve architectural expression on the canvas, but they are intentionally non-blocking and do not yet participate in structured scoring
+- Pipeline-builder workspace still uses the older generic mocked shell
 - True visual builders, cross-session persistence, and full exercise catalog loading are not implemented yet
 - Pricing page is visual only; billing is not wired
 - Public homepage traffic can now enter the practice hub directly, but preview-vs-restricted feature boundaries are still a product decision to be defined
@@ -68,9 +71,11 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Responsive practice workspace markup can duplicate visible text between mobile and desktop sections, so tests should prefer semantic queries or plural match assertions where needed
 - The first SQL runtime slice is intentionally narrow: one exercise, one local sandbox runner, and in-memory draft state rather than the final isolated MySQL worker/persistence design
 - Python now visually implies a richer editor flow than the backend actually supports, so docs and future implementation must keep the distinction between mirrored UX and real runtime behavior explicit
+- Data Modeling now feels materially more complete than its backend support; future work must preserve the frontend draft schema and ERD validation semantics when persistence/scoring are added
+- The redesigned Data Modeling experience no longer uses the generic exercise header or right-rail config pattern, so future work should not reintroduce those older UX assumptions by accident
 
 ## Next Recommended Task
-Harden the SQL module further and then choose the real Python runtime path: add fuller sandbox realism, persistent draft storage, auth-aware preview rules, and replace the current mocked Python run/submit flow with a real execution contract.
+Harden the SQL module further, choose the real Python runtime path, and then add persistence plus backend-backed validation/scoring to the Data Modeling builder while bringing Pipeline Builder onto the same dedicated builder pattern.
 
 ## Verification Status
 - Root README exists with website run instructions and key developer commands
@@ -79,7 +84,7 @@ Harden the SQL module further and then choose the real Python runtime path: add 
 - `pnpm --filter darchie-web test -- --run` passes
 - `cd services/api && uv run pytest` should pass for the first SQL backend slice
 - `pnpm --filter darchie-web exec playwright test tests/smoke.spec.ts` passes
-- Verified routes include the marketing pages, auth pages, app shell pages, `/app/practice`, module landing pages for all four practice modules, a FastAPI-backed SQL workspace at `/app/practice/sql/session-retention-breakdown`, and a focus-mode Python workspace at `/app/practice/python/events-normalization-job`
+- Verified routes include the marketing pages, auth pages, app shell pages, `/app/practice`, module landing pages for all four practice modules, a FastAPI-backed SQL workspace at `/app/practice/sql/session-retention-breakdown`, a focus-mode Python workspace at `/app/practice/python/events-normalization-job`, and a redesigned Data Modeling builder at `/app/practice/data-modeling/marketplace-core-entities`
 
 ## Doc Sync Needed
-- Next sync work should happen when Python gets a real execution backend, when Data Modeling and Pipeline Builder adopt dedicated focus-mode layouts, and when the starter SQL sandbox is upgraded toward the fuller runtime architecture
+- Next sync work should happen when Python gets a real execution backend, when Data Modeling gains persistence/backend scoring, when Pipeline Builder adopts a dedicated focus-mode layout, and when the starter SQL sandbox is upgraded toward the fuller runtime architecture

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { DataModelingWorkspace } from '@/components/practice/data-modeling-workspace';
 import { getModuleSummary, getWorkspaceExercise } from '@/lib/practice-data';
 import type { PracticeModuleId } from '@/types/practice';
 import { PythonWorkspace } from '@/components/practice/python-workspace';
@@ -26,6 +27,10 @@ export function WorkspacePage({
 
   if (moduleId === 'python') {
     return <PythonWorkspace exerciseId={exerciseId} initialWorkspace={workspace} />;
+  }
+
+  if (moduleId === 'data-modeling') {
+    return <DataModelingWorkspace exerciseId={exerciseId} initialWorkspace={workspace} />;
   }
 
   return (

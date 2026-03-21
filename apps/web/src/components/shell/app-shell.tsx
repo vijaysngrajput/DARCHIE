@@ -12,7 +12,10 @@ export function AppShell({ children, header }: PropsWithChildren<{ header?: Reac
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [preferenceLoaded, setPreferenceLoaded] = useState(false);
   const useHeaderChrome =
-    pathname?.startsWith('/app/practice/sql/') || pathname?.startsWith('/app/practice/python/') || false;
+    pathname?.startsWith('/app/practice/sql/') ||
+    pathname?.startsWith('/app/practice/python/') ||
+    pathname?.startsWith('/app/practice/data-modeling/') ||
+    false;
 
   useEffect(() => {
     if (useHeaderChrome) {

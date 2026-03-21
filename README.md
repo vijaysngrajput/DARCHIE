@@ -19,6 +19,7 @@ The frontend foundation is implemented with:
 
 The backend is now partially wired for the SQL module preview path. Python, data-modeling, pipeline-builder, auth, billing, and persistence are still incomplete.
 Python now mirrors the SQL workspace UI structure in the browser, but its run and submit flows remain mocked and frontend-only.
+Data Modeling now has a frontend-interactive React Flow design canvas with real ERD validation, a sticky prompt rail, a palette-first builder workflow, and mocked submit/review behavior.
 
 ## Recommended Setup
 Use the devcontainer.
@@ -91,6 +92,7 @@ http://localhost:8000
 
 The SQL workspace in `/app/practice/sql/session-retention-breakdown` expects the API to be available there unless `NEXT_PUBLIC_API_BASE_URL` is set differently.
 The Python workspace at `/app/practice/python/events-normalization-job` reuses the same focused exercise layout as SQL, but it does not require the API yet.
+The Data Modeling workspace at `/app/practice/data-modeling/marketplace-core-entities` is frontend-only in this slice and does not require the API yet.
 
 ## Frontend Commands
 Run from the repo root.
@@ -130,8 +132,11 @@ pnpm test:api
 - You may still see a non-blocking Next.js dev warning about `allowedDevOrigins` during Playwright runs.
 - The SQL module now includes a first FastAPI-backed preview flow with draft save, run, and submit behavior.
 - SQL execution currently uses a narrow local sandbox runner behind the FastAPI service while the broader sandboxed MySQL production path remains a later architecture step.
-- SQL and Python exercise routes now use a focused top-header layout instead of the heavier desktop sidebar, with a sticky prompt rail on the left, an editor-centered main surface, and a sticky review rail on the right.
+- SQL, Python, and Data Modeling exercise routes now use a focused top-header layout instead of the heavier desktop sidebar.
 - Python currently matches the SQL workspace UX structure, but its execution/review behavior is still mocked.
+- SQL and Python keep the sticky prompt-left, work-surface-center, sticky-review-right structure.
+- Data Modeling now uses a sticky prompt rail on the left, a dominant React Flow architecture canvas in the center, a curated builder palette on the right, and a full-width validation/review surface beneath the canvas.
+- Data Modeling supports hybrid architecture shapes for canvas composition, but only ERD entities and relationships participate in blocking validation in this slice.
 
 ## Important Docs
 Start here if you want the implementation/planning context:
@@ -142,4 +147,5 @@ Start here if you want the implementation/planning context:
 ## Next Recommended Work
 - expand the SQL runtime from the first preview slice into a fuller sandbox implementation
 - move Python from the mirrored mocked workspace into a real runtime-backed contract
+- add persistence and backend-backed validation/scoring for the Data Modeling builder
 - connect real auth, persistence, and entitlement flows later

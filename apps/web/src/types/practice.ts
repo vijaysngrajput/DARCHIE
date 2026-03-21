@@ -56,6 +56,56 @@ export type ExerciseWorkspaceProps = {
   resultPanel: ResultPanelModel;
   workSurfaceTitle: string;
   workSurfaceDescription: string;
+  builderStarterState?: DataModelingWorkspaceState;
+};
+
+export type DataModelFieldType = 'uuid' | 'integer' | 'string' | 'timestamp' | 'decimal' | 'boolean';
+
+export type DataModelField = {
+  id: string;
+  name: string;
+  type: DataModelFieldType;
+  primaryKey: boolean;
+  nullable: boolean;
+  foreignKey?: {
+    entityId: string;
+    fieldId: string;
+  } | null;
+};
+
+export type DataModelEntity = {
+  id: string;
+  name: string;
+  description: string;
+  persistent: boolean;
+  position: {
+    x: number;
+    y: number;
+  };
+  fields: DataModelField[];
+};
+
+export type DataModelRelationshipCardinality = '1:1' | '1:N' | 'N:1' | 'N:N' | '';
+
+export type DataModelRelationship = {
+  id: string;
+  sourceEntityId: string;
+  targetEntityId: string;
+  sourceFieldId?: string | null;
+  targetFieldId?: string | null;
+  cardinality: DataModelRelationshipCardinality;
+  label: string;
+};
+
+export type DataModelingWorkspaceState = {
+  version: number;
+  entities: DataModelEntity[];
+  relationships: DataModelRelationship[];
+  view: {
+    zoom: number;
+    x: number;
+    y: number;
+  };
 };
 
 export type SchemaColumn = {

@@ -103,3 +103,15 @@ Chronological markdown log. New entries are appended at the bottom. Each entry i
 - What changed in code: reworked SQL exercise pages into a focus-mode layout with top header chrome, sticky prompt and review rails, aligned editor actions, and schema beneath the editor; mirrored the same UX structure for Python with a dedicated Monaco-based mocked workspace; improved collapsed sidebar reopen behavior for non-focus routes
 - Docs updated: `README.md`, `08-design-system-ui-foundations.md`, `09-component-finalization.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
 - Follow-up required: keep Data Modeling and Pipeline Builder in sync when they move from the generic shell to dedicated focus-mode workspaces, and document Python runtime architecture separately once it stops being mocked
+
+### 2026-03-21 — Data Modeling interactive builder v1
+- Area changed: Data Modeling workspace, React Flow ERD builder, focus-mode shell expansion, builder documentation
+- What changed in code: replaced the placeholder Data Modeling surface with a dedicated focus-mode ERD builder using React Flow, draggable entity creation, relationship editing with cardinality, right-rail entity/relationship configuration, real frontend validation, local draft-save messaging, and mocked submit/review output
+- Docs updated: `README.md`, `08-design-system-ui-foundations.md`, `09-component-finalization.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: add persistence, backend-backed validation/scoring, and bring Pipeline Builder onto the same dedicated focus-mode builder pattern
+
+### 2026-03-21 — Data Modeling UX redesign
+- Area changed: Data Modeling workspace layout, palette system, builder review flow, documentation
+- What changed in code: removed the route-level exercise header from the Data Modeling exercise page, kept the sticky prompt rail on the left, replaced the right-side configuration rail with a curated builder palette, added hybrid ERD plus support-shape creation on the React Flow canvas, moved validation/review into a full-width surface beneath the canvas, and kept validation blocking scoped to ERD entities and relationships only
+- Docs updated: `README.md`, `08-design-system-ui-foundations.md`, `09-component-finalization.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: add persistence and backend-backed scoring for ERD objects, decide whether support shapes should gain richer inline editing later, and bring Pipeline Builder onto a similarly premium builder-first layout

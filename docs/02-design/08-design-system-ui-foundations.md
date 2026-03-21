@@ -95,12 +95,13 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
 ## Layout Rules
 - Max content width for marketing pages: `1280px`
 - App shell uses fixed sidebar on desktop and integrated bottom navigation on small screens
-- Focused editor routes such as SQL and Python exercises can replace the heavier desktop sidebar with a slimmer top app header to maximize working width
+- Focused editor routes such as SQL, Python, and Data Modeling exercises can replace the heavier desktop sidebar with a slimmer top app header to maximize working width
 - Practice workspaces will use a 3-zone layout on desktop:
   - context column
   - main workspace
   - feedback/output panel
 - In focused editor routes, the context and feedback columns should stay sticky with a small top offset so the problem statement and review remain visible while the user scrolls through the central workspace
+- Data Modeling is now a builder-first exception within that family: it still uses a sticky context rail, but swaps the sticky right feedback rail for a sticky builder palette and moves validation/review into a full-width surface below the canvas
 
 ## Breakpoints
 - `sm: 640`

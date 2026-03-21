@@ -1,4 +1,5 @@
 import type {
+  DataModelingWorkspaceState,
   ExerciseSummary,
   ExerciseWorkspaceProps,
   PracticeModuleId,
@@ -252,6 +253,7 @@ const workspaceMap: Record<PracticeModuleId, Record<string, ExerciseWorkspacePro
       },
       workSurfaceTitle: 'ERD canvas',
       workSurfaceDescription: 'Lay out entities, keys, and relationships in a way that feels clear enough to defend in an interview.',
+      builderStarterState: createMarketplaceStarterState(),
     },
   },
   'pipeline-builder': {
@@ -292,4 +294,105 @@ export function getModuleExercises(moduleId: PracticeModuleId) {
 
 export function getWorkspaceExercise(moduleId: PracticeModuleId, exerciseId: string) {
   return workspaceMap[moduleId][exerciseId];
+}
+
+function createMarketplaceStarterState(): DataModelingWorkspaceState {
+  return {
+    version: 1,
+    entities: [
+      {
+        id: 'entity-users',
+        name: 'users',
+        description: 'Marketplace users can act as buyers, sellers, or both.',
+        persistent: true,
+        position: { x: 100, y: 120 },
+        fields: [
+          { id: 'field-users-id', name: 'id', type: 'uuid', primaryKey: true, nullable: false, foreignKey: null },
+          { id: 'field-users-role', name: 'role', type: 'string', primaryKey: false, nullable: false, foreignKey: null },
+          { id: 'field-users-created', name: 'created_at', type: 'timestamp', primaryKey: false, nullable: false, foreignKey: null },
+        ],
+      },
+      {
+        id: 'entity-listings',
+        name: 'listings',
+        description: 'Active marketplace inventory owned by sellers.',
+        persistent: true,
+        position: { x: 520, y: 70 },
+        fields: [
+          { id: 'field-listings-id', name: 'id', type: 'uuid', primaryKey: true, nullable: false, foreignKey: null },
+          {
+            id: 'field-listings-seller-id',
+            name: 'seller_id',
+            type: 'uuid',
+            primaryKey: false,
+            nullable: false,
+            foreignKey: { entityId: 'entity-users', fieldId: 'field-users-id' },
+          },
+          { id: 'field-listings-title', name: 'title', type: 'string', primaryKey: false, nullable: false, foreignKey: null },
+          { id: 'field-listings-status', name: 'status', type: 'string', primaryKey: false, nullable: false, foreignKey: null },
+        ],
+      },
+      {
+        id: 'entity-orders',
+        name: 'orders',
+        description: 'Transactions connecting buyers to listed inventory.',
+        persistent: true,
+        position: { x: 420, y: 360 },
+        fields: [
+          { id: 'field-orders-id', name: 'id', type: 'uuid', primaryKey: true, nullable: false, foreignKey: null },
+          {
+            id: 'field-orders-listing-id',
+            name: 'listing_id',
+            type: 'uuid',
+            primaryKey: false,
+            nullable: false,
+            foreignKey: { entityId: 'entity-listings', fieldId: 'field-listings-id' },
+          },
+          {
+            id: 'field-orders-buyer-id',
+            name: 'buyer_id',
+            type: 'uuid',
+            primaryKey: false,
+            nullable: false,
+            foreignKey: { entityId: 'entity-users', fieldId: 'field-users-id' },
+          },
+          { id: 'field-orders-ordered-at', name: 'ordered_at', type: 'timestamp', primaryKey: false, nullable: false, foreignKey: null },
+        ],
+      },
+    ],
+    relationships: [
+      {
+        id: 'relationship-users-listings',
+        sourceEntityId: 'entity-users',
+        targetEntityId: 'entity-listings',
+        sourceFieldId: 'field-users-id',
+        targetFieldId: 'field-listings-seller-id',
+        cardinality: '1:N',
+        label: 'seller owns listings',
+      },
+      {
+        id: 'relationship-listings-orders',
+        sourceEntityId: 'entity-listings',
+        targetEntityId: 'entity-orders',
+        sourceFieldId: 'field-listings-id',
+        targetFieldId: 'field-orders-listing-id',
+        cardinality: '1:N',
+        label: 'listing produces orders',
+      },
+      {
+        id: 'relationship-users-orders',
+        sourceEntityId: 'entity-users',
+        targetEntityId: 'entity-orders',
+        sourceFieldId: 'field-users-id',
+        targetFieldId: 'field-orders-buyer-id',
+        cardinality: '1:N',
+        label: 'buyer places orders',
+      },
+    ],
+    view: {
+      zoom: 1,
+      x: 0,
+      y: 0,
+    },
+  };
 }

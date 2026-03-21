@@ -11,7 +11,8 @@ export function AppShell({ children, header }: PropsWithChildren<{ header?: Reac
   const pathname = usePathname();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [preferenceLoaded, setPreferenceLoaded] = useState(false);
-  const useHeaderChrome = pathname?.startsWith('/app/practice/sql/') ?? false;
+  const useHeaderChrome =
+    pathname?.startsWith('/app/practice/sql/') || pathname?.startsWith('/app/practice/python/') || false;
 
   useEffect(() => {
     if (useHeaderChrome) {

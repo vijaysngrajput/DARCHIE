@@ -130,9 +130,12 @@ High-fidelity text specification for primary screens.
 
 ## Practice Workspaces
 ### Desktop
-- Shared shell uses a three-column grid: prompt panel, central module surface, and result panel
-- Exercise header sits above the grid and the status bar sits directly under the central work surface
-- Center column should remain module-specific while the surrounding shell stays consistent across SQL, Python, data modeling, and pipeline builder
+- Focused SQL and Python exercise routes use a slimmer top app header rather than the heavier desktop sidebar
+- Exercise header sits above a three-column grid: sticky prompt rail, central module surface, and sticky result panel
+- Primary actions such as `Reset`, `Run`, and `Submit` sit directly beneath the editor in one aligned row
+- Status messaging stays grouped with the editor action area rather than floating elsewhere on the page
+- SQL keeps schema/reference material beneath the editor and Python keeps input/review reference material beneath the editor
+- Data modeling and pipeline builder still use the shared mocked workspace shell until their dedicated focus-mode workspaces are built
 
 ### Mobile
 - Workspace collapses into segmented tabs for prompt, workspace, and review
@@ -149,4 +152,4 @@ High-fidelity text specification for primary screens.
 - Page specs should continue using reusable section primitives rather than custom wrappers per screen
 - Marketing pages should preserve the editorial, calmer hierarchy introduced in the premium redesign
 - Dashboard and app pages should continue reusing `PageHeader`, `Panel`, and shell primitives rather than inventing dashboard-specific chrome
-- Practice pages should keep using shared workspace primitives and mocked module-specific center surfaces until backend logic and real editors/builders are introduced
+- Practice pages should keep using shared workspace primitives, but SQL and Python now justify dedicated focus-mode exercise layouts because they are editor-heavy routes with sticky context and review needs

@@ -97,3 +97,9 @@ Chronological markdown log. New entries are appended at the bottom. Each entry i
 - What changed in code: replaced the mocked SQL center surface with a Monaco-based SQL workspace that loads exercise details, saves drafts, runs preview queries, and submits for structured feedback through a new FastAPI backend slice; added the first SQL exercise fixture, starter sandbox runner, and backend tests
 - Docs updated: `README.md`, `11-high-level-design.md`, `14-api-contract-specification.md`, `15-practice-engine-specification.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
 - Follow-up required: evolve the starter SQL sandbox toward the planned dedicated MySQL-backed execution path, add real persistence/auth/entitlements, and bring Python onto the same functional contract
+
+### 2026-03-21 — SQL and Python exercise UX refinement
+- Area changed: SQL workspace layout, Python exercise workspace, app-shell focus mode, design doc alignment
+- What changed in code: reworked SQL exercise pages into a focus-mode layout with top header chrome, sticky prompt and review rails, aligned editor actions, and schema beneath the editor; mirrored the same UX structure for Python with a dedicated Monaco-based mocked workspace; improved collapsed sidebar reopen behavior for non-focus routes
+- Docs updated: `README.md`, `08-design-system-ui-foundations.md`, `09-component-finalization.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: keep Data Modeling and Pipeline Builder in sync when they move from the generic shell to dedicated focus-mode workspaces, and document Python runtime architecture separately once it stops being mocked

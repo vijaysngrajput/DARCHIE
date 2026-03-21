@@ -128,14 +128,18 @@ Page content and formatting specification.
 ## Practice Workspaces
 ### Section order
 1. Exercise header
-2. Three-part shared workspace shell with prompt, module surface, and review panel
-3. Status bar beneath the central work surface
+2. Focused exercise layout with sticky prompt rail, central work surface, and sticky review panel
+3. Action row directly beneath the editor or module surface
+4. Status bar grouped with the editor action area
+5. Module-specific reference section below the main editor surface
 
 ### Content rules
 - Workspace copy should emphasize realistic practice, structured review, and legible reasoning
-- The left panel should use concise prompt sections and one starter hint rather than long instructional prose
+- The left prompt rail should use concise prompt sections and one starter hint rather than long instructional prose
+- SQL and Python exercise pages should use the slimmer focus-mode app header instead of the full desktop sidebar so the editor area gets more width
 - The right panel should frame results as output, validation, checks, review, or explanation depending on module type
-- Current workspace content is mocked and layout-first; avoid documenting live execution, persistence, scoring, or backend-connected feedback
+- SQL is now backend-connected for preview execution and structured submission feedback; Python currently mirrors the same layout and interaction rhythm but still uses mocked run/submit states
+- Avoid documenting Python as fully backend-connected yet, and avoid implying persistence/auth/paywall behavior beyond the current preview slice
 
 ## CTA Rules
 - Home hero: `Start practicing`

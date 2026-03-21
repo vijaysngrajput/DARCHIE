@@ -51,6 +51,7 @@ REST API contract document.
 ### Attempts
 - `GET /api/attempts/:exerciseId/current`
 - `PUT /api/attempts/:exerciseId/draft`
+- `POST /api/attempts/:exerciseId/run`
 - `POST /api/attempts/:exerciseId/submit`
 - `GET /api/submissions/:submissionId`
 
@@ -98,6 +99,18 @@ REST API contract document.
 }
 ```
 
+### `POST /api/attempts/:exerciseId/run`
+```json
+{
+  "status": "success",
+  "summary": "Returned 8 rows from the sandboxed SQL dataset.",
+  "columns": ["cohort_week", "active_week", "retained_users"],
+  "rows": [[1, 1, 2]],
+  "rowCount": 8,
+  "explanation": "Use run previews to inspect shaped output before final submission."
+}
+```
+
 ## Internal Service Contract
 - `POST /internal/evaluations/run`
 - signed with internal service token
@@ -121,3 +134,4 @@ REST API contract document.
 - All `/api/me`, `/api/attempts`, `/api/progress`, `/api/mock-interviews`, and `/api/billing/status` routes require authentication.
 - Premium-only exercises return `403` with entitlement metadata.
 - Internal evaluation routes require service authentication and are never exposed to the browser.
+- Current implementation exception: the first SQL preview slice may expose exercise load, draft, run, and submit without full auth while preview-access rules remain under product definition.

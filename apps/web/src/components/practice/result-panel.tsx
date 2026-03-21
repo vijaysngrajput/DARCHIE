@@ -37,11 +37,11 @@ export function ResultPanel({ model }: { model: ResultPanelModel }) {
         ))}
       </div>
       <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-4">
-        <p className="text-sm leading-7 text-[var(--text-secondary)]">{current?.body}</p>
+        <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--text-secondary)]">{current?.body}</p>
       </div>
       <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-panel)] p-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">Why it matters</p>
-        <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">{model.explanation}</p>
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--text-secondary)]">{model.explanation}</p>
       </div>
     </Panel>
   );

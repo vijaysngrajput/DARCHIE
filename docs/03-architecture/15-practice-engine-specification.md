@@ -40,6 +40,7 @@ All exercises share a normalized structure:
 - User writes SQL against a provided schema and dataset.
 - On run: query executes and result preview is returned.
 - On submit: authoritative evaluation compares output and optional query-shape heuristics.
+- Current first implementation slice runs one SQL preview exercise through the FastAPI backend with a read-only starter sandbox and a later migration path to a dedicated sandboxed MySQL runtime.
 
 ### Python
 - User writes Python function or script inside a controlled template.
@@ -84,3 +85,4 @@ Each evaluation must return:
 - Reject payloads above configured size
 - Strip unsupported libraries and system access from Python runtime
 - Prevent network access from execution environments
+- SQL preview sandbox should restrict the first slice to single-statement SELECT-style queries and reject destructive commands

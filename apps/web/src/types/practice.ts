@@ -57,3 +57,71 @@ export type ExerciseWorkspaceProps = {
   workSurfaceTitle: string;
   workSurfaceDescription: string;
 };
+
+export type SchemaColumn = {
+  name: string;
+  type: string;
+  description: string;
+};
+
+export type SchemaTable = {
+  name: string;
+  description: string;
+  columns: SchemaColumn[];
+  sampleRows: Array<Record<string, number>>;
+};
+
+export type SqlExerciseDetail = {
+  exercise: ExerciseSummary;
+  promptSections: PromptSection[];
+  starterHint: string;
+  starterSql: string;
+  schema: SchemaTable[];
+  workSurfaceTitle: string;
+  workSurfaceDescription: string;
+  saveState: string;
+  resultSummary: string;
+};
+
+export type DraftAttempt = {
+  sql: string;
+  updatedAt: string;
+};
+
+export type SqlExerciseResponse = {
+  exerciseDetail: SqlExerciseDetail;
+  draftAttempt: DraftAttempt | null;
+  entitlement: {
+    canAttempt: boolean;
+    plan: string;
+  };
+};
+
+export type SqlRunResponse = {
+  status: FeedbackState;
+  summary: string;
+  columns: string[];
+  rows: Array<Array<number | string | null>>;
+  rowCount: number;
+  explanation: string;
+  error?: {
+    code: string;
+    message: string;
+  } | null;
+};
+
+export type SqlSubmitResponse = {
+  status: FeedbackState;
+  summary: string;
+  rubric: {
+    correctness: number;
+    structure: number;
+    efficiencyOrDesign: number;
+    overall: number;
+  };
+  strengths: string[];
+  issues: string[];
+  nextBestImprovement: string;
+  explanation: string;
+  outputPreview?: SqlRunResponse | null;
+};

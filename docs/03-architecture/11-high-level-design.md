@@ -38,6 +38,7 @@ DARCHIE will use a modular web architecture with a single primary web applicatio
 - Background job and queue layer: `Upstash Redis` plus queue workers
 - Code execution service: isolated `Execution Worker` deployed separately in containers
 - Visual builder engine: frontend-first simulation using `React Flow` with server-side validation and persistence
+- First functional SQL slice: FastAPI backend directly orchestrates a local sandbox runner for one preview exercise while preserving a later path to extract a dedicated execution worker
 
 ## Major Subsystems
 ### 1. Marketing Website
@@ -53,10 +54,12 @@ DARCHIE will use a modular web architecture with a single primary web applicatio
 
 ### 4. Practice Engine
 - Orchestrates exercise metadata, starter state, validation, scoring, feedback generation
+- First implemented runtime path is the SQL preview module, which uses a sandboxed SQL dataset and structured run/submit feedback
 
 ### 5. Execution Worker
 - Handles Python and SQL submissions in isolated runtime environments
 - Returns structured evaluation output
+- The long-term SQL target is a sandboxed MySQL environment. The current first slice uses FastAPI-first orchestration and a local starter sandbox runner while the dedicated worker remains deferred.
 
 ### 6. Visual Builder Engine
 - Validates DAG and ERD rules
@@ -90,6 +93,7 @@ DARCHIE will use a modular web architecture with a single primary web applicatio
 - Separate Node.js/TypeScript service
 - Containerized isolated runners for SQL and Python
 - Runtime limits for CPU, memory, execution time, and network access
+- Current implementation note: SQL preview executes through the FastAPI backend with read-only sandbox restrictions and can later migrate behind the same runtime boundary into a dedicated worker
 
 ## Deployment Topology
 - Web app deployed on `Vercel`

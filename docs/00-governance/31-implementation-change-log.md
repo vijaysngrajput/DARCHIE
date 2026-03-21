@@ -91,3 +91,9 @@ Chronological markdown log. New entries are appended at the bottom. Each entry i
 - What changed in code: updated the public `Start practicing` CTAs to land in `/app/practice` instead of `/signup`, and added preview-state messaging in the practice hub so the module experience is openly accessible while deeper features remain intentionally restrictable later
 - Docs updated: `31-implementation-change-log.md`, `32-implementation-context-log.md`
 - Follow-up required: decide which practice capabilities stay open in preview mode versus which actions should later require sign-in, persistence, or paid access
+
+### 2026-03-21 — First functional SQL module slice
+- Area changed: SQL workspace, FastAPI preview backend, SQL runtime documentation
+- What changed in code: replaced the mocked SQL center surface with a Monaco-based SQL workspace that loads exercise details, saves drafts, runs preview queries, and submits for structured feedback through a new FastAPI backend slice; added the first SQL exercise fixture, starter sandbox runner, and backend tests
+- Docs updated: `README.md`, `11-high-level-design.md`, `14-api-contract-specification.md`, `15-practice-engine-specification.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: evolve the starter SQL sandbox toward the planned dedicated MySQL-backed execution path, add real persistence/auth/entitlements, and bring Python onto the same functional contract

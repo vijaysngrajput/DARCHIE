@@ -18,15 +18,17 @@ const mobileTabs = [
 export function WorkspaceShell({
   workspace,
   surface,
+  headerActions,
 }: {
   workspace: ExerciseWorkspaceProps;
   surface: ReactNode;
+  headerActions?: ReactNode;
 }) {
   const [activeTab, setActiveTab] = useState<(typeof mobileTabs)[number]['id']>('work');
 
   return (
     <div className="space-y-6">
-      <ExerciseHeader exercise={workspace.exerciseMeta} saveState={workspace.saveState} />
+      <ExerciseHeader exercise={workspace.exerciseMeta} saveState={workspace.saveState} actions={headerActions} />
       <div className="lg:hidden">
         <div className="mb-4 flex gap-2 overflow-x-auto">
           {mobileTabs.map((tab) => (

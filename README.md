@@ -5,7 +5,7 @@ DARCHIE is a premium interview-practice platform for data engineers.
 The current repo contains:
 - a Next.js frontend in `apps/web`
 - planning and governance docs in `docs/`
-- a future FastAPI backend area in `services/api`
+- a FastAPI backend area in `services/api`
 - a VS Code devcontainer setup for local development
 
 ## Current Status
@@ -14,9 +14,10 @@ The frontend foundation is implemented with:
 - auth shells
 - app shells
 - premium design system foundation
-- placeholder dashboard, practice, progress, and settings routes
+- practice hub and module landing pages
+- a first functional SQL workspace slice backed by FastAPI preview APIs
 
-The backend and real product logic are not wired yet.
+The backend is now partially wired for the SQL module preview path. Python, data-modeling, pipeline-builder, auth, billing, and persistence are still incomplete.
 
 ## Recommended Setup
 Use the devcontainer.
@@ -74,6 +75,21 @@ pnpm --filter darchie-web exec next dev -H 0.0.0.0 -p 3001
 
 Then open `http://localhost:3001`.
 
+## Run The API
+From the repo root:
+
+```bash
+pnpm dev:api
+```
+
+This starts the FastAPI backend at:
+
+```text
+http://localhost:8000
+```
+
+The SQL workspace in `/app/practice/sql/session-retention-breakdown` expects the API to be available there unless `NEXT_PUBLIC_API_BASE_URL` is set differently.
+
 ## Frontend Commands
 Run from the repo root.
 
@@ -101,10 +117,17 @@ Playwright smoke tests:
 pnpm --filter darchie-web exec playwright test tests/smoke.spec.ts
 ```
 
+API tests:
+
+```bash
+pnpm test:api
+```
+
 ## Notes
 - Playwright currently clears stale `.next` output before starting its web server to avoid intermittent runtime chunk issues.
 - You may still see a non-blocking Next.js dev warning about `allowedDevOrigins` during Playwright runs.
-- The current pages use mocked content and placeholder flows.
+- The SQL module now includes a first FastAPI-backed preview flow with draft save, run, and submit behavior.
+- SQL execution currently uses a narrow local sandbox runner behind the FastAPI service while the broader sandboxed MySQL production path remains a later architecture step.
 
 ## Important Docs
 Start here if you want the implementation/planning context:
@@ -113,6 +136,6 @@ Start here if you want the implementation/planning context:
 - `docs/00-governance/32-implementation-context-log.md`
 
 ## Next Recommended Work
-- synchronize the design docs with the implemented premium UI
-- build the module/workspace foundations
-- connect real backend/auth/data flows later
+- expand the SQL runtime from the first preview slice into a fuller sandbox implementation
+- bring Python onto the same functional workspace contract
+- connect real auth, persistence, and entitlement flows later

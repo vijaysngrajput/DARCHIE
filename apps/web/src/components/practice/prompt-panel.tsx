@@ -1,10 +1,19 @@
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Panel } from '@/components/ui/panel';
 import type { PromptSection } from '@/types/practice';
 
-export function PromptPanel({ sections, starterHint }: { sections: PromptSection[]; starterHint: string }) {
+export function PromptPanel({
+  sections,
+  starterHint,
+  className,
+}: {
+  sections: PromptSection[];
+  starterHint: string;
+  className?: string;
+}) {
   return (
-    <Panel variant="default" className="p-5 sm:p-6">
+    <Panel variant="default" className={cn('p-5 sm:p-6', className)}>
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
           Prompt

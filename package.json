@@ -6,7 +6,9 @@
   "scripts": {
     "install:web": "pnpm --filter darchie-web install",
     "dev:web": "pnpm --filter darchie-web dev",
+    "dev:api": "cd services/api && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
     "build:web": "pnpm --filter darchie-web build",
-    "test:web": "pnpm --filter darchie-web test"
+    "test:web": "pnpm --filter darchie-web test",
+    "test:api": "cd services/api && uv run pytest"
   }
 }

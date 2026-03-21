@@ -1,7 +1,7 @@
 # 26 Visual Direction Spec
 
 ## Purpose
-Define the final visual direction for DARCHIE so the frontend can be implemented with a consistent, premium, technical identity across both marketing and authenticated product surfaces.
+Define the final implemented visual direction for DARCHIE so design and engineering remain aligned on the premium product character across marketing and app surfaces.
 
 ## Decisions This Document Owns
 - Final visual theme direction
@@ -9,12 +9,13 @@ Define the final visual direction for DARCHIE so the frontend can be implemented
 - Color system and palette intent
 - Typography hierarchy
 - Surface, border, shadow, and texture rules
-- Iconography and illustration language
+- Iconography and brand language
 
 ## Inputs / Dependencies
 - `docs/02-design/07-frontend-ux-strategy.md`
 - `docs/02-design/08-design-system-ui-foundations.md`
 - `docs/01-product/02-product-vision.md`
+- implemented frontend in `apps/web`
 
 ## Required Sections
 - Theme direction
@@ -28,154 +29,121 @@ Define the final visual direction for DARCHIE so the frontend can be implemented
 High-fidelity visual design specification.
 
 ## Completion Criteria
-- Designers and engineers can implement the full frontend visual language without inventing new aesthetics.
-- Dark and light theme behavior is fully specified.
+- Engineers can describe the current UI character without referring back to the code.
+- Light and dark theme behavior is explicitly documented as implemented.
 
 ## Theme Direction
-DARCHIE should feel like a high-end technical studio product: precise, calm, and intelligent. The product should not look playful, generic SaaS, or documentation-flat.
+DARCHIE now follows a `polished enterprise premium` direction rather than a studio-like navy dashboard aesthetic.
 
 Visual character:
-- `Technical premium`
+- `Polished enterprise premium`
 - `Clear and confident`
-- structured and modern
-- atmospheric but restrained
-- visually rich without visual noise
+- calm, technical, and spacious
+- premium through restraint, proportion, and hierarchy
+- visually rich without obvious decorative excess
 
 ## Theme Translation Rules
-### Dark theme
-- Primary authored theme for workspace-heavy experiences
-- Best for builders, code editors, dashboards, and immersive product previews
-- Surfaces stack in layers rather than relying on strong shadows alone
-
 ### Light theme
-- Must preserve the same hierarchy and premium feel
-- Uses warm light neutrals instead of pure white
-- Accent colors remain consistent with dark theme, only brightness/contrast adapt
-- Avoid sterile “white dashboard” feel
+- Warm, parchment-like foundation rather than bright white
+- Softly separated surfaces with visible but restrained contrast
+- Accent colors appear as muted navy and gold, not loud brand splashes
+- Should feel premium and readable, not empty or washed out
+
+### Dark theme
+- Charcoal and graphite base with muted ivory text
+- Blue and gold accents are present but restrained
+- Surfaces should feel layered through tone and border, not through dramatic glow or heavy gradients
+- Must feel equal in quality to light mode rather than acting as the only “designed” theme
 
 ## Color System
-### Core palette
-- `brand.deep-navy`: `#293B5F`
-- `brand.steel-blue`: `#47597E`
-- `brand.soft-ice`: `#DBE6FD`
-- `brand.warm-sand`: `#B2AB8C`
-- `brand.ink`: `#2C2E43`
+### Light palette
+- `bg.base`: `#f1eee6`
+- `bg.surface`: `#e6e1d6`
+- `bg.panel`: `#fcfaf5`
+- `bg.elevated`: `#f7f2ea`
+- `bg.overlay`: `rgba(15, 17, 21, 0.26)`
+- `text.primary`: `#171717`
+- `text.secondary`: `#444444`
+- `text.muted`: `#6b6b6b`
+- `accent.primary`: `#1f3a5f`
+- `accent.primary-strong`: `#12263f`
+- `accent.secondary`: `#a67c52`
+- `accent.warning`: `#b7791f`
+- `accent.error`: `#b85c55`
+- `accent.success`: `#2f7d57`
+- `border.soft`: `rgba(23, 23, 23, 0.08)`
+- `border.strong`: `rgba(23, 23, 23, 0.16)`
+- `focus.ring`: `rgba(31, 58, 95, 0.22)`
 
 ### Dark palette
-- `bg.base`: `#2C2E43`
-- `bg.surface`: `#293B5F`
-- `bg.panel`: `#33486E`
-- `bg.elevated`: `#47597E`
-- `bg.overlay`: `rgba(23, 26, 40, 0.74)`
-- `text.primary`: `#DBE6FD`
-- `text.secondary`: `#C9D5EE`
-- `text.muted`: `#9EABC2`
-- `accent.primary`: `#B2AB8C`
-- `accent.primary-strong`: `#9F9775`
-- `accent.secondary`: `#DBE6FD`
-- `accent.warning`: `#D9A441`
-- `accent.error`: `#D46A6A`
-- `accent.success`: `#5BB98C`
-- `border.soft`: `rgba(219, 230, 253, 0.14)`
-- `border.strong`: `rgba(219, 230, 253, 0.24)`
-- `focus.ring`: `rgba(178, 171, 140, 0.38)`
-
-### Light palette
-- `bg.base`: `#F7F5EF`
-- `bg.surface`: `#EEF2FA`
-- `bg.panel`: `#DBE6FD`
-- `bg.elevated`: `#FFFFFF`
-- `bg.overlay`: `rgba(44, 46, 67, 0.18)`
-- `text.primary`: `#2C2E43`
-- `text.secondary`: `#293B5F`
-- `text.muted`: `#5C6780`
-- `accent.primary`: `#293B5F`
-- `accent.primary-strong`: `#22324F`
-- `accent.secondary`: `#B2AB8C`
-- `accent.warning`: `#B07B22`
-- `accent.error`: `#C45858`
-- `accent.success`: `#2F8A60`
-- `border.soft`: `rgba(41, 59, 95, 0.10)`
-- `border.strong`: `rgba(41, 59, 95, 0.18)`
-- `focus.ring`: `rgba(41, 59, 95, 0.22)`
+- `bg.base`: `#0f1115`
+- `bg.surface`: `#151922`
+- `bg.panel`: `#1a1f29`
+- `bg.elevated`: `#202735`
+- `bg.overlay`: `rgba(7, 8, 11, 0.7)`
+- `text.primary`: `#f3efe7`
+- `text.secondary`: `#d6d0c5`
+- `text.muted`: `#9c988f`
+- `accent.primary`: `#8fb3d9`
+- `accent.primary-strong`: `#bdd2ea`
+- `accent.secondary`: `#c6a374`
+- `accent.warning`: `#d39a42`
+- `accent.error`: `#d07c74`
+- `accent.success`: `#63b087`
+- `border.soft`: `rgba(243, 239, 231, 0.08)`
+- `border.strong`: `rgba(243, 239, 231, 0.16)`
+- `focus.ring`: `rgba(143, 179, 217, 0.28)`
 
 ## Color Usage Rules
-- `#2C2E43` is the deepest background and anchor tone
-- `#293B5F` is the main product structural color for surfaces and primary accents
-- `#47597E` is used for elevated surfaces, secondary chrome, dividers, and neutral interaction states
-- `#DBE6FD` carries soft contrast, premium light surfaces, and high-legibility text in dark mode
-- `#B2AB8C` is the signature premium accent for CTAs, highlight badges, active emphasis, and tasteful callouts
-- Use additional semantic colors for success, warning, and error states instead of forcing the core brand palette into all validation scenarios
-- Use color with shape and copy; never rely on color alone
+- Accent colors are used sparingly for emphasis, not everywhere by default
+- Most premium UI weight comes from spacing, typography, and surface contrast rather than bold color blocks
+- Highlighted surfaces use subtle tinting, not loud fills
+- Semantic success, warning, and error colors remain separate from the core accent story
+- Color should not be the only indicator of state
 
 ## Typography
 ### Type families
 - Headings: `Space Grotesk`
 - Body/UI: `Manrope`
-- Code and numerical detail: `JetBrains Mono`
-
-### Type scale
-- `display-xl`: 64/72, weight 600
-- `display-lg`: 52/60, weight 600
-- `display-md`: 40/48, weight 600
-- `heading-xl`: 32/40, weight 600
-- `heading-lg`: 28/36, weight 600
-- `heading-md`: 24/32, weight 600
-- `heading-sm`: 20/28, weight 600
-- `body-lg`: 18/28, weight 500
-- `body-md`: 16/24, weight 500
-- `body-sm`: 14/22, weight 500
-- `label-md`: 14/20, weight 600
-- `label-sm`: 12/18, weight 600
-- `code-sm`: 13/20, weight 500
+- Code and technical metadata: `JetBrains Mono`
 
 ### Typography rules
-- Headings are compact and assertive, not oversized startup headlines
-- Body copy should feel readable and professional, not dense
-- Monospace should be reserved for code, metrics, tokens, and structured technical metadata
+- Headings are compact, assertive, and editorial rather than oversized startup headlines
+- Body text is calm, readable, and slightly spacious
+- Small uppercase labels are used for metadata, section markers, and premium badge-like UI moments
+- Copy should feel more judgment- and clarity-oriented than feature-stacked
 
 ## Surfaces And Materials
-- Use a layered panel system rather than flat sections
-- Primary cards and panels use subtle vertical gradients
-- Use 1px border lines plus soft shadow blur, not heavy drop shadows
-- Backgrounds may include very low-contrast radial gradients or technical grid/noise texture
-- Marketing pages should use atmospheric depth more than the app shell
+- Panels are mostly flat premium surfaces
+- Gradients are used only as subtle background atmosphere, not as the main panel treatment
+- Border lines and muted tonal differences do more work than dramatic shadowing
+- Light tinting is used only in highlighted areas and premium CTA/badge surfaces
+- Marketing pages should feel structured and editorial rather than grid-heavy and generic
 
 ### Radius system
-- `sm`: `10px`
-- `md`: `14px`
-- `lg`: `18px`
-- `xl`: `24px`
-- Buttons, badges, inputs, tabs: `14px`
-- Panels and cards: `18px`
-- Hero visuals and featured sections: `24px`
+- `sm`: `8px`
+- `md`: `12px`
+- `lg`: `16px`
+- `xl`: `22px`
 
 ### Shadow system
-- `shadow-soft`: `0 8px 24px rgba(8, 14, 28, 0.12)`
-- `shadow-panel`: `0 18px 40px rgba(8, 14, 28, 0.18)`
-- `shadow-modal`: `0 28px 80px rgba(8, 14, 28, 0.28)`
+- `shadow-soft`: ambient surface shadow
+- `shadow-panel`: stronger featured-panel shadow
+- `shadow-modal`: strongest modal or overlay shadow
 
-## Iconography And Illustration
-- Use `lucide-react` style icons consistently
-- Icons should be stroke-first, clean, and technical
-- Use line-diagram visual motifs for pipeline and model storytelling
-- Avoid cartoon illustrations, mascots, or abstract SaaS blobs
+## Iconography And Brand Language
+- Use stroke-first iconography consistently
+- Prefer technical icons and data-flow metaphors over playful illustration
+- The marketing header brand treatment includes a premium icon mark plus a refined wordmark/subtitle relationship
+- Badges, pills, and premium CTAs should feel editorial and concise, not noisy or oversized
 
 ## Chart And Builder Color Rules
-- Charts use blue and teal as primary positive categories
-- Use muted grays for baselines and historic comparisons
-- Warnings and failures appear only where semantically needed
-- Builder nodes should use neutral surfaces with accent-colored status states, not rainbow category clutter
-
-### Builder status colors
-- idle: neutral panel tone
-- selected: accent primary border + subtle glow
-- valid: accent success edge indicator
-- warning: accent warning edge indicator
-- invalid: accent error edge indicator
-- running simulation: accent primary pulse
+- Charts should use muted, readable categories rather than bright rainbow assignments
+- Builder surfaces should rely on neutral panels with state accents for status and selection
+- Blue and gold accents can support hierarchy, but should not dominate every visual surface
+- Warnings and failures should remain semantically distinct
 
 ## Accessibility Visual Rules
-- Focus ring always visible on interactive components
-- Minimum contrast target consistent with WCAG 2.2 AA
-- Active and disabled states must remain distinguishable in both themes
+- Focus rings must remain visible in both themes
+- Surface separation must stay legible in both warm light mode and dark mode
+- Premium styling must not reduce contrast or make interaction states ambiguous

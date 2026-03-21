@@ -100,7 +100,15 @@ Route and navigation specification.
 - Charts, module summaries, attempt history, weak-area insights
 
 ## Discovery Flow
-Public site CTA routes to sign-up, then onboarding, then dashboard recommendations. Logged-in users can also directly browse modules through the practice hub.
+- Public homepage CTA routes to `/app/practice`, where users can enter the practice hub as an open preview.
+- The practice hub is intentionally discoverable from both the public homepage CTA and the authenticated app navigation.
+- Future auth, persistence, submission gating, and paid-access rules should layer onto this same entry path rather than changing the homepage destination again.
+- Sign-up, onboarding, and dashboard flows still exist, but they are not the required first step for discovering practice.
+
+## Preview Access Note
+- `/app/practice` may be browsable before full authentication is required.
+- The boundary between open preview behavior and restricted features is intentionally deferred for later product definition.
+- Later implementation should decide which actions remain open in preview and which require sign-in, persistence, or paid access.
 
 ## IA Rules
 - Practice modules must be discoverable from both public and authenticated surfaces.

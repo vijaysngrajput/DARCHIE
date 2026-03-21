@@ -1,131 +1,148 @@
 # 29 Screen Content Spec
 
 ## Purpose
-Define the exact section structure, copy patterns, formatting rules, and content hierarchy for the first DARCHIE pages.
+Define the implemented content hierarchy, section order, and tone patterns for the first DARCHIE pages.
 
 ## Decisions This Document Owns
 - Page section order
 - Headline and subcopy style
 - CTA patterns
-- Empty-state messaging format
 - Tone rules across marketing and app pages
+- Current page-level content expectations
 
 ## Inputs / Dependencies
 - `docs/01-product/06-information-architecture.md`
 - `docs/02-design/26-visual-direction-spec.md`
 - `docs/02-design/27-component-style-spec.md`
+- implemented frontend in `apps/web`
 
 ## Required Sections
 - Tone rules
 - page-by-page content spec
 - CTA rules
-- empty/error copy rules
+- empty/error/loading copy rules
 
 ## Output Format
 Page content and formatting specification.
 
 ## Completion Criteria
-- The first frontend pages can be implemented with aligned structure and copy without needing ad hoc content decisions.
+- The implemented marketing and app pages can be described accurately from this doc.
 
 ## Tone Rules
-- Voice: clear, confident, modern, helpful
-- Avoid jargon-heavy academic wording on marketing pages
-- App copy can be more technical but should remain direct
-- Do not use hype-heavy startup phrases
+- Voice: clear, confident, calm, and modern
+- Marketing copy should emphasize judgment, realism, and structure over hype
+- App copy can be more technical but should stay direct and uncluttered
+- Avoid feature-stacked marketing language when one strong idea will do
 
 ## Formatting Rules
-- Headlines use short, high-signal phrasing
-- Supporting text is 1 to 3 short sentences
-- Section intros should not exceed 2 lines on desktop unless justified
-- CTA copy should be imperative and concise
+- Headlines use concise, high-signal phrasing
+- Supporting text is typically 1 to 3 short sentences
+- Page structure should emphasize one strong message at a time rather than many equal-weight sections
+- CTA copy should stay imperative and concise
 
 ## Home Page
 ### Section order
-1. Hero
-2. Product proof strip
-3. Why DARCHIE section
-4. Module overview
-5. Workflow demo section
-6. Trust / credibility section
-7. Pricing teaser
-8. Final CTA
+1. Hero with editorial product preview
+2. Asymmetrical explanation block
+3. Supporting `How it works` and `Why it sticks` layout
 
 ### Content rules
-- Hero headline: explain interview-first value clearly
-- Hero subcopy: combine coding, modeling, and pipeline practice in one sentence cluster
-- Right side: product UI preview, not abstract art
-- Product proof strip: 3 to 4 concise capability highlights
+- Hero headline should center on stronger data engineering judgment and interview realism
+- Hero subcopy should explain the combined SQL, Python, modeling, and pipeline value in a calmer voice
+- Right side should present one dominant product preview composition
+- Supporting proof beneath the hero should read as compact editorial statements, not equal-weight product cards
+- Do not describe extra trust, pricing teaser, workflow demo, or final CTA sections that are not currently implemented
 
 ## Modules Page
 ### Section order
 1. Intro header
-2. Module comparison grid
-3. Detailed module sections
-4. Learning flow section
-5. CTA
+2. 2x2 module summary grid
 
 ### Content rules
-- Each module block should answer:
-  - what you practice
-  - how it works
-  - what interview skill it improves
+- Each module card should explain what the user practices and why that skill matters in interviews
+- Current page does not yet include detailed alternating module sections or deeper learning-flow content
 
 ## Pricing Page
 ### Section order
 1. Header
-2. Pricing cards
-3. Feature comparison
-4. FAQ
-5. CTA
+2. Three pricing cards
 
 ### Content rules
-- Emphasize value through realistic practice and feedback
-- Avoid aggressive pricing tricks
+- Emphasize realistic practice and structured feedback as the value proposition
+- One center plan should feel clearly featured
+- Do not document comparison table or FAQ sections yet because they are not implemented
 
 ## About Page
 ### Section order
-1. Mission header
-2. Why the product exists
-3. Product philosophy
-4. Long-term vision
-5. CTA
+1. Mission-style header
+2. Supporting narrative content
+
+### Content rules
+- Keep tone calm and intentional
+- Avoid inflated startup-story language
 
 ## Sign In / Sign Up
 ### Content rules
 - Keep pages minimal and quiet
 - Headline should reassure and orient
-- Social sign-in optional placement below primary form
+- Visual treatment should feel premium but restrained
 
 ## Onboarding
-### Step structure
-1. Role/goal selection
-2. Experience level
-3. Priority skill areas
-4. Recommendation confirmation
-
 ### Content rules
-- one decision cluster per step
-- progress indicator always visible
-- support text explains why each answer matters
+- Onboarding is still shell-level and not yet a full multi-step implemented experience
+- Current expectations should remain lightweight until the real onboarding flow is built
 
 ## Dashboard
 ### Section order
-1. Welcome header
-2. Readiness summary cards
-3. Recommended next actions
-4. Recent attempts
-5. Module progress grid
+1. Page header
+2. Three readiness summary cards
+3. Momentum panel
+4. Featured recommendation panel
 
 ### Content rules
-- lead with momentum and clarity
-- show one strong “start here” recommendation
+- Lead with clarity and momentum
+- Keep one strong recommendation visible
+- Do not document recent attempts or module progress sections yet because they are not implemented
+
+## Practice Hub
+### Section order
+1. Intro header
+2. Four-module practice grid
+
+### Content rules
+- `/app/practice` should read as a module-first practice hub rather than a generic placeholder page
+- Each module card should explain the practice mode, interview skill emphasis, difficulty range, and 2 to 3 concrete tags
+- Module CTAs should point users into the specific module landing page, not directly into unrelated app areas
+
+## Practice Module Landing Pages
+### Section order
+1. Page header
+2. Two-column overview row with practice summary and recommended starting point
+3. Exercise card grid
+
+### Content rules
+- Module pages should keep the tone practical and interview-oriented rather than tutorial-like
+- The highlighted starting point should feel like the fastest way into the workspace, with one recommended exercise called out clearly
+- Exercise cards should summarize difficulty, estimated time, and tags without adding progress or scoring states that are not implemented yet
+
+## Practice Workspaces
+### Section order
+1. Exercise header
+2. Three-part shared workspace shell with prompt, module surface, and review panel
+3. Status bar beneath the central work surface
+
+### Content rules
+- Workspace copy should emphasize realistic practice, structured review, and legible reasoning
+- The left panel should use concise prompt sections and one starter hint rather than long instructional prose
+- The right panel should frame results as output, validation, checks, review, or explanation depending on module type
+- Current workspace content is mocked and layout-first; avoid documenting live execution, persistence, scoring, or backend-connected feedback
 
 ## CTA Rules
-- Home: `Start practicing`
-- Modules: `Explore the modules`
-- Pricing: `Get started`
+- Home hero: `Start practicing`
+- Home secondary: `Explore modules`
+- Pricing featured plan: `Start Pro`
+- Pricing non-featured plans: `Choose plan`
 - Dashboard recommendation: `Continue`
-- Locked flows: `Unlock Pro`
 
 ## Empty, Error, And Loading Copy Rules
 ### Empty state formula
@@ -139,4 +156,4 @@ Page content and formatting specification.
 - CTA when possible: retry or go back
 
 ### Loading
-- Use quiet contextual labels like `Preparing workspace`, `Loading dashboard`, `Saving draft`
+- Use contextual labels when needed, such as `Preparing workspace`, `Loading dashboard`, or `Saving draft`

@@ -43,7 +43,7 @@ export function MarketingShell({ children }: PropsWithChildren) {
               Sign in
             </Link>
             <Link
-              href="/signup"
+              href="/app/practice"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[color-mix(in_oklab,var(--accent-secondary)_34%,transparent)] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,transparent)] px-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-secondary)] transition-colors duration-[130ms] ease-[var(--ease-standard)] hover:bg-[color-mix(in_oklab,var(--accent-secondary)_16%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
             >
               Start practicing

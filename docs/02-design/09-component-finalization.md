@@ -44,13 +44,15 @@ Component specification document.
 ## Practice Workspace Components
 | Component | Purpose | Key Props / Behavior |
 | --- | --- | --- |
-| `ExerciseHeader` | Context strip for exercise metadata | title, difficulty, timer, tags, save state |
-| `PromptPanel` | Problem statement and hints | sections, collapsible hints, sticky on desktop |
-| `MonacoEditorShell` | SQL/Python editor container | language, run, submit, reset, loading |
-| `SchemaBrowser` | SQL table reference | expandable sections, searchable |
-| `ResultPanel` | Execution or evaluation output | tabs for output, tests, explanation |
-| `FeedbackSummary` | Scored result summary | score, strengths, issues, next steps |
-| `ProgressWidget` | Module progress visualization | compact, full, dashboard variant |
+| `ModuleCard` | Practice hub module entry | title, interview skill, task shape, difficulty range, tags, CTA |
+| `ModuleLandingPage` | Module overview plus starter exercise list | module summary, recommended exercise highlight, exercise grid |
+| `WorkspacePage` | Route-level wrapper for a module workspace | module id, exercise id, module-specific center surface |
+| `WorkspaceShell` | Shared practice layout across all modules | responsive mobile tabs, desktop three-column shell, injected center surface |
+| `ExerciseHeader` | Context strip for exercise metadata | title, difficulty, estimated time, tags, save state |
+| `PromptPanel` | Problem statement and hints | prompt sections, collapsible support content, starter hint |
+| `ResultPanel` | Execution or evaluation output | module-specific tabs, summary state, explanation copy |
+| `WorkspaceStatusBar` | Lightweight status and feedback strip | save state, review state, idle/loading-style messaging |
+| `WorkSurface` | Mock module-first center surface | SQL editor preview, Python editor preview, ERD canvas placeholder, pipeline canvas placeholder |
 
 ## Visual Builder Components
 | Component | Purpose | Key Props / Behavior |
@@ -73,3 +75,4 @@ Component specification document.
 - Loading states preserve context rather than blanking the workspace.
 - Partial-save states are non-blocking and autosave-aware.
 - Error banners should anchor near the relevant workspace section.
+- Current practice workspaces are mocked and layout-first; real editors, schema tools, simulation, and persistence remain deferred.

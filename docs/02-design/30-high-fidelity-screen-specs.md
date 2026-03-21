@@ -1,7 +1,7 @@
 # 30 High-Fidelity Screen Specs
 
 ## Purpose
-Define implementation-ready high-fidelity screen specifications for the first DARCHIE pages across desktop and mobile.
+Define implementation-ready high-fidelity screen specifications for the currently implemented first DARCHIE pages across desktop and mobile.
 
 ## Decisions This Document Owns
 - Final screen composition
@@ -16,6 +16,7 @@ Define implementation-ready high-fidelity screen specifications for the first DA
 - `docs/02-design/27-component-style-spec.md`
 - `docs/02-design/28-motion-spec.md`
 - `docs/02-design/29-screen-content-spec.md`
+- implemented frontend in `apps/web`
 
 ## Required Sections
 - Desktop screen specs
@@ -27,60 +28,58 @@ Define implementation-ready high-fidelity screen specifications for the first DA
 High-fidelity text specification for primary screens.
 
 ## Completion Criteria
-- The first pages can be implemented without guessing layout, density, or visual emphasis.
+- The current first pages can be implemented or reviewed without guessing composition, hierarchy, or responsive behavior.
 
 ## Grid System
-- Marketing pages: 12-column grid, max width `1200px`
-- Auth pages: centered constrained card layout, max content width `480px`
-- App pages: fixed sidebar + 12-column content grid
+- Marketing pages: 12-column grid, max width `1280px`
+- Auth pages: centered constrained card layout, form card around `500px` max width
+- App pages: fixed sidebar + wide content canvas with spacious page header composition
 
 ## Home Page
 ### Desktop
-- Hero split 6/6 columns
-- Left: eyebrow, headline, supporting text, primary and secondary CTA
-- Right: layered product preview with dashboard + builder card overlap
-- Product proof strip in 4 equal cards beneath hero
-- Alternate light/dark section rhythm not required; keep one coherent theme and vary surfaces instead
+- Hero uses an editorial split layout
+- Left side contains eyebrow badge, headline, supporting text, premium primary CTA, secondary CTA, and compact proof statements
+- Right side contains one dominant product preview composition inside an elevated panel
+- Product preview combines readiness stats, pipeline builder preview, and one recommendation callout without awkward overlap
+- Follow-up content uses one larger asymmetrical explanation block plus two supporting panels
 
 ### Mobile
 - Hero stacks vertically
-- Product preview below CTA cluster
-- Proof strip becomes stacked cards
+- Editorial preview sits below the CTA cluster
+- Proof statements become vertically stacked blocks
+- Supporting panels stack without overlap
 
 ## Modules Page
 ### Desktop
-- Header section with title and short explanatory subcopy
-- 2x2 module summary grid
-- Full-width detailed sections below with illustration and text alternating alignment
+- Intro header followed by a 2x2 summary grid
+- Module cards use stronger padding and minimum height so content feels balanced and visible
+- No detailed alternating feature sections are currently present
 
 ### Mobile
-- Summary grid becomes stacked cards
-- Detailed sections become single-column
+- Summary grid becomes a single-column stack
+- Cards preserve spacing and readable line height
 
 ## Pricing Page
 ### Desktop
-- Three-card pricing layout centered in content frame
-- Middle card highlighted with elevated treatment
-- Comparison table below on full width
+- Three-card pricing layout centered in the content frame
+- Middle card is featured with stronger elevation and slightly more emphasis
+- No comparison table or FAQ section is currently implemented
 
 ### Mobile
-- Pricing cards stack
-- Comparison table becomes grouped feature lists
+- Pricing cards stack vertically
+- Featured plan remains visually stronger without requiring extra sections below
 
 ## About Page
 ### Desktop
-- Intro mission block
-- Two-column philosophy section
-- Vision section with timeline or principle cards
+- Simple marketing-shell content flow with premium spacing and restrained panel usage
 
 ### Mobile
 - Single-column flow throughout
 
 ## Auth Screens
 ### Desktop
-- Split background treatment with centered form card
-- Left side may show muted product message or trust cue
-- Form card uses panel/elevated surface with strong focus on primary action
+- Split layout with left-side brand/message region and right-side elevated form card
+- Form card uses warm premium surface treatment rather than bright white
 
 ### Mobile
 - Full-width content with comfortable outer padding
@@ -88,35 +87,66 @@ High-fidelity text specification for primary screens.
 
 ## Onboarding
 ### Desktop
-- Centered step card with progress rail above
-- Supporting recommendation panel may appear to the right on later steps
+- Current onboarding remains shell-level and layout-first rather than a complete multi-step interaction
 
 ### Mobile
-- Single-column step flow
-- Sticky bottom primary action
+- Simple stacked layout
 
 ## Dashboard
 ### Desktop
-- Welcome header spans full width
-- Summary cards in 4-column row
-- Recommendations and recent attempts in 8/4 split
-- Module progress grid below
+- Spacious page header spans the top
+- Three readiness cards in a row
+- Content below uses a split layout with momentum on the left and one featured recommendation on the right
+- No recent attempts feed or module progress grid is currently implemented
 
 ### Mobile
-- Summary cards become stacked or horizontally scrollable
-- Recommendations shown before recent attempts
+- Summary cards stack
+- Recommendation panel appears after the main summary flow
 
 ## State Behavior
 ### Dashboard loading
-- skeletons for summary cards, recommendation card, and attempt list
+- Existing component and page structure should be preserved during future loading states
+- Skeletons should mirror the summary cards and recommendation panel layout
+
+## Practice Hub
+### Desktop
+- Page header sits above a four-card module grid
+- Grid should read as one cohesive module selection surface, with balanced card heights and enough room for skill summary, task shape, difficulty range, and tags
+- Cards should feel actionable but not overloaded with secondary metadata
+
+### Mobile
+- Module cards stack in a single column
+- CTA placement stays visible without pushing tags or summaries into cramped wrapping
+
+## Practice Module Landing Pages
+### Desktop
+- Header sits above a two-column row with module overview on the left and a highlighted recommended exercise on the right
+- Exercise cards render below in a three-column grid with equal visual weight and clear call-to-action placement
+- The featured recommended exercise can reuse the same title as a card below, so tests and accessibility hooks should target semantics precisely
+
+### Mobile
+- Overview and recommendation panels stack before the exercise list
+- Exercise cards become a single-column feed with preserved spacing and tap targets
+
+## Practice Workspaces
+### Desktop
+- Shared shell uses a three-column grid: prompt panel, central module surface, and result panel
+- Exercise header sits above the grid and the status bar sits directly under the central work surface
+- Center column should remain module-specific while the surrounding shell stays consistent across SQL, Python, data modeling, and pipeline builder
+
+### Mobile
+- Workspace collapses into segmented tabs for prompt, workspace, and review
+- Shared shell content remains the same, but only one section is visible at a time to preserve readability
+- Duplicate surface text may appear across responsive regions in the DOM, so validation and test coverage should account for responsive duplication instead of assuming unique text nodes
 
 ### Empty dashboard
-- prominent onboarding-completion-style empty state with single CTA
+- When implemented later, empty state should preserve the current spacious composition and one strong CTA
 
 ### Auth error
-- inline field error plus top-level summary banner only for global failure
+- Inline field error plus optional top-level summary banner for global failure
 
 ## Implementation Notes
-- Page specs should be implemented with reusable section primitives, not page-specific ad hoc wrappers
-- Marketing pages should reuse a single section container pattern
-- Dashboard and app pages should reuse page-header and panel primitives
+- Page specs should continue using reusable section primitives rather than custom wrappers per screen
+- Marketing pages should preserve the editorial, calmer hierarchy introduced in the premium redesign
+- Dashboard and app pages should continue reusing `PageHeader`, `Panel`, and shell primitives rather than inventing dashboard-specific chrome
+- Practice pages should keep using shared workspace primitives and mocked module-specific center surfaces until backend logic and real editors/builders are introduced

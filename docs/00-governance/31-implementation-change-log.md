@@ -74,3 +74,20 @@ Chronological markdown log. New entries are appended at the bottom. Each entry i
 - Docs updated: `README.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
 - Follow-up required: expand the README later when backend startup and full-stack flows are implemented
 
+### 2026-03-21 — Premium UI docs synchronized
+- Area changed: design documentation alignment
+- What changed in code/docs: synchronized the main design docs to the implemented premium UI system, including the current token set, visual direction, component behavior, and homepage/modules/pricing/dashboard composition
+- Docs updated: `08-design-system-ui-foundations.md`, `26-visual-direction-spec.md`, `27-component-style-spec.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: keep future design refinements synced as implementation continues into practice workspaces
+
+### 2026-03-21 — Practice playground layout foundation
+- Area changed: practice hub, module landing pages, shared workspace shell
+- What changed in code: turned `/app/practice` into a module-first hub, added module landing pages for SQL, Python, Data Modeling, and Pipeline Builder, introduced a shared mocked workspace shell with prompt/work/review regions and module-specific center surfaces, and added route coverage plus component tests for the new layout slice
+- Docs updated: `09-component-finalization.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: wire real editors/builders, execution flows, persistence, and richer module catalogs in later slices; keep practice docs synced as mocked surfaces become functional
+
+### 2026-03-21 — Homepage entry routed into practice preview
+- Area changed: homepage-to-app entry flow
+- What changed in code: updated the public `Start practicing` CTAs to land in `/app/practice` instead of `/signup`, and added preview-state messaging in the practice hub so the module experience is openly accessible while deeper features remain intentionally restrictable later
+- Docs updated: `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: decide which practice capabilities stay open in preview mode versus which actions should later require sign-in, persistence, or paid access

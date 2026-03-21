@@ -1,18 +1,19 @@
 # 27 Component Style Spec
 
 ## Purpose
-Define the exact visual styling, states, formatting rules, and interaction expectations for DARCHIE’s core UI components.
+Define the exact implemented styling, states, and formatting behavior for DARCHIE’s core UI components.
 
 ## Decisions This Document Owns
 - Final component styling rules
 - State styling for core UI components
 - Formatting and spacing behavior by component
-- Locked and premium state presentation
+- Premium state presentation
 
 ## Inputs / Dependencies
 - `docs/02-design/08-design-system-ui-foundations.md`
 - `docs/02-design/09-component-finalization.md`
 - `docs/02-design/26-visual-direction-spec.md`
+- implemented frontend in `apps/web`
 
 ## Required Sections
 - Core primitives
@@ -25,7 +26,7 @@ Define the exact visual styling, states, formatting rules, and interaction expec
 Implementation-ready component style specification.
 
 ## Completion Criteria
-- Engineers can build all foundational UI components without inventing appearance or state behavior.
+- Engineers can match the current component system without inventing new behavior or appearance.
 
 ## Core Primitives
 ### Button
@@ -38,44 +39,36 @@ Variants:
 - `premium-lock`
 
 Base style:
-- height `44px`
-- horizontal padding `16px`
-- radius `14px`
-- label uses `label-md`
-- inline icon gap `8px`
+- height `44px` by default
+- radius `12px`
+- compact, dense label styling
+- calm transitions, no hover lift, no pressed translate
 
 State rules:
-- default: crisp border or fill depending on variant
-- hover: slight lift and stronger surface contrast
-- active: subtle pressed translate with reduced shadow
-- focus: visible focus ring token
-- disabled: 55 percent opacity, no lift, cursor not-allowed
-- loading: spinner replaces leading icon, width stable
+- `primary`: dense navy in light mode, cool blue in dark mode
+- `secondary`: panel-like surface with visible border
+- `ghost`: text-led, lighter, and quiet
+- `outline`: transparent with strong border definition
+- `danger`: semantic red, still visually restrained
+- `loading`: stable width with spinner inside the content row
+- `disabled`: reduced opacity with no extra motion
+
+Special CTA rule:
+- The hero and marketing header `Start practicing` CTA use a premium badge-like treatment based on accent-secondary tinting rather than the default primary button style
 
 ### Input
 Base style:
-- height `46px`
-- radius `14px`
-- horizontal padding `14px`
-- label above field, helper/error text below
+- height `44px`
+- radius `12px`
+- neutral premium field with flat surface
+- stronger text legibility than the original soft UI pass
 
 State rules:
-- default: soft border, neutral panel fill
-- hover: stronger border
-- focus: accent border + focus ring
-- error: error border + error helper text
-- success: success border only where explicitly useful
-- disabled: muted fill and text
-
-### Textarea
-- min height `120px`
-- same border/focus treatment as input
-- character count optional, right-aligned below field
-
-### Select
-- same control height as input
-- dropdown panel uses elevated surface and soft border
-- selected option uses accent background tint
+- `default`: soft border and clean panel background
+- `hover`: stronger border only
+- `focus`: visible focus ring with controlled accent border emphasis
+- `error`: stronger error border without loud styling
+- `disabled`: reduced opacity, no decorative treatment
 
 ### Badge
 Variants:
@@ -86,31 +79,10 @@ Variants:
 - error
 - premium
 
-### Tabs
-- pill-style segmented group
-- active tab uses filled panel with accent-tinted border
-- inactive tabs remain low-emphasis but readable
-
-## Shell Components
-### MarketingHeader
-- sticky after scroll
-- transparent on hero, elevated surface once scrolled
-- CTA button always visible on desktop
-
-### AppSidebar
-- fixed on desktop
-- width `280px` expanded, `88px` collapsed
-- active item uses accent line + filled background
-- section labels use uppercase `label-sm`
-
-### MobileNav
-- bottom navigation for app shell on small screens
-- max 5 top-level destinations
-- active item uses accent icon and label
-
-### PageHeader
-- title, supporting text, right-side action region
-- supports `default`, `dashboard`, and `workspace` variants
+Badge rules:
+- smaller uppercase editorial feel
+- premium badge uses accent-secondary tinting, not loud fill
+- badges should read as metadata or emphasis, not mini-buttons
 
 ### Panel
 Variants:
@@ -121,81 +93,67 @@ Variants:
 - danger
 
 Panel rules:
-- 18px radius
-- 16 to 24px padding depending on density
+- `16px` radius
+- flat premium surface language
 - visible border always present
+- gradients removed from normal usage
+- highlighted panel uses subtle tint + border, not strong fill
+- padding varies by context and is often applied at usage sites rather than embedded globally
+
+## Shell Components
+### MarketingHeader
+- slim sticky header
+- premium pill-style menu links on desktop
+- branded logo block with icon mark + subtitle
+- theme toggle plus sign-in and premium CTA on the right
+- header CTA matches hero premium CTA style
+
+### AppSidebar
+- fixed on desktop
+- quieter active-state treatment using panel surface, shadow, and subtle ring
+- reduced decorative treatment compared with the initial version
+- summary card at the bottom should feel clean and editorial, not promotional
+
+### MobileNav
+- integrated bottom navigation on small screens
+- less floating-gadget feel than the original pill-heavy version
+- active item uses subtle tinted background and stronger text contrast
+
+### PageHeader
+- title, supporting text, right-side action region
+- spacing-first composition, less dependence on border dividers
+- supports `default`, `dashboard`, and `workspace` variants
 
 ## Display Components
-### StatCard
-- title top-left
-- value prominent
-- optional delta or trend on lower row
-- use restrained accent color, not loud KPI tiles
-
-### FeatureCard
-- icon or number marker
-- short heading
-- 2 to 3 lines of body copy
-- optional “learn more” affordance
-
-### ModuleCard
-- module title, short description, tags, progress, CTA
-- recommended badge optional
-- locked state shows premium label and muted CTA
-
 ### PricingCard
-- highlighted “best value” option uses elevated treatment
-- feature list uses icon bullets
-- CTA remains inside card body
+- three-card layout with one featured middle plan
+- featured card uses elevated treatment and slightly stronger emphasis
+- no comparison table or FAQ styling required yet
 
-### EmptyState
-- icon or illustration motif
-- clear title
-- one sentence explanation
-- one primary action
+### ModuleCard Pattern
+- current modules page uses a simple 2x2 premium summary grid
+- cards require enough padding and minimum height to avoid underfit content
+- description copy should have relaxed line height and visible breathing room
 
-## Workspace Components
-### ExerciseHeader
-- includes title, difficulty badge, timer slot, save state, action buttons
-- sticky in workspace views
-
-### PromptPanel
-- sticky left panel on desktop
-- section dividers for prompt, constraints, hints
-- collapsible hints use subtle disclosure motion
-
-### ResultPanel
-- tabbed container for output, tests, explanation
-- validation and execution messages use consistent banners
-
-### FeedbackSummary
-- top score band
-- 3 regions:
-  - what worked
-  - what needs work
-  - what to try next
+### Dashboard Summary Card
+- three readiness summary cards with compact metadata label and strong numeric emphasis
+- momentum and featured recommendation panels should feel more editorial than dashboard-widget heavy
 
 ## State Rules
 ### Loading
-- skeletons mimic real layout
-- do not replace the whole screen with a spinner unless blocking app initialization
+- keep layout stable
+- avoid replacing entire views with loud loading indicators unless app boot is blocked
 
 ### Error
-- error banners anchor near the failed component
-- include action-oriented next step copy
+- preserve clarity and contrast
+- do not introduce visually noisy error surfaces unless the error is primary page content
 
 ### Locked / Premium
-- use premium badge and muted blurred or desaturated preview
-- show value-oriented copy, not punitive copy
-
-### Empty
-- must include one clear next action
+- premium or locked surfaces should use restrained tinting and value-oriented copy
+- avoid punitive or overly promotional treatment
 
 ## Formatting Rules
 - Use sentence case across labels, cards, and buttons
-- Keep CTA labels short: 1 to 4 words
-- Avoid all-caps except very small nav/meta labels
-- Data formatting:
-  - percentages: no more than one decimal place
-  - durations: use concise units like `25 min`
-  - counts: use compact notation only above 1000
+- Reserve uppercase mostly for small metadata, section markers, and premium badge moments
+- CTA labels stay short and decisive
+- Typography and spacing should carry more hierarchy than decoration

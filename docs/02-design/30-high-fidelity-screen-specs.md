@@ -134,7 +134,7 @@ High-fidelity text specification for primary screens.
 - Exercise header sits above a three-column grid: sticky prompt rail, central module surface, and sticky result panel
 - Primary actions such as `Reset`, `Run`, and `Submit` sit directly beneath the editor in one aligned row
 - Status messaging stays grouped with the editor action area rather than floating elsewhere on the page
-- SQL keeps schema/reference material beneath the editor, Python keeps input/review reference material beneath the editor, and Data Modeling is the builder-first exception: no route-level exercise header card, sticky prompt on the left, dominant React Flow canvas in the center, sticky builder palette on the right, and validation/review moved into a full-width bottom surface
+- SQL keeps schema/reference material beneath the editor, Python keeps input/review reference material beneath the editor, and Data Modeling is the builder-first exception: no route-level exercise header card, full-width prompt section above the workspace, dominant React Flow canvas in the center, full-height builder palette on the right, and validation/review moved into a full-width bottom surface
 - Pipeline Builder still uses the shared mocked workspace shell until its dedicated focus-mode workspace is built
 
 ### Mobile
@@ -154,3 +154,4 @@ High-fidelity text specification for primary screens.
 - Dashboard and app pages should continue reusing `PageHeader`, `Panel`, and shell primitives rather than inventing dashboard-specific chrome
 - Practice pages should keep using shared workspace primitives, but SQL, Python, and Data Modeling now justify dedicated focus-mode exercise layouts because they rely on sticky context and a dominant central work surface
 - Data Modeling should continue using a curated hybrid shape set for architectural expression, while blocking validation remains scoped to ERD entities and relationships
+- Data Modeling should prefer inline node editing for entity names, field names, field types, and PK state rather than relying on persistent side inspectors or duplicated action bars

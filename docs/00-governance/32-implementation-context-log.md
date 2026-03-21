@@ -31,7 +31,7 @@ Short operational markdown updated in place after each meaningful implementation
 - This file reflects the latest verified state of the repo
 
 ## Current Focus
-Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned Data Modeling builder are implemented. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
+Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned canvas-first Data Modeling builder are implemented. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
 
 ## Completed Recently
 - Bootstrapped `apps/web` with Next.js App Router, theme provider, font setup, dark/light token system, and marketing/auth/app route shells
@@ -46,7 +46,8 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Implemented the first functional SQL module path with a Monaco editor, schema browser, draft save, run preview, submit feedback, a new FastAPI backend slice, and backend tests for the starter SQL sandbox
 - Reworked SQL exercise pages into a focus-mode editor layout with top app header chrome, sticky prompt/review rails, aligned action row placement, and improved sidebar reopen behavior on non-focus routes
 - Mirrored the same focus-mode exercise layout for Python so SQL and Python now share one coherent premium workspace UX, even though Python run/submit behavior remains mocked
-- Implemented Data Modeling as a dedicated focus-mode React Flow builder with a sticky prompt rail, curated right-side palette, hybrid ERD/support-shape canvas, real frontend ERD validation, and mocked submit/review output in a full-width review surface beneath the canvas
+- Implemented Data Modeling as a dedicated focus-mode React Flow builder with a full-width prompt section, curated right-side palette, hybrid ERD/support-shape canvas, real frontend ERD validation, and mocked submit/review output in a full-width review surface beneath the canvas
+- Refined Data Modeling into a more canvas-first interaction model: removed the left inspector and duplicate below-canvas action strip, moved rename/add-field/type-editing into the nodes themselves, made the builder palette span the page-height workspace column, removed the visible `Starter hint` block for the module, and loosened the minimum zoom for larger diagrams
 
 ## In Progress
 - Governance layer for documentation sync is active and should continue after each implementation slice
@@ -72,7 +73,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - The first SQL runtime slice is intentionally narrow: one exercise, one local sandbox runner, and in-memory draft state rather than the final isolated MySQL worker/persistence design
 - Python now visually implies a richer editor flow than the backend actually supports, so docs and future implementation must keep the distinction between mirrored UX and real runtime behavior explicit
 - Data Modeling now feels materially more complete than its backend support; future work must preserve the frontend draft schema and ERD validation semantics when persistence/scoring are added
-- The redesigned Data Modeling experience no longer uses the generic exercise header or right-rail config pattern, so future work should not reintroduce those older UX assumptions by accident
+- The redesigned Data Modeling experience no longer uses the generic exercise header, left-side inspector, or right-rail config pattern, so future work should not reintroduce those older UX assumptions by accident
 
 ## Next Recommended Task
 Harden the SQL module further, choose the real Python runtime path, and then add persistence plus backend-backed validation/scoring to the Data Modeling builder while bringing Pipeline Builder onto the same dedicated builder pattern.

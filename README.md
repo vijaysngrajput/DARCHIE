@@ -19,7 +19,7 @@ The frontend foundation is implemented with:
 
 The backend is now partially wired for the SQL module preview path. Python, data-modeling, pipeline-builder, auth, billing, and persistence are still incomplete.
 Python now mirrors the SQL workspace UI structure in the browser, but its run and submit flows remain mocked and frontend-only.
-Data Modeling now has a frontend-interactive React Flow design canvas with real ERD validation, a sticky prompt rail, a palette-first builder workflow, and mocked submit/review behavior.
+Data Modeling now has a frontend-interactive React Flow design canvas with real ERD validation, a full-width prompt section, a palette-first builder workflow, and mocked submit/review behavior.
 
 ## Recommended Setup
 Use the devcontainer.
@@ -135,7 +135,9 @@ pnpm test:api
 - SQL, Python, and Data Modeling exercise routes now use a focused top-header layout instead of the heavier desktop sidebar.
 - Python currently matches the SQL workspace UX structure, but its execution/review behavior is still mocked.
 - SQL and Python keep the sticky prompt-left, work-surface-center, sticky-review-right structure.
-- Data Modeling now uses a sticky prompt rail on the left, a dominant React Flow architecture canvas in the center, a curated builder palette on the right, and a full-width validation/review surface beneath the canvas.
+- Data Modeling now uses a full-width prompt section above the workspace, a dominant React Flow architecture canvas, a full-height builder palette on the right, and a full-width validation/review surface beneath the canvas.
+- Data Modeling is now canvas-first: entity and shape labels are renamed inline, entity fields can be added and edited directly in the node card, and the older left inspector / below-canvas action-strip pattern has been removed.
+- Data Modeling no longer shows the `Starter hint` block in the prompt area.
 - Data Modeling supports hybrid architecture shapes for canvas composition, but only ERD entities and relationships participate in blocking validation in this slice.
 
 ## Important Docs

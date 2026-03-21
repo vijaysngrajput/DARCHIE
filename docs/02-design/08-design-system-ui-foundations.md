@@ -101,7 +101,8 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
   - main workspace
   - feedback/output panel
 - In focused editor routes, the context and feedback columns should stay sticky with a small top offset so the problem statement and review remain visible while the user scrolls through the central workspace
-- Data Modeling is now a builder-first exception within that family: it still uses a sticky context rail, but swaps the sticky right feedback rail for a sticky builder palette and moves validation/review into a full-width surface below the canvas
+- Data Modeling is now a builder-first exception within that family: it uses a full-width prompt section above the workspace, a dominant central canvas, a full-height builder palette on the right, and validation/review in a full-width surface below the canvas
+- Data Modeling should feel canvas-first rather than form-first: prefer inline editing inside selected nodes over persistent side inspectors or duplicate action bars
 
 ## Breakpoints
 - `sm: 640`

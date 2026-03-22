@@ -31,7 +31,7 @@ Short operational markdown updated in place after each meaningful implementation
 - This file reflects the latest verified state of the repo
 
 ## Current Focus
-Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned canvas-first Data Modeling builder are implemented. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
+Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned canvas-first Data Modeling builder are implemented. The light theme has also been retuned away from brighter parchment surfaces toward a calmer slate-neutral system. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
 
 ## Completed Recently
 - Bootstrapped `apps/web` with Next.js App Router, theme provider, font setup, dark/light token system, and marketing/auth/app route shells
@@ -49,6 +49,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Implemented Data Modeling as a dedicated focus-mode React Flow builder with a full-width prompt section, curated right-side palette, hybrid ERD/support-shape canvas, real frontend ERD validation, and mocked submit/review output in a full-width review surface beneath the canvas
 - Refined Data Modeling into a more canvas-first interaction model: removed the left inspector and duplicate below-canvas action strip, moved rename/add-field/type-editing into the nodes themselves, made the builder palette span the page-height workspace column, removed the visible `Starter hint` block for the module, and loosened the minimum zoom for larger diagrams
 - Expanded Data Modeling into a more premium builder: compacted the prompt into a cleaner editorial header, added a brainstorming scratchpad, added toolbar/minimap/navigation affordances, made validation issues jump back to the relevant canvas objects, and deepened inline entity editing with nullable/remove/reorder controls plus contextual relationship label editing
+- Retuned the light theme tokens so cards, panels, and backgrounds feel calmer and less white-heavy, using a slate-neutral family for surfaces, text, accents, borders, and focus treatment while keeping dark mode unchanged
 
 ## In Progress
 - Governance layer for documentation sync is active and should continue after each implementation slice

@@ -6,31 +6,31 @@
   --font-body: var(--font-manrope);
   --font-mono: var(--font-jetbrains-mono);
 
-  --bg-base: #f1eee6;
-  --bg-surface: #e6e1d6;
-  --bg-panel: #fcfaf5;
-  --bg-elevated: #f7f2ea;
+  --bg-base: #dddddd;
+  --bg-surface: #cfd2d9;
+  --bg-panel: #ebe8ef;
+  --bg-elevated: #dde0e8;
   --bg-overlay: rgba(15, 17, 21, 0.26);
-  --text-primary: #171717;
-  --text-secondary: #444444;
-  --text-muted: #6b6b6b;
-  --accent-primary: #1f3a5f;
-  --accent-primary-strong: #12263f;
-  --accent-secondary: #a67c52;
+  --text-primary: #43405d;
+  --text-secondary: #4b586e;
+  --text-muted: #6a6781;
+  --accent-primary: #574e6d;
+  --accent-primary-strong: #43405d;
+  --accent-secondary: #4b586e;
   --accent-warning: #b7791f;
   --accent-error: #b85c55;
   --accent-success: #2f7d57;
-  --border-soft: rgba(23, 23, 23, 0.08);
-  --border-strong: rgba(23, 23, 23, 0.16);
-  --focus-ring: rgba(31, 58, 95, 0.22);
+  --border-soft: rgba(67, 64, 93, 0.12);
+  --border-strong: rgba(67, 64, 93, 0.22);
+  --focus-ring: rgba(87, 78, 109, 0.22);
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 22px;
 
-  --shadow-soft: 0 10px 30px rgba(14, 18, 24, 0.06);
-  --shadow-panel: 0 18px 48px rgba(14, 18, 24, 0.12);
+  --shadow-soft: 0 12px 30px rgba(67, 64, 93, 0.08);
+  --shadow-panel: 0 20px 54px rgba(67, 64, 93, 0.14);
   --shadow-modal: 0 28px 80px rgba(14, 18, 24, 0.2);
 
   --duration-instant: 80ms;
@@ -79,9 +79,10 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, color-mix(in oklab, var(--accent-primary) 12%, transparent) 0%, transparent 34%),
-    radial-gradient(circle at top right, color-mix(in oklab, var(--accent-secondary) 14%, transparent) 0%, transparent 28%),
-    linear-gradient(180deg, color-mix(in oklab, var(--bg-surface) 42%, var(--bg-base)) 0%, var(--bg-base) 44%),
+    radial-gradient(circle at top center, color-mix(in oklab, var(--bg-panel) 50%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at top left, color-mix(in oklab, var(--accent-primary) 14%, transparent) 0%, transparent 30%),
+    radial-gradient(circle at top right, color-mix(in oklab, var(--accent-secondary) 13%, transparent) 0%, transparent 26%),
+    linear-gradient(180deg, color-mix(in oklab, var(--bg-surface) 50%, var(--bg-base)) 0%, var(--bg-base) 44%),
     var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-body), sans-serif;

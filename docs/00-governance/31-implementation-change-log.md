@@ -127,3 +127,9 @@ Chronological markdown log. New entries are appended at the bottom. Each entry i
 - What changed in code: compacted the full-width prompt into a more editorial top section, added a local brainstorming scratchpad, expanded in-card field editing with nullable/removal/reorder controls, made relationship labels editable near the edge, added canvas toolbar utilities (`Fit all`, `Center selection`, zoom %, `Undo`, `Redo`, `Clear`, shortcut help), enabled multi-select organization actions including duplicate/align/distribute/group, added a mini-map, introduced clickable validation issues that focus the related entity or relationship, and split reset behavior into starter-reset versus support-shape clearing
 - Docs updated: `README.md`, `08-design-system-ui-foundations.md`, `09-component-finalization.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
 - Follow-up required: add backend persistence/scoring later without losing the current local draft model, decide whether support-note bodies/style variants need deeper inline authoring, and revisit true field drag-reorder if button-based reorder becomes a bottleneck
+
+### 2026-03-22 — Light theme calm slate retune
+- Area changed: global light-theme token system, panel/surface mood, design-system documentation
+- What changed in code: replaced the brighter parchment-leaning light theme tokens with a calmer slate-neutral family so cards, panels, and workspace chrome feel denser and less white-heavy while preserving the existing component structure and dark theme
+- Docs updated: `08-design-system-ui-foundations.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: keep future design work aligned with the calmer light-mode direction and only add component-level overrides if token-level tuning proves insufficient

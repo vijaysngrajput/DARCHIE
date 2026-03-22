@@ -32,7 +32,7 @@ Design-system foundation document.
 DARCHIE should feel like a polished enterprise-grade product for technical users: calm, premium, structured, and credible. The visual system should avoid loud startup styling, default SaaS gradients, and over-decorated dashboards.
 
 ## Visual Language
-- Primary mood: warm parchment light mode, charcoal dark mode, restrained navy and muted gold accents
+- Primary mood: calm slate-neutral light mode, charcoal dark mode, restrained indigo-slate and muted steel accents
 - Surface treatment: flat premium panels with subtle separation and restrained atmospheric background treatment
 - Shapes: rounded but precise, using 8px to 22px radii depending on component role
 - Illustration style: stroke-first icons, data-flow motifs, product-preview compositions instead of generic abstract art
@@ -44,23 +44,23 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
 
 ## Color Tokens
 ### Light theme tokens
-- `bg.base`: `#f1eee6`
-- `bg.surface`: `#e6e1d6`
-- `bg.panel`: `#fcfaf5`
-- `bg.elevated`: `#f7f2ea`
+- `bg.base`: `#dddddd`
+- `bg.surface`: `#cfd2d9`
+- `bg.panel`: `#e6e4ea`
+- `bg.elevated`: `#d6d8df`
 - `bg.overlay`: `rgba(15, 17, 21, 0.26)`
-- `text.primary`: `#171717`
-- `text.secondary`: `#444444`
-- `text.muted`: `#6b6b6b`
-- `accent.primary`: `#1f3a5f`
-- `accent.primary-strong`: `#12263f`
-- `accent.secondary`: `#a67c52`
+- `text.primary`: `#43405d`
+- `text.secondary`: `#4b586e`
+- `text.muted`: `#6a6781`
+- `accent.primary`: `#574e6d`
+- `accent.primary-strong`: `#43405d`
+- `accent.secondary`: `#4b586e`
 - `accent.warning`: `#b7791f`
 - `accent.error`: `#b85c55`
 - `accent.success`: `#2f7d57`
-- `border.soft`: `rgba(23, 23, 23, 0.08)`
-- `border.strong`: `rgba(23, 23, 23, 0.16)`
-- `focus.ring`: `rgba(31, 58, 95, 0.22)`
+- `border.soft`: `rgba(67, 64, 93, 0.12)`
+- `border.strong`: `rgba(67, 64, 93, 0.22)`
+- `focus.ring`: `rgba(87, 78, 109, 0.22)`
 
 ### Dark theme tokens
 - `bg.base`: `#0f1115`

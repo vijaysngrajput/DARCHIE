@@ -48,7 +48,7 @@ Component specification document.
 | --- | --- | --- |
 | `ModuleCard` | Practice hub module entry | title, interview skill, task shape, difficulty range, tags, CTA |
 | `ModuleLandingPage` | Module overview plus starter exercise list | module summary, recommended exercise highlight, exercise grid |
-| `WorkspacePage` | Route-level wrapper for a module workspace | module id, exercise id, routes SQL/Python/Data Modeling into dedicated exercise workspaces and keeps shared shell for other mocked modules |
+| `WorkspacePage` | Route-level wrapper for a module workspace | module id, exercise id, routes SQL/Python/Data Modeling/Pipeline Builder into dedicated exercise workspaces and keeps shared shell for any remaining mocked modules |
 | `WorkspaceShell` | Shared practice layout across modules that still use the generic shell | responsive mobile tabs, desktop three-column shell, injected center surface |
 | `ExerciseHeader` | Context strip for exercise metadata | title, difficulty, estimated time, tags, save state; sits above the focused exercise grid |
 | `PromptPanel` | Problem statement and optional support hint | prompt sections, visible-context badge, optional starter hint block that is omitted when empty |
@@ -57,6 +57,7 @@ Component specification document.
 | `SqlWorkspace` | Dedicated SQL exercise workspace | top header route chrome, sticky prompt rail, Monaco editor, action row under editor, schema browser, sticky review rail, FastAPI-backed preview states |
 | `PythonWorkspace` | Dedicated Python exercise workspace | same focused exercise layout as SQL, Monaco editor, action row under editor, mocked preview/review states, reference section below editor |
 | `DataModelingWorkspace` | Dedicated architecture and ERD builder workspace | top header route chrome without the route-level exercise header, compact full-width prompt plus brainstorming scratchpad, React Flow canvas, full-height builder palette, inline node editing, relationship overlay tools, canvas toolbar + mini-map, full-width validation/review surface, ERD-only blocking validation |
+| `PipelineBuilderWorkspace` | Dedicated DAG and orchestration builder workspace | focus-mode route chrome, compact full-width prompt plus scratchpad, React Flow pipeline canvas, searchable branded shape palette, inline node/context editing, graph validation, mocked simulation/review surface |
 | `WorkSurface` | Mock module-first center surface | pipeline canvas placeholder and any legacy generic mocked surfaces where dedicated workspaces are not used |
 
 ## Visual Builder Components
@@ -66,6 +67,7 @@ Component specification document.
 | `NodePalette` | Node library | filterable by type and category |
 | `PipelineNodeCard` | ETL step on canvas | type, status, validation state, selected |
 | `DataModelEntityCard` | ERD entity representation | inline rename, field add/remove/reorder, direct type dropdown editing, PK/nullable/FK toggles, selected, invalid |
+| `ArchitectureShapeLibrary` | Shared branded/supporting shape catalog | searchable grouped items, provider metadata, keywords, reusable across builder modules |
 | `EdgeRenderer` | Relationship or dependency line | valid, invalid, warning |
 | `ConfigDrawer` | Node/entity configuration | open state, validation, save/cancel |
 | `SimulationTimeline` | Step playback | idle, running, paused, failed, completed |
@@ -80,5 +82,5 @@ Component specification document.
 - Loading states preserve context rather than blanking the workspace.
 - Partial-save states are non-blocking and autosave-aware.
 - Error banners should anchor near the relevant workspace section.
-- SQL now has a functional editor-based preview path, Python mirrors that editor-focused layout in mocked form, and Data Modeling now has a builder-first interactive frontend canvas with inline node editing and mocked review flow; Pipeline Builder remains layout-first.
+- SQL now has a functional editor-based preview path, Python mirrors that editor-focused layout in mocked form, and both Data Modeling and Pipeline Builder now have builder-first interactive frontend canvases with mocked review flow and real frontend validation semantics.
 - Premium emphasis now has a dedicated shared component path: `Panel` supports a selective `metallic` variant, while premium `Badge` and premium-lock `Button` states reuse the same metallic token family instead of inventing separate gold treatments ad hoc.

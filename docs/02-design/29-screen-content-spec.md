@@ -137,6 +137,10 @@ Data Modeling exception:
 - Do not render the route-level exercise header card above the canvas
 - Use a compact full-width prompt plus brainstorming scratchpad above the workspace, the builder canvas in the main column, a full-height builder palette on the right, and a full-width validation/review surface beneath the canvas
 
+Pipeline Builder exception:
+- Do not render the old generic shell for exercise routes
+- Use the same full-width prompt plus scratchpad pattern as Data Modeling, a dominant DAG canvas in the main column, a searchable branded palette on the right, and a full-width validation/simulation/review surface beneath the canvas
+
 ### Content rules
 - Workspace copy should emphasize realistic practice, structured review, and legible reasoning
 - Prompt content should stay concise and technical; Data Modeling now uses one clear `Prompt` heading, omits the visible `Starter hint` block, and places freeform reasoning in the brainstorming scratchpad instead of inside the prompt body
@@ -144,7 +148,9 @@ Data Modeling exception:
 - The right panel should frame results as output, validation, checks, review, or explanation depending on module type
 - SQL is now backend-connected for preview execution and structured submission feedback; Python currently mirrors the same layout and interaction rhythm but still uses mocked run/submit states
 - Data Modeling now uses a premium hybrid architecture-and-ERD builder with a compact full-width prompt section, a brainstorming scratchpad, curated palette-driven shape creation, a subtle dot-grid drafting canvas, inline in-node editing for entity and shape changes, direct field-type dropdowns, clickable `PK` / `NULL` / `FK` toggles, drag-handle field reorder, and real frontend ERD validation before a mocked submit/review step
+- Pipeline Builder now uses a premium DAG builder with a searchable branded infrastructure palette, curated AWS/platform pipeline shapes, a dot-grid drafting canvas, real frontend graph validation, and mocked simulation/review output
 - Data Modeling should feel spatial and presentational rather than form-driven; avoid documenting a persistent `Entity config` side rail, left inspector, or duplicate action strip for the current implementation
+- Pipeline Builder should feel orchestration-first rather than form-first; avoid documenting the older generic placeholder palette/config columns for the current implementation
 - Premium metallic-gold outlines should only be described on featured hero surfaces, high-value workspace shells, and premium CTA/badge moments; do not imply that every card uses that treatment
 - Avoid documenting Python as fully backend-connected yet, and avoid implying persistence/auth/paywall behavior beyond the current preview slice
 

@@ -15,6 +15,7 @@ export function AppShell({ children, header }: PropsWithChildren<{ header?: Reac
     pathname?.startsWith('/app/practice/sql/') ||
     pathname?.startsWith('/app/practice/python/') ||
     pathname?.startsWith('/app/practice/data-modeling/') ||
+    pathname?.startsWith('/app/practice/pipeline-builder/') ||
     false;
 
   useEffect(() => {

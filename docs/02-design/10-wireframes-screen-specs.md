@@ -69,9 +69,10 @@ Low-fidelity wireframe spec in text form.
 - Right: entity configuration and validation summary
 
 ### Pipeline Builder Workspace
-- Left: node palette and exercise brief
+- Full-width prompt and scratchpad above the workspace
 - Center: builder canvas
-- Right: config drawer and simulation timeline
+- Right: searchable branded node palette
+- Bottom: validation, simulation, and review surface
 
 ## Mobile Layout Specs
 - Marketing pages stack vertically with reduced visual density

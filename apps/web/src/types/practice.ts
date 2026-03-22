@@ -57,6 +57,7 @@ export type ExerciseWorkspaceProps = {
   workSurfaceTitle: string;
   workSurfaceDescription: string;
   builderStarterState?: DataModelingWorkspaceState;
+  pipelineStarterState?: PipelineBuilderWorkspaceState;
 };
 
 export type DataModelFieldType = 'uuid' | 'integer' | 'string' | 'timestamp' | 'decimal' | 'boolean';
@@ -101,6 +102,89 @@ export type DataModelingWorkspaceState = {
   version: number;
   entities: DataModelEntity[];
   relationships: DataModelRelationship[];
+  view: {
+    zoom: number;
+    x: number;
+    y: number;
+  };
+};
+
+export type PipelineNodeRole =
+  | 'source'
+  | 'transform'
+  | 'join'
+  | 'filter'
+  | 'aggregate'
+  | 'quality-check'
+  | 'branch'
+  | 'sink'
+  | 'scheduler-trigger'
+  | 'alert'
+  | 'support';
+
+export type PipelineNodeProvider = 'neutral' | 'aws' | 'azure' | 'platform';
+
+export type PipelineNodeCategory =
+  | 'storage'
+  | 'compute'
+  | 'streaming'
+  | 'analytics'
+  | 'boundary'
+  | 'note'
+  | 'basics';
+
+export type PipelineNodeShapeKind =
+  | 's3'
+  | 'redshift'
+  | 'warehouse'
+  | 'database'
+  | 'ec2'
+  | 'spark'
+  | 'flink'
+  | 'batch-job'
+  | 'cluster'
+  | 'kafka'
+  | 'scheduler-trigger'
+  | 'workflow'
+  | 'dashboard'
+  | 'alert'
+  | 'quality-check'
+  | 'monitor'
+  | 'note'
+  | 'aws-boundary'
+  | 'azure-boundary'
+  | 'platform-boundary'
+  | 'rectangle';
+
+export type PipelineBuilderNode = {
+  id: string;
+  shapeKind: PipelineNodeShapeKind;
+  label: string;
+  provider: PipelineNodeProvider;
+  category: PipelineNodeCategory;
+  role: PipelineNodeRole;
+  hint: string;
+  configSummary: string;
+  position: {
+    x: number;
+    y: number;
+  };
+  width: number;
+  height: number;
+};
+
+export type PipelineBuilderEdge = {
+  id: string;
+  sourceNodeId: string;
+  targetNodeId: string;
+  label: string;
+};
+
+export type PipelineBuilderWorkspaceState = {
+  version: number;
+  nodes: PipelineBuilderNode[];
+  edges: PipelineBuilderEdge[];
+  notes: string;
   view: {
     zoom: number;
     x: number;

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { DataModelingWorkspace } from '@/components/practice/data-modeling-workspace';
+import { PipelineBuilderWorkspace } from '@/components/practice/pipeline-builder-workspace';
 import { getModuleSummary, getWorkspaceExercise } from '@/lib/practice-data';
 import type { PracticeModuleId } from '@/types/practice';
 import { PythonWorkspace } from '@/components/practice/python-workspace';
@@ -31,6 +32,10 @@ export function WorkspacePage({
 
   if (moduleId === 'data-modeling') {
     return <DataModelingWorkspace exerciseId={exerciseId} initialWorkspace={workspace} />;
+  }
+
+  if (moduleId === 'pipeline-builder') {
+    return <PipelineBuilderWorkspace exerciseId={exerciseId} initialWorkspace={workspace} />;
   }
 
   return (

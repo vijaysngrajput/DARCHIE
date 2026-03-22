@@ -20,6 +20,7 @@ The frontend foundation is implemented with:
 The backend is now partially wired for the SQL module preview path. Python, data-modeling, pipeline-builder, auth, billing, and persistence are still incomplete.
 Python now mirrors the SQL workspace UI structure in the browser, but its run and submit flows remain mocked and frontend-only.
 Data Modeling now has a frontend-interactive React Flow design canvas with real ERD validation, a compact full-width prompt plus brainstorming scratchpad, a dot-grid drafting surface, a canvas-first inline editing model, and mocked submit/review behavior.
+Pipeline Builder now has a dedicated frontend-first React Flow DAG workspace with a searchable branded infrastructure palette, real graph validation, mocked simulation/review, and local-only builder state.
 
 ## Recommended Setup
 Use the devcontainer.
@@ -160,6 +161,9 @@ pnpm test:api
 - Data Modeling validation issues are now clickable from the review surface and jump the user back to the relevant entity or relationship on the canvas.
 - Data Modeling no longer shows the `Starter hint` block in the prompt area.
 - Data Modeling supports hybrid architecture shapes for canvas composition, but only ERD entities and relationships participate in blocking validation in this slice.
+- Pipeline Builder no longer uses the older generic shell. It now has a focus-mode builder layout with a full-width prompt plus scratchpad, a metallic pipeline canvas shell, a searchable right-rail shape library, and a bottom validation/simulation/review surface.
+- Pipeline Builder’s new shape library is pipeline-first and curated rather than generic: branded/supporting shapes now include items such as `S3`, `Redshift`, `EC2 / compute`, `Spark`, `Flink`, `Kafka / stream`, `Dashboard`, `Alert`, quality checks, and provider/platform boundaries.
+- Pipeline Builder remains frontend-first in this slice: graph validation is real in the browser, while simulation and submit feedback are mocked and there is still no backend persistence or orchestrator runtime behind it.
 - The light theme now uses a calmer slate-neutral surface system with restored atmospheric sheen rather than brighter parchment-white cards.
 - A selective metallic-gold premium outline system is now available for featured panels, premium badges, and a few high-value workspace shells; it is intentionally not applied to every card.
 
@@ -173,4 +177,5 @@ Start here if you want the implementation/planning context:
 - expand the SQL runtime from the first preview slice into a fuller sandbox implementation
 - move Python from the mirrored mocked workspace into a real runtime-backed contract
 - add persistence and backend-backed validation/scoring for the Data Modeling builder
+- add persistence and backend-backed validation/scoring for the Pipeline Builder workspace
 - connect real auth, persistence, and entitlement flows later

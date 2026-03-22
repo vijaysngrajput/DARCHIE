@@ -31,7 +31,7 @@ Short operational markdown updated in place after each meaningful implementation
 - This file reflects the latest verified state of the repo
 
 ## Current Focus
-Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned canvas-first Data Modeling builder are implemented. The light theme has also been retuned away from brighter parchment surfaces toward a calmer slate-neutral system with restored sheen, and a selective metallic premium-outline system now exists for featured surfaces. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
+Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, a redesigned canvas-first Data Modeling builder, and a dedicated Pipeline Builder DAG workspace are implemented. The light theme has also been retuned away from brighter parchment surfaces toward a calmer slate-neutral system with restored sheen, and a selective metallic premium-outline system now exists for featured surfaces. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
 
 ## Completed Recently
 - Bootstrapped `apps/web` with Next.js App Router, theme provider, font setup, dark/light token system, and marketing/auth/app route shells
@@ -52,6 +52,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Refined Data Modeling further through ad hoc UX cleanup: field types now use direct dropdowns, `PK` / `NULL` / `FK` are all clickable in-card toggles, field reorder uses a single drag handle, entity and shape labels are single-click editable, connector handles are larger, the default viewport loads at 40% zoom, relationship wiring is looser, and the canvas now uses a more visible dot-grid drafting background
 - Retuned the light theme tokens so cards, panels, and backgrounds feel calmer and less white-heavy, using a slate-neutral family for surfaces, text, accents, borders, and focus treatment while keeping dark mode unchanged
 - Restored some premium sheen to the calmer light mode and added a selective metallic-gold outline system for featured panels, premium badges/buttons, hero previews, and key workspace shells
+- Implemented Pipeline Builder as a dedicated focus-mode React Flow workspace with a full-width prompt plus scratchpad, searchable branded infrastructure palette, dot-grid pipeline canvas, real frontend graph validation, and mocked simulation/review output
 
 ## In Progress
 - Governance layer for documentation sync is active and should continue after each implementation slice
@@ -65,7 +66,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Data Modeling now has an interactive frontend builder, but it is still local-only with no backend persistence or scoring engine behind it
 - Data Modeling support shapes currently improve architectural expression on the canvas, but they are intentionally non-blocking and do not yet participate in structured scoring
 - Data Modeling’s richer canvas editing model is now strongly frontend-driven and browser-sensitive; cross-browser interaction details such as selection and connection ergonomics still need care when the builder evolves further
-- Pipeline-builder workspace still uses the older generic mocked shell
+- Pipeline Builder now has a dedicated frontend builder, but it is still local-only with no backend persistence, orchestrator runtime, or scoring engine behind it
 - True visual builders, cross-session persistence, and full exercise catalog loading are not implemented yet
 - Pricing page is visual only; billing is not wired
 - Public homepage traffic can now enter the practice hub directly, but preview-vs-restricted feature boundaries are still a product decision to be defined
@@ -82,7 +83,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - The selective metallic outline system works well as emphasis, but it will become noisy if future slices start applying it to routine utility cards by default
 
 ## Next Recommended Task
-Harden the SQL module further, choose the real Python runtime path, and then add persistence plus backend-backed validation/scoring to the Data Modeling builder while bringing Pipeline Builder onto the same dedicated builder pattern.
+Harden the SQL module further, choose the real Python runtime path, and then add persistence plus backend-backed validation/scoring to the Data Modeling and Pipeline Builder workspaces.
 
 ## Verification Status
 - Root README exists with website run instructions and key developer commands
@@ -91,7 +92,7 @@ Harden the SQL module further, choose the real Python runtime path, and then add
 - `pnpm --filter darchie-web test -- --run` passes
 - `cd services/api && uv run pytest` should pass for the first SQL backend slice
 - `pnpm --filter darchie-web exec playwright test tests/smoke.spec.ts` passes
-- Verified routes include the marketing pages, auth pages, app shell pages, `/app/practice`, module landing pages for all four practice modules, a FastAPI-backed SQL workspace at `/app/practice/sql/session-retention-breakdown`, a focus-mode Python workspace at `/app/practice/python/events-normalization-job`, and a redesigned Data Modeling builder at `/app/practice/data-modeling/marketplace-core-entities`
+- Verified routes include the marketing pages, auth pages, app shell pages, `/app/practice`, module landing pages for all four practice modules, a FastAPI-backed SQL workspace at `/app/practice/sql/session-retention-breakdown`, a focus-mode Python workspace at `/app/practice/python/events-normalization-job`, a redesigned Data Modeling builder at `/app/practice/data-modeling/marketplace-core-entities`, and a dedicated Pipeline Builder workspace at `/app/practice/pipeline-builder/daily-orders-etl`
 
 ## Doc Sync Needed
-- Next sync work should happen when Python gets a real execution backend, when Data Modeling gains persistence/backend scoring, when Pipeline Builder adopts a dedicated focus-mode layout, when the starter SQL sandbox is upgraded toward the fuller runtime architecture, and when the metallic premium-emphasis system expands beyond the current selective surfaces
+- Next sync work should happen when Python gets a real execution backend, when Data Modeling and Pipeline Builder gain persistence/backend scoring, when the starter SQL sandbox is upgraded toward the fuller runtime architecture, and when the metallic premium-emphasis system expands beyond the current selective surfaces

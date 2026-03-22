@@ -17,6 +17,8 @@
   --accent-primary: #574e6d;
   --accent-primary-strong: #43405d;
   --accent-secondary: #4b586e;
+  --accent-metallic: #8a7a5a;
+  --accent-metallic-glow: rgba(138, 122, 90, 0.22);
   --accent-warning: #b7791f;
   --accent-error: #b85c55;
   --accent-success: #2f7d57;
@@ -56,6 +58,8 @@
   --accent-primary: #8fb3d9;
   --accent-primary-strong: #bdd2ea;
   --accent-secondary: #c6a374;
+  --accent-metallic: #d1b27b;
+  --accent-metallic-glow: rgba(209, 178, 123, 0.2);
   --accent-warning: #d39a42;
   --accent-error: #d07c74;
   --accent-success: #63b087;

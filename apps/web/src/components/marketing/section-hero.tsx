@@ -43,7 +43,7 @@ export function SectionHero() {
         </div>
 
         <div className="grid gap-5">
-          <Panel variant="elevated" className="overflow-hidden p-0">
+          <Panel variant="metallic" className="overflow-hidden p-0">
             <div className="border-b border-[var(--border-soft)] px-6 py-5 sm:px-7">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -86,7 +86,7 @@ export function SectionHero() {
                     </div>
                   </div>
                 </div>
-                <div className="rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,var(--bg-panel))] p-5">
+                <div className="rounded-[var(--radius-md)] border border-[color-mix(in_oklab,var(--accent-metallic)_46%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-metallic)_10%,var(--bg-panel))] p-5 shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent-metallic)_12%,transparent)]">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">Next recommendation</p>
                   <h3 className="mt-3 font-[family-name:var(--font-heading)] text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                     Orchestration sequencing drill

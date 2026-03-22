@@ -32,8 +32,8 @@ Design-system foundation document.
 DARCHIE should feel like a polished enterprise-grade product for technical users: calm, premium, structured, and credible. The visual system should avoid loud startup styling, default SaaS gradients, and over-decorated dashboards.
 
 ## Visual Language
-- Primary mood: calm slate-neutral light mode, charcoal dark mode, restrained indigo-slate and muted steel accents
-- Surface treatment: flat premium panels with subtle separation and restrained atmospheric background treatment
+- Primary mood: calm slate-neutral light mode, charcoal dark mode, restrained indigo-slate and muted steel accents with selective metallic-gold emphasis on featured surfaces
+- Surface treatment: flat premium panels with subtle separation, restrained atmospheric background treatment, and a premium metallic outline path reserved for high-value panels
 - Shapes: rounded but precise, using 8px to 22px radii depending on component role
 - Illustration style: stroke-first icons, data-flow motifs, product-preview compositions instead of generic abstract art
 
@@ -46,8 +46,8 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
 ### Light theme tokens
 - `bg.base`: `#dddddd`
 - `bg.surface`: `#cfd2d9`
-- `bg.panel`: `#e6e4ea`
-- `bg.elevated`: `#d6d8df`
+- `bg.panel`: `#ebe8ef`
+- `bg.elevated`: `#dde0e8`
 - `bg.overlay`: `rgba(15, 17, 21, 0.26)`
 - `text.primary`: `#43405d`
 - `text.secondary`: `#4b586e`
@@ -55,6 +55,8 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
 - `accent.primary`: `#574e6d`
 - `accent.primary-strong`: `#43405d`
 - `accent.secondary`: `#4b586e`
+- `accent.metallic`: `#8a7a5a`
+- `accent.metallic-glow`: `rgba(138, 122, 90, 0.22)`
 - `accent.warning`: `#b7791f`
 - `accent.error`: `#b85c55`
 - `accent.success`: `#2f7d57`
@@ -74,6 +76,8 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
 - `accent.primary`: `#8fb3d9`
 - `accent.primary-strong`: `#bdd2ea`
 - `accent.secondary`: `#c6a374`
+- `accent.metallic`: `#d1b27b`
+- `accent.metallic-glow`: `rgba(209, 178, 123, 0.2)`
 - `accent.warning`: `#d39a42`
 - `accent.error`: `#d07c74`
 - `accent.success`: `#63b087`
@@ -88,8 +92,8 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
 - `xl`: `22px`
 
 ## Shadow System
-- `shadow-soft`: low ambient surface shadow for cards, nav items, and subtle elevation
-- `shadow-panel`: stronger panel shadow for featured surfaces and major callouts
+- `shadow-soft`: low ambient surface shadow for cards, nav items, and subtle elevation; light mode now keeps a little more sheen so panels do not read as flat
+- `shadow-panel`: stronger panel shadow for featured surfaces, major callouts, and metallic-emphasis panels
 - `shadow-modal`: strongest shadow reserved for modal-level overlays and drawers
 
 ## Layout Rules
@@ -101,8 +105,8 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
   - main workspace
   - feedback/output panel
 - In focused editor routes, the context and feedback columns should stay sticky with a small top offset so the problem statement and review remain visible while the user scrolls through the central workspace
-- Data Modeling is now a builder-first exception within that family: it uses a compact full-width prompt plus brainstorming scratchpad above the workspace, a dominant central canvas, a full-height builder palette on the right, and validation/review in a full-width surface below the canvas
-- Data Modeling should feel canvas-first rather than form-first: prefer inline editing inside selected nodes, contextual edge tools, and toolbar/minimap navigation over persistent side inspectors or duplicate action bars
+- Data Modeling is now a builder-first exception within that family: it uses a compact full-width prompt plus brainstorming scratchpad above the workspace, a dominant central canvas with a subtle dot-grid drafting background, a full-height builder palette on the right, and validation/review in a full-width surface below the canvas
+- Data Modeling should feel canvas-first rather than form-first: prefer inline editing inside selected nodes, contextual edge tools, lightweight shortcut guidance, and generous canvas space over persistent side inspectors or duplicate action bars
 
 ## Breakpoints
 - `sm: 640`
@@ -118,8 +122,8 @@ DARCHIE should feel like a polished enterprise-grade product for technical users
 - Motion should reinforce precision and structure, never add playfulness
 
 ## Visual Component Defaults
-- Panels: flat premium surfaces with visible borders and restrained shadows
-- Buttons: dense primary action, lighter ghost action, premium badge-like CTA treatment where needed
+- Panels: flat premium surfaces with visible borders and restrained shadows; a selective `metallic` premium variant is available for hero panels, key workspace shells, and other featured surfaces
+- Buttons: dense primary action, lighter ghost action, premium badge-like CTA treatment where needed, with metallic-gold emphasis reserved for premium or locked-value actions
 - Forms: clean neutral fields with clear focus and error differentiation
 - Navigation: premium pill-style links and subdued active states
 - Marketing sections: editorial composition with fewer equal-weight cards and more narrative hierarchy

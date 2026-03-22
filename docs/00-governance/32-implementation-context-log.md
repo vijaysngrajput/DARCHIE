@@ -31,7 +31,7 @@ Short operational markdown updated in place after each meaningful implementation
 - This file reflects the latest verified state of the repo
 
 ## Current Focus
-Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned canvas-first Data Modeling builder are implemented. The light theme has also been retuned away from brighter parchment surfaces toward a calmer slate-neutral system. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
+Frontend foundation, premium UI, practice layout, a functional SQL module slice, mirrored focus-mode Python exercise UX, and a redesigned canvas-first Data Modeling builder are implemented. The light theme has also been retuned away from brighter parchment surfaces toward a calmer slate-neutral system with restored sheen, and a selective metallic premium-outline system now exists for featured surfaces. The next major product slice is hardening the SQL runtime and deciding how Python moves from mocked execution into a real runtime contract.
 
 ## Completed Recently
 - Bootstrapped `apps/web` with Next.js App Router, theme provider, font setup, dark/light token system, and marketing/auth/app route shells
@@ -49,7 +49,9 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Implemented Data Modeling as a dedicated focus-mode React Flow builder with a full-width prompt section, curated right-side palette, hybrid ERD/support-shape canvas, real frontend ERD validation, and mocked submit/review output in a full-width review surface beneath the canvas
 - Refined Data Modeling into a more canvas-first interaction model: removed the left inspector and duplicate below-canvas action strip, moved rename/add-field/type-editing into the nodes themselves, made the builder palette span the page-height workspace column, removed the visible `Starter hint` block for the module, and loosened the minimum zoom for larger diagrams
 - Expanded Data Modeling into a more premium builder: compacted the prompt into a cleaner editorial header, added a brainstorming scratchpad, added toolbar/minimap/navigation affordances, made validation issues jump back to the relevant canvas objects, and deepened inline entity editing with nullable/remove/reorder controls plus contextual relationship label editing
+- Refined Data Modeling further through ad hoc UX cleanup: field types now use direct dropdowns, `PK` / `NULL` / `FK` are all clickable in-card toggles, field reorder uses a single drag handle, entity and shape labels are single-click editable, connector handles are larger, the default viewport loads at 40% zoom, relationship wiring is looser, and the canvas now uses a more visible dot-grid drafting background
 - Retuned the light theme tokens so cards, panels, and backgrounds feel calmer and less white-heavy, using a slate-neutral family for surfaces, text, accents, borders, and focus treatment while keeping dark mode unchanged
+- Restored some premium sheen to the calmer light mode and added a selective metallic-gold outline system for featured panels, premium badges/buttons, hero previews, and key workspace shells
 
 ## In Progress
 - Governance layer for documentation sync is active and should continue after each implementation slice
@@ -62,6 +64,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Python now has a dedicated Monaco-based focus-mode workspace and mocked review flow, but it is still frontend-only and not backed by a Python execution service
 - Data Modeling now has an interactive frontend builder, but it is still local-only with no backend persistence or scoring engine behind it
 - Data Modeling support shapes currently improve architectural expression on the canvas, but they are intentionally non-blocking and do not yet participate in structured scoring
+- Data Modeling’s richer canvas editing model is now strongly frontend-driven and browser-sensitive; cross-browser interaction details such as selection and connection ergonomics still need care when the builder evolves further
 - Pipeline-builder workspace still uses the older generic mocked shell
 - True visual builders, cross-session persistence, and full exercise catalog loading are not implemented yet
 - Pricing page is visual only; billing is not wired
@@ -76,6 +79,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Python now visually implies a richer editor flow than the backend actually supports, so docs and future implementation must keep the distinction between mirrored UX and real runtime behavior explicit
 - Data Modeling now feels materially more complete than its backend support; future work must preserve the frontend draft schema, brainstorming state, and ERD validation semantics when persistence/scoring are added
 - The redesigned Data Modeling experience no longer uses the generic exercise header, left-side inspector, or right-rail config pattern, so future work should not reintroduce those older UX assumptions by accident
+- The selective metallic outline system works well as emphasis, but it will become noisy if future slices start applying it to routine utility cards by default
 
 ## Next Recommended Task
 Harden the SQL module further, choose the real Python runtime path, and then add persistence plus backend-backed validation/scoring to the Data Modeling builder while bringing Pipeline Builder onto the same dedicated builder pattern.
@@ -90,4 +94,4 @@ Harden the SQL module further, choose the real Python runtime path, and then add
 - Verified routes include the marketing pages, auth pages, app shell pages, `/app/practice`, module landing pages for all four practice modules, a FastAPI-backed SQL workspace at `/app/practice/sql/session-retention-breakdown`, a focus-mode Python workspace at `/app/practice/python/events-normalization-job`, and a redesigned Data Modeling builder at `/app/practice/data-modeling/marketplace-core-entities`
 
 ## Doc Sync Needed
-- Next sync work should happen when Python gets a real execution backend, when Data Modeling gains persistence/backend scoring, when Pipeline Builder adopts a dedicated focus-mode layout, and when the starter SQL sandbox is upgraded toward the fuller runtime architecture
+- Next sync work should happen when Python gets a real execution backend, when Data Modeling gains persistence/backend scoring, when Pipeline Builder adopts a dedicated focus-mode layout, when the starter SQL sandbox is upgraded toward the fuller runtime architecture, and when the metallic premium-emphasis system expands beyond the current selective surfaces

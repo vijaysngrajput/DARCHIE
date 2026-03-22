@@ -143,8 +143,9 @@ Data Modeling exception:
 - SQL, Python, and Data Modeling exercise pages should use the slimmer focus-mode app header instead of the full desktop sidebar so the main working surface gets more width
 - The right panel should frame results as output, validation, checks, review, or explanation depending on module type
 - SQL is now backend-connected for preview execution and structured submission feedback; Python currently mirrors the same layout and interaction rhythm but still uses mocked run/submit states
-- Data Modeling now uses a premium hybrid architecture-and-ERD builder with a compact full-width prompt section, a brainstorming scratchpad, curated palette-driven shape creation, inline in-node editing for entity and shape changes, toolbar/minimap navigation, and real frontend ERD validation before a mocked submit/review step
+- Data Modeling now uses a premium hybrid architecture-and-ERD builder with a compact full-width prompt section, a brainstorming scratchpad, curated palette-driven shape creation, a subtle dot-grid drafting canvas, inline in-node editing for entity and shape changes, direct field-type dropdowns, clickable `PK` / `NULL` / `FK` toggles, drag-handle field reorder, and real frontend ERD validation before a mocked submit/review step
 - Data Modeling should feel spatial and presentational rather than form-driven; avoid documenting a persistent `Entity config` side rail, left inspector, or duplicate action strip for the current implementation
+- Premium metallic-gold outlines should only be described on featured hero surfaces, high-value workspace shells, and premium CTA/badge moments; do not imply that every card uses that treatment
 - Avoid documenting Python as fully backend-connected yet, and avoid implying persistence/auth/paywall behavior beyond the current preview slice
 
 ## CTA Rules

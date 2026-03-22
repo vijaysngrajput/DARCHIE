@@ -35,6 +35,7 @@ Component specification document.
 | `MarketingHeader` | Public navigation | default, scrolled, mobile menu |
 | `SectionHero` | Landing page sections | home, module, pricing |
 | `Button` | Primary action control | primary, secondary, ghost, danger, loading, disabled |
+| `Panel` | Shared premium surface primitive | default, elevated, inset, highlighted, danger, metallic |
 | `Input` | Text input fields | default, error, success, with helper text |
 | `Select` | Controlled selection | searchable, simple, error |
 | `Modal` | Focused overlays | confirm, form, detail |
@@ -64,7 +65,7 @@ Component specification document.
 | `BuilderCanvas` | Main drag-and-drop area | mode, zoom, read-only, selection state |
 | `NodePalette` | Node library | filterable by type and category |
 | `PipelineNodeCard` | ETL step on canvas | type, status, validation state, selected |
-| `DataModelEntityCard` | ERD entity representation | inline rename, field add/remove/reorder, PK/nullable controls, selected, invalid |
+| `DataModelEntityCard` | ERD entity representation | inline rename, field add/remove/reorder, direct type dropdown editing, PK/nullable/FK toggles, selected, invalid |
 | `EdgeRenderer` | Relationship or dependency line | valid, invalid, warning |
 | `ConfigDrawer` | Node/entity configuration | open state, validation, save/cancel |
 | `SimulationTimeline` | Step playback | idle, running, paused, failed, completed |
@@ -80,3 +81,4 @@ Component specification document.
 - Partial-save states are non-blocking and autosave-aware.
 - Error banners should anchor near the relevant workspace section.
 - SQL now has a functional editor-based preview path, Python mirrors that editor-focused layout in mocked form, and Data Modeling now has a builder-first interactive frontend canvas with inline node editing and mocked review flow; Pipeline Builder remains layout-first.
+- Premium emphasis now has a dedicated shared component path: `Panel` supports a selective `metallic` variant, while premium `Badge` and premium-lock `Button` states reuse the same metallic token family instead of inventing separate gold treatments ad hoc.

@@ -133,3 +133,15 @@ Chronological markdown log. New entries are appended at the bottom. Each entry i
 - What changed in code: replaced the brighter parchment-leaning light theme tokens with a calmer slate-neutral family so cards, panels, and workspace chrome feel denser and less white-heavy while preserving the existing component structure and dark theme
 - Docs updated: `08-design-system-ui-foundations.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
 - Follow-up required: keep future design work aligned with the calmer light-mode direction and only add component-level overrides if token-level tuning proves insufficient
+
+### 2026-03-22 — Data Modeling ad hoc interaction and canvas refinement
+- Area changed: Data Modeling in-canvas editing ergonomics, selection behavior, relationship wiring, canvas presentation
+- What changed in code: removed the heavier floating canvas utility bars, moved shortcut guidance into lighter inline chrome, fixed support-shape selection reliability, made entity and shape naming single-click editable, kept field-name editing in-card, changed field types to direct dropdown editing, made `FK` toggle clickable alongside `PK` and `NULL`, replaced two move buttons with a single drag-handle reorder affordance, enlarged connector handles, relaxed relationship connection behavior, set the default canvas viewport to 40% zoom, and refined the background into a more visible premium dot grid
+- Docs updated: `README.md`, `08-design-system-ui-foundations.md`, `09-component-finalization.md`, `26-visual-direction-spec.md`, `27-component-style-spec.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: keep connection behavior stable across browsers, revisit whether relationship editing should gain even clearer edge-local affordances later, and only add more canvas chrome if it earns its space
+
+### 2026-03-22 — Selective metallic premium outline system and light-mode sheen refinement
+- Area changed: shared premium surface styling, featured panel emphasis, light-theme atmosphere
+- What changed in code: added metallic premium tokens, introduced a dedicated `metallic` `Panel` variant plus metallic premium badge/button paths, applied the treatment selectively to hero/showcase and key workspace shells rather than globally, and restored some atmospheric sheen to the calmer slate light theme so premium panels do not read as flat
+- Docs updated: `README.md`, `08-design-system-ui-foundations.md`, `09-component-finalization.md`, `26-visual-direction-spec.md`, `27-component-style-spec.md`, `29-screen-content-spec.md`, `30-high-fidelity-screen-specs.md`, `31-implementation-change-log.md`, `32-implementation-context-log.md`
+- Follow-up required: keep metallic emphasis selective, validate it visually on future new surfaces before rollout, and avoid turning routine utility cards into premium-outline noise

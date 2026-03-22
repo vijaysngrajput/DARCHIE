@@ -19,7 +19,7 @@ const buttonVariants = cva(
         danger:
           'bg-[var(--accent-error)] text-white hover:brightness-105',
         premiumLock:
-          'border border-[color-mix(in_oklab,var(--accent-secondary)_42%,transparent)] bg-[color-mix(in_oklab,var(--accent-secondary)_14%,transparent)] text-[var(--accent-secondary)] hover:bg-[color-mix(in_oklab,var(--accent-secondary)_18%,transparent)]',
+          'border border-[color-mix(in_oklab,var(--accent-metallic)_52%,transparent)] bg-[color-mix(in_oklab,var(--accent-metallic)_14%,transparent)] text-[var(--accent-metallic)] shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent-metallic)_16%,transparent)] hover:bg-[color-mix(in_oklab,var(--accent-metallic)_18%,transparent)]',
       },
       size: {
         default: '',

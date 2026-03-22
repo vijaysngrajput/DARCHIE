@@ -282,7 +282,7 @@ export function SqlWorkspace({
           <PromptPanel sections={workspace.promptSections} starterHint={workspace.starterHint} />
         </div>
         <div className="space-y-6">
-          <Panel variant="elevated" className="overflow-hidden p-0">
+          <Panel variant="metallic" className="overflow-hidden p-0">
             <div className="border-b border-[var(--border-soft)] px-5 py-4 sm:px-6">
               <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                 {workspace.workSurfaceTitle}

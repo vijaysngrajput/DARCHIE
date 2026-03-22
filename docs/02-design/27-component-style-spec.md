@@ -81,7 +81,7 @@ Variants:
 
 Badge rules:
 - smaller uppercase editorial feel
-- premium badge uses accent-secondary tinting, not loud fill
+- premium badge uses the shared metallic token family, not a custom one-off gold fill
 - badges should read as metadata or emphasis, not mini-buttons
 
 ### Panel
@@ -91,6 +91,7 @@ Variants:
 - inset
 - highlighted
 - danger
+- metallic
 
 Panel rules:
 - `16px` radius
@@ -98,6 +99,7 @@ Panel rules:
 - visible border always present
 - gradients removed from normal usage
 - highlighted panel uses subtle tint + border, not strong fill
+- metallic panel uses a stronger gold-leaning border plus controlled glow, but should be reserved for featured or high-value surfaces only
 - padding varies by context and is often applied at usage sites rather than embedded globally
 
 ## Shell Components

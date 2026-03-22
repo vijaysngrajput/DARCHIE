@@ -134,7 +134,7 @@ High-fidelity text specification for primary screens.
 - Exercise header sits above a three-column grid: sticky prompt rail, central module surface, and sticky result panel
 - Primary actions such as `Reset`, `Run`, and `Submit` sit directly beneath the editor in one aligned row
 - Status messaging stays grouped with the editor action area rather than floating elsewhere on the page
-- SQL keeps schema/reference material beneath the editor, Python keeps input/review reference material beneath the editor, and Data Modeling is the builder-first exception: no route-level exercise header card, compact full-width prompt plus brainstorming scratchpad above the workspace, dominant React Flow canvas in the center, full-height builder palette on the right, and validation/review moved into a full-width bottom surface
+- SQL keeps schema/reference material beneath the editor, Python keeps input/review reference material beneath the editor, and Data Modeling is the builder-first exception: no route-level exercise header card, compact full-width prompt plus brainstorming scratchpad above the workspace, dominant React Flow canvas with a subtle dot-grid drafting texture in the center, full-height builder palette on the right, and validation/review moved into a full-width bottom surface
 - Pipeline Builder still uses the shared mocked workspace shell until its dedicated focus-mode workspace is built
 
 ### Mobile
@@ -154,5 +154,6 @@ High-fidelity text specification for primary screens.
 - Dashboard and app pages should continue reusing `PageHeader`, `Panel`, and shell primitives rather than inventing dashboard-specific chrome
 - Practice pages should keep using shared workspace primitives, but SQL, Python, and Data Modeling now justify dedicated focus-mode exercise layouts because they rely on sticky context and a dominant central work surface
 - Data Modeling should continue using a curated hybrid shape set for architectural expression, while blocking validation remains scoped to ERD entities and relationships
-- Data Modeling should prefer inline node editing for entity names, field names, field types, PK/nullable state, and field ordering rather than relying on persistent side inspectors or duplicated action bars
-- Data Modeling should expose canvas tooling that feels closer to a diagram product: zoom percentage, fit-all, center-selection, undo/redo, shortcut help, multi-select organization tools, and a mini-map for larger canvases
+- Data Modeling should prefer inline node editing for entity names, field names, field types, PK/nullable/FK state, and field ordering rather than relying on persistent side inspectors or duplicated action bars
+- Data Modeling should expose lightweight canvas tooling that feels closer to a diagram product: zoom percentage, direct zoom in/out controls, shortcut guidance, larger connector handles, relaxed connection flow, and a drafting-style canvas background without reintroducing heavy floating utility bars
+- Featured marketing previews and high-value workspace shells may use the shared metallic panel treatment, but routine panels should stay neutral

@@ -2778,7 +2778,7 @@ export function DataModelingWorkspace({
       </Panel>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-stretch">
         <div className="space-y-6">
-          <Panel variant="elevated" className="overflow-hidden p-0">
+          <Panel variant="metallic" className="overflow-hidden p-0">
             <div className="border-b border-[var(--border-soft)] px-5 py-4 sm:px-6">
               <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                 Architecture and ERD canvas

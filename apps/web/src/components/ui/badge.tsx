@@ -12,7 +12,7 @@ const badgeVariants = cva(
         success: 'border-[color-mix(in_oklab,var(--accent-success)_26%,transparent)] bg-[color-mix(in_oklab,var(--accent-success)_10%,transparent)] text-[var(--accent-success)]',
         warning: 'border-[color-mix(in_oklab,var(--accent-warning)_26%,transparent)] bg-[color-mix(in_oklab,var(--accent-warning)_10%,transparent)] text-[var(--accent-warning)]',
         error: 'border-[color-mix(in_oklab,var(--accent-error)_26%,transparent)] bg-[color-mix(in_oklab,var(--accent-error)_10%,transparent)] text-[var(--accent-error)]',
-        premium: 'border-[color-mix(in_oklab,var(--accent-secondary)_34%,transparent)] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,transparent)] text-[var(--accent-secondary)]',
+        premium: 'border-[color-mix(in_oklab,var(--accent-metallic)_46%,transparent)] bg-[color-mix(in_oklab,var(--accent-metallic)_12%,transparent)] text-[var(--accent-metallic)] shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent-metallic)_12%,transparent)]',
       },
     },
     defaultVariants: {

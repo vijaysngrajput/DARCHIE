@@ -48,6 +48,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Mirrored the same focus-mode exercise layout for Python so SQL and Python now share one coherent premium workspace UX, even though Python run/submit behavior remains mocked
 - Implemented Data Modeling as a dedicated focus-mode React Flow builder with a full-width prompt section, curated right-side palette, hybrid ERD/support-shape canvas, real frontend ERD validation, and mocked submit/review output in a full-width review surface beneath the canvas
 - Refined Data Modeling into a more canvas-first interaction model: removed the left inspector and duplicate below-canvas action strip, moved rename/add-field/type-editing into the nodes themselves, made the builder palette span the page-height workspace column, removed the visible `Starter hint` block for the module, and loosened the minimum zoom for larger diagrams
+- Expanded Data Modeling into a more premium builder: compacted the prompt into a cleaner editorial header, added a brainstorming scratchpad, added toolbar/minimap/navigation affordances, made validation issues jump back to the relevant canvas objects, and deepened inline entity editing with nullable/remove/reorder controls plus contextual relationship label editing
 
 ## In Progress
 - Governance layer for documentation sync is active and should continue after each implementation slice
@@ -72,7 +73,7 @@ Frontend foundation, premium UI, practice layout, a functional SQL module slice,
 - Responsive practice workspace markup can duplicate visible text between mobile and desktop sections, so tests should prefer semantic queries or plural match assertions where needed
 - The first SQL runtime slice is intentionally narrow: one exercise, one local sandbox runner, and in-memory draft state rather than the final isolated MySQL worker/persistence design
 - Python now visually implies a richer editor flow than the backend actually supports, so docs and future implementation must keep the distinction between mirrored UX and real runtime behavior explicit
-- Data Modeling now feels materially more complete than its backend support; future work must preserve the frontend draft schema and ERD validation semantics when persistence/scoring are added
+- Data Modeling now feels materially more complete than its backend support; future work must preserve the frontend draft schema, brainstorming state, and ERD validation semantics when persistence/scoring are added
 - The redesigned Data Modeling experience no longer uses the generic exercise header, left-side inspector, or right-rail config pattern, so future work should not reintroduce those older UX assumptions by accident
 
 ## Next Recommended Task

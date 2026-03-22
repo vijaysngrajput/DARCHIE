@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Background,
   Controls,
   Handle,
   MarkerType,
+  MiniMap,
   NodeResizer,
   Position,
   ReactFlow,
@@ -32,7 +33,10 @@ import {
   Layers3,
   Link2,
   MessageSquareText,
+  Minus,
+  Move,
   PenSquare,
+  Plus,
   RefreshCcw,
   Send,
   ServerCog,
@@ -41,7 +45,6 @@ import {
   Trash2,
   Workflow,
 } from 'lucide-react';
-import { PromptPanel } from '@/components/practice/prompt-panel';
 import { ResultPanel } from '@/components/practice/result-panel';
 import { WorkspaceStatusBar } from '@/components/practice/workspace-status-bar';
 import { Badge } from '@/components/ui/badge';
@@ -64,6 +67,7 @@ type Issue = {
   issue: string;
   why: string;
   suggestedFix: string;
+  target?: CanvasSelection;
 };
 
 type ShapeKind =
@@ -86,6 +90,8 @@ type SupportingShape = {
   shapeKind: Exclude<ShapeKind, 'entity'>;
   label: string;
   category: ShapeCategory;
+  body?: string;
+  variant?: 'subtle' | 'emphasis';
   position: {
     x: number;
     y: number;
@@ -120,6 +126,7 @@ type EntityNodeData = {
   warning: boolean;
   width?: number;
   height?: number;
+  onSelect?: (id: string) => void;
   isEditing?: boolean;
   onLabelChange?: (id: string, value: string) => void;
   onFinishEditing?: () => void;
@@ -132,12 +139,21 @@ type EntityNodeData = {
   onStartFieldEditing?: (entityId: string, fieldId: string, mode: 'name' | 'type') => void;
   onFinishFieldEditing?: () => void;
   onFieldChange?: (entityId: string, fieldId: string, updates: Partial<DataModelEntity['fields'][number]>) => void;
+  onDeleteField?: (entityId: string, fieldId: string) => void;
+  onMoveField?: (entityId: string, fieldId: string, direction: 'up' | 'down') => void;
+  onToggleFieldNullable?: (entityId: string, fieldId: string) => void;
 };
 
 type ClipboardEntry =
   | {
       type: 'entity';
       entity: DataModelEntity;
+    }
+  | {
+      type: 'group';
+      entities: DataModelEntity[];
+      shapes: SupportingShape[];
+      relationships: DataModelRelationship[];
     }
   | {
       type: 'shape';
@@ -150,6 +166,13 @@ type ContextMenuState = {
   y: number;
   target: CanvasSelection;
 } | null;
+
+type BuilderSnapshot = {
+  entities: DataModelEntity[];
+  relationships: DataModelRelationship[];
+  supportShapes: SupportingShape[];
+  brainstormNotes: string;
+};
 
 const CARDINALITY_OPTIONS: DataModelRelationshipCardinality[] = ['1:1', '1:N', 'N:1', 'N:N'];
 
@@ -240,6 +263,17 @@ function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function arrayShallowEqual(left: string[], right: string[]) {
+  if (left.length !== right.length) return false;
+  return left.every((value, index) => value === right[index]);
+}
+
+function selectionEqual(left: CanvasSelection, right: CanvasSelection) {
+  if (left === right) return true;
+  if (!left || !right) return false;
+  return left.type === right.type && left.id === right.id;
+}
+
 function createDraftEntity(index: number, position?: { x: number; y: number }): DataModelEntity {
   return {
     id: makeId('entity'),
@@ -284,6 +318,11 @@ function createSupportingShape(item: PaletteItem, index: number, position?: { x:
     shapeKind: item.shapeKind as Exclude<ShapeKind, 'entity'>,
     label: item.label,
     category: item.category,
+    body:
+      item.shapeKind === 'annotation'
+        ? 'Capture assumptions, tradeoffs, or interview reasoning here.'
+        : '',
+    variant: item.category === 'infra' ? 'emphasis' : 'subtle',
     position: position ?? {
       x: 160 + ((index % 3) * 230),
       y: 160 + (Math.floor(index / 3) * 170),
@@ -313,6 +352,25 @@ function buildIdleResult(summary: string): ResultPanelModel {
       { id: 'explanation', label: 'Explanation', body: 'Use supporting system shapes for context, but keep the data model itself defensible.' },
     ],
     explanation: 'This workspace should feel like a serious architecture surface where you can show schema structure and the surrounding system context together.',
+  };
+}
+
+function cloneSnapshot(snapshot: BuilderSnapshot): BuilderSnapshot {
+  return {
+    entities: snapshot.entities.map((entity) => ({
+      ...entity,
+      position: { ...entity.position },
+      fields: entity.fields.map((field) => ({
+        ...field,
+        foreignKey: field.foreignKey ? { ...field.foreignKey } : field.foreignKey,
+      })),
+    })),
+    relationships: snapshot.relationships.map((relationship) => ({ ...relationship })),
+    supportShapes: snapshot.supportShapes.map((shape) => ({
+      ...shape,
+      position: { ...shape.position },
+    })),
+    brainstormNotes: snapshot.brainstormNotes,
   };
 }
 
@@ -368,6 +426,7 @@ function validateWorkspace(exerciseId: string, entities: DataModelEntity[], rela
         issue: 'An entity is missing a name.',
         why: 'Unnamed entities make ownership and relationship reasoning impossible to review.',
         suggestedFix: 'Give each entity a stable table-style name before validating again.',
+        target: { type: 'entity', id: entity.id },
       });
     } else {
       normalizedNameMap.set(normalized, [...(normalizedNameMap.get(normalized) ?? []), entity.id]);
@@ -380,6 +439,7 @@ function validateWorkspace(exerciseId: string, entities: DataModelEntity[], rela
         issue: `${entity.name || 'Unnamed entity'} has no fields.`,
         why: 'Interviewers need to see key structure, not only box labels.',
         suggestedFix: 'Add at least one field and mark the primary identifier.',
+        target: { type: 'entity', id: entity.id },
       });
     }
 
@@ -390,6 +450,7 @@ function validateWorkspace(exerciseId: string, entities: DataModelEntity[], rela
         issue: `${entity.name || 'Unnamed entity'} has no primary key.`,
         why: 'Persistent entities need a durable identity to support joins, history, and constraint reasoning.',
         suggestedFix: 'Mark one field as the primary key or add an id field.',
+        target: { type: 'entity', id: entity.id },
       });
     }
   }
@@ -402,6 +463,7 @@ function validateWorkspace(exerciseId: string, entities: DataModelEntity[], rela
         issue: `Entity name "${normalizedName}" is used multiple times.`,
         why: 'Duplicate entity names blur grain and ownership boundaries.',
         suggestedFix: 'Rename the duplicate entities so each one has a single architectural meaning.',
+        target: { type: 'entity', id: ids[0] },
       });
     }
   }
@@ -417,6 +479,7 @@ function validateWorkspace(exerciseId: string, entities: DataModelEntity[], rela
         issue: 'A relationship points to a missing entity.',
         why: 'Detached relationships make the model impossible to validate.',
         suggestedFix: 'Reconnect the relationship or remove it.',
+        target: { type: 'relationship', id: relationship.id },
       });
       continue;
     }
@@ -428,6 +491,7 @@ function validateWorkspace(exerciseId: string, entities: DataModelEntity[], rela
         issue: `Relationship between ${source.name || 'source'} and ${target.name || 'target'} has no cardinality.`,
         why: 'Without cardinality, reviewers cannot judge ownership, duplication risk, or aggregation correctness.',
         suggestedFix: 'Choose a relationship cardinality such as 1:N or N:N.',
+        target: { type: 'relationship', id: relationship.id },
       });
     }
   }
@@ -441,6 +505,7 @@ function validateWorkspace(exerciseId: string, entities: DataModelEntity[], rela
         issue: 'No payment or transaction entity is modeled yet.',
         why: 'Marketplace systems usually need a separate financial lifecycle beyond listings and orders.',
         suggestedFix: 'Decide whether payment settlement belongs as its own entity in this first-pass model.',
+        target: { type: 'entity', id: entities[0]?.id ?? '' },
       });
     }
   }
@@ -546,13 +611,19 @@ function makeRelationshipEdge(relationship: DataModelRelationship, selected: boo
   };
 }
 
-function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
+function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
+  const isSelected = selected || data.selected;
   if (data.shapeKind === 'entity' && data.entity) {
     return (
       <div
+        onMouseDownCapture={() => data.onSelect?.(data.id)}
+        onClickCapture={(event) => {
+          event.stopPropagation();
+          data.onSelect?.(data.id);
+        }}
         className={cn(
           'min-w-[240px] rounded-[18px] border bg-[var(--bg-panel)] p-4 shadow-[var(--shadow-panel)] transition-colors duration-[130ms] ease-[var(--ease-standard)]',
-          data.selected
+          isSelected
             ? 'border-[color-mix(in_oklab,var(--accent-primary)_60%,var(--border-strong))] ring-2 ring-[var(--focus-ring)]'
             : data.invalid
               ? 'border-[color-mix(in_oklab,var(--accent-error)_60%,var(--border-strong))]'
@@ -583,6 +654,11 @@ function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
                 type="button"
                 onClick={(event) => {
                   event.stopPropagation();
+                  data.onSelect?.(data.id);
+                }}
+                onDoubleClick={(event) => {
+                  event.stopPropagation();
+                  data.onSelect?.(data.id);
                   data.onStartEditing?.(data.id);
                 }}
                 className="text-left font-[family-name:var(--font-heading)] text-lg font-semibold tracking-[-0.02em] text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
@@ -597,9 +673,12 @@ function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
           {data.invalid ? <Badge variant="warning">Needs fixes</Badge> : data.warning ? <Badge variant="info">Review</Badge> : <Badge variant="neutral">Ready</Badge>}
         </div>
         <div className="mt-3 space-y-2">
-          {data.entity.fields.map((field) => (
-            <div key={field.id} className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] bg-[var(--bg-elevated)] px-3 py-2 text-sm">
-              <div className="min-w-0">
+          {data.entity.fields.map((field, index) => {
+            const fieldCount = data.entity?.fields.length ?? 0;
+            return (
+            <div key={field.id} className="rounded-[var(--radius-md)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
                 {data.editingField?.fieldId === field.id && data.editingField.mode === 'name' ? (
                   <input
                     autoFocus
@@ -657,30 +736,85 @@ function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
                     {field.type}
                   </button>
                 )}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      data.onFieldChange?.(data.id, field.id, {
+                        primaryKey: !field.primaryKey,
+                        nullable: !field.primaryKey ? false : field.nullable,
+                      });
+                    }}
+                    className={cn(
+                      'rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
+                      field.primaryKey
+                        ? 'border-[color-mix(in_oklab,var(--accent-secondary)_34%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,transparent)] text-[var(--accent-secondary)]'
+                        : 'border-[var(--border-soft)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]',
+                    )}
+                  >
+                    PK
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      data.onToggleFieldNullable?.(data.id, field.id);
+                    }}
+                    className={cn(
+                      'rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
+                      field.nullable
+                        ? 'border-[color-mix(in_oklab,var(--accent-primary)_34%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-primary)_10%,transparent)] text-[var(--accent-primary)]'
+                        : 'border-[var(--border-soft)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]',
+                    )}
+                  >
+                    null
+                  </button>
+                  {field.foreignKey ? <Badge variant="neutral">FK</Badge> : null}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      data.onMoveField?.(data.id, field.id, 'up');
+                    }}
+                    disabled={index === 0}
+                    className="rounded-[10px] border border-[var(--border-soft)] px-1.5 py-1 text-[11px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] disabled:opacity-35"
+                    aria-label={`Move ${field.name || 'field'} up`}
+                  >
+                    <Move className="size-3.5 rotate-90" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      data.onMoveField?.(data.id, field.id, 'down');
+                    }}
+                    disabled={index === fieldCount - 1}
+                    className="rounded-[10px] border border-[var(--border-soft)] px-1.5 py-1 text-[11px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] disabled:opacity-35"
+                    aria-label={`Move ${field.name || 'field'} down`}
+                  >
+                    <Move className="size-3.5 -rotate-90" />
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={(event) => {
                     event.stopPropagation();
-                    data.onFieldChange?.(data.id, field.id, {
-                      primaryKey: !field.primaryKey,
-                      nullable: !field.primaryKey ? false : field.nullable,
-                    });
+                    data.onDeleteField?.(data.id, field.id);
                   }}
-                  className={cn(
-                    'rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
-                    field.primaryKey
-                      ? 'border-[color-mix(in_oklab,var(--accent-secondary)_34%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,transparent)] text-[var(--accent-secondary)]'
-                      : 'border-[var(--border-soft)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]',
-                  )}
+                  className="rounded-[10px] border border-[var(--border-soft)] px-2 py-1 text-[11px] font-medium text-[var(--accent-error)] transition-colors hover:border-[color-mix(in_oklab,var(--accent-error)_28%,var(--border-soft))] hover:bg-[color-mix(in_oklab,var(--accent-error)_8%,transparent)]"
                 >
-                  PK
+                  Remove
                 </button>
-                {field.foreignKey ? <Badge variant="neutral">FK</Badge> : null}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
         <button
           type="button"
@@ -703,10 +837,15 @@ function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
 
   return (
     <div
+      onMouseDownCapture={() => data.onSelect?.(data.id)}
+      onClickCapture={(event) => {
+        event.stopPropagation();
+        data.onSelect?.(data.id);
+      }}
       className={cn(
         'relative flex items-center justify-center rounded-[20px] border px-5 py-4 text-center shadow-[var(--shadow-soft)] transition-colors duration-[130ms] ease-[var(--ease-standard)]',
-        data.selected
-          ? 'border-[color-mix(in_oklab,var(--accent-primary)_60%,var(--border-strong))] bg-[var(--bg-panel)] ring-2 ring-[var(--focus-ring)]'
+        isSelected
+          ? 'z-10 border-[color-mix(in_oklab,var(--accent-primary)_82%,var(--border-strong))] bg-[color-mix(in_oklab,var(--bg-panel)_90%,var(--accent-primary)_10%)] ring-2 ring-[var(--focus-ring)] shadow-[0_0_0_2px_color-mix(in_oklab,var(--accent-primary)_48%,transparent),0_24px_60px_color-mix(in_oklab,var(--accent-primary)_20%,transparent)]'
           : 'border-[var(--border-soft)] bg-[color-mix(in_oklab,var(--bg-panel)_86%,var(--bg-elevated))]',
         data.shapeKind === 'annotation' && 'border-dashed',
         data.shapeKind === 'container' && 'bg-[color-mix(in_oklab,var(--accent-secondary)_8%,var(--bg-panel))]',
@@ -721,7 +860,7 @@ function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
       }}
     >
       <NodeResizer
-        isVisible={data.selected}
+        isVisible={isSelected}
         minWidth={96}
         minHeight={72}
         lineStyle={{ borderColor: 'var(--accent-primary)' }}
@@ -751,6 +890,11 @@ function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
+                data.onSelect?.(data.id);
+              }}
+              onDoubleClick={(event) => {
+                event.stopPropagation();
+                data.onSelect?.(data.id);
                 data.onStartEditing?.(data.id);
               }}
               className="text-sm font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
@@ -761,6 +905,11 @@ function CanvasNode({ data }: NodeProps<Node<EntityNodeData>>) {
           <div className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
             {data.shapeKind === 'container' ? 'Context' : data.shapeKind === 'annotation' ? 'Note' : 'Support shape'}
           </div>
+          {data.shapeKind === 'annotation' ? (
+            <div className="mt-2 max-w-[140px] text-xs leading-5 text-[var(--text-secondary)]">
+              Capture assumptions, risks, or interview framing directly on the board.
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -771,12 +920,16 @@ function DataModelingCanvas({
   nodes,
   edges,
   selection,
+  selectedNodeIds,
+  selectedEdgeIds,
   entities,
   relationships,
+  issues,
   onNodesChange,
   onEdgesChange,
   onNodeClick,
   onEdgeClick,
+  onSelectionChange,
   onConnect,
   onDropPaletteItem,
   recentlyAddedLabel,
@@ -798,17 +951,29 @@ function DataModelingCanvas({
   onDuplicateSelection,
   onDeleteSelection,
   onAddField,
+  onDeleteField,
+  onMoveField,
+  onToggleFieldNullable,
   onSetRelationshipCardinality,
+  onRelationshipLabelChange,
+  onClearSelection,
+  focusTarget,
+  onFocusTargetHandled,
+  onZoomPercentChange,
 }: {
   nodes: Array<Node<EntityNodeData>>;
   edges: Edge[];
   selection: CanvasSelection;
+  selectedNodeIds: string[];
+  selectedEdgeIds: string[];
   entities: DataModelEntity[];
   relationships: DataModelRelationship[];
+  issues: Issue[];
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onNodeClick: (nodeId: string) => void;
   onEdgeClick: (edgeId: string) => void;
+  onSelectionChange: (selection: { nodeIds: string[]; edgeIds: string[] }) => void;
   onConnect: (connection: Connection) => void;
   onDropPaletteItem: (shapeKind: ShapeKind, position: { x: number; y: number }) => void;
   recentlyAddedLabel: string | null;
@@ -830,10 +995,18 @@ function DataModelingCanvas({
   onDuplicateSelection: () => void;
   onDeleteSelection: () => void;
   onAddField: (entityId: string) => void;
+  onDeleteField: (entityId: string, fieldId: string) => void;
+  onMoveField: (entityId: string, fieldId: string, direction: 'up' | 'down') => void;
+  onToggleFieldNullable: (entityId: string, fieldId: string) => void;
   onSetRelationshipCardinality: (relationshipId: string, cardinality: DataModelRelationshipCardinality) => void;
+  onRelationshipLabelChange: (relationshipId: string, label: string) => void;
+  onClearSelection: () => void;
+  focusTarget: CanvasSelection;
+  onFocusTargetHandled: () => void;
+  onZoomPercentChange: (zoomPercent: number) => void;
 }) {
   const [isClientReady, setIsClientReady] = useState(false);
-  const { screenToFlowPosition, setCenter } = useReactFlow<Node<EntityNodeData>, Edge>();
+  const { screenToFlowPosition, setCenter, getZoom } = useReactFlow<Node<EntityNodeData>, Edge>();
 
   useEffect(() => {
     setIsClientReady(true);
@@ -852,8 +1025,45 @@ function DataModelingCanvas({
         zoom: 1,
         duration: 320,
       });
+      onZoomPercentChange(100);
     });
-  }, [nodes, recentlyAddedNodeId, setCenter]);
+  }, [nodes, recentlyAddedNodeId, setCenter, onZoomPercentChange]);
+
+  useEffect(() => {
+    if (!focusTarget) return;
+
+    if (focusTarget.type === 'relationship') {
+      const relationship = relationships.find((item) => item.id === focusTarget.id);
+      const source = entities.find((item) => item.id === relationship?.sourceEntityId);
+      const target = entities.find((item) => item.id === relationship?.targetEntityId);
+      if (source && target) {
+        setCenter((source.position.x + target.position.x) / 2 + 120, (source.position.y + target.position.y) / 2 + 90, {
+          zoom: Math.max(getZoom(), 0.9),
+          duration: 260,
+        });
+        onZoomPercentChange(Math.round(Math.max(getZoom(), 0.9) * 100));
+      }
+      onFocusTargetHandled();
+      return;
+    }
+
+    const focusedNode = nodes.find((node) => node.id === focusTarget.id);
+    if (!focusedNode) {
+      onFocusTargetHandled();
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      setCenter(focusedNode.position.x + ((focusedNode.data.shapeKind === 'entity' ? 240 : focusedNode.data.width ?? 172) / 2), focusedNode.position.y + ((focusedNode.data.shapeKind === 'entity' ? 180 : focusedNode.data.height ?? 104) / 2), {
+        zoom: Math.max(getZoom(), 0.92),
+        duration: 260,
+      });
+      onZoomPercentChange(Math.round(Math.max(getZoom(), 0.92) * 100));
+      onFocusTargetHandled();
+    });
+  }, [focusTarget, nodes, relationships, entities, setCenter, getZoom, onFocusTargetHandled, onZoomPercentChange]);
+
+  const relationshipSelection = selection?.type === 'relationship' ? relationships.find((relationship) => relationship.id === selection.id) : null;
 
   return (
     <div
@@ -889,6 +1099,7 @@ function DataModelingCanvas({
                 !!editingTarget &&
                 (editingTarget.type === 'entity' || editingTarget.type === 'shape') &&
                 editingTarget.id === node.id,
+              onSelect: (id: string) => onNodeClick(id),
               onLabelChange,
               onFinishEditing,
               onStartEditing: (id: string) => onNodeDoubleClick(id),
@@ -913,12 +1124,30 @@ function DataModelingCanvas({
                   ? (entityId: string, fieldId: string, updates: Partial<DataModelEntity['fields'][number]>) =>
                       onUpdateField(entityId, fieldId, updates)
                   : undefined,
+              onDeleteField:
+                node.data.shapeKind === 'entity'
+                  ? (entityId: string, fieldId: string) => onDeleteField(entityId, fieldId)
+                  : undefined,
+              onMoveField:
+                node.data.shapeKind === 'entity'
+                  ? (entityId: string, fieldId: string, direction: 'up' | 'down') => onMoveField(entityId, fieldId, direction)
+                  : undefined,
+              onToggleFieldNullable:
+                node.data.shapeKind === 'entity'
+                  ? (entityId: string, fieldId: string) => onToggleFieldNullable(entityId, fieldId)
+                  : undefined,
             },
           }))}
           edges={edges}
           nodeTypes={{ 'canvas-node': CanvasNode }}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onSelectionChange={({ nodes: nextNodes, edges: nextEdges }) =>
+            onSelectionChange({
+              nodeIds: nextNodes.map((node) => node.id),
+              edgeIds: nextEdges.map((edge) => edge.id),
+            })
+          }
           onNodeClick={(_, node) => onNodeClick(node.id)}
           onNodeDoubleClick={(_, node) => onNodeDoubleClick(node.id)}
           onNodeContextMenu={(event, node) => {
@@ -928,27 +1157,37 @@ function DataModelingCanvas({
           onEdgeClick={(_, edge) => onEdgeClick(edge.id)}
           onPaneClick={onPaneClick}
           onConnect={onConnect}
+          selectionOnDrag
+          elementsSelectable
+          elevateNodesOnSelect
+          multiSelectionKeyCode={['Meta', 'Control']}
           fitView
           minZoom={0.3}
           maxZoom={1.9}
           defaultEdgeOptions={{ type: 'smoothstep' }}
-          attributionPosition="bottom-left"
+          proOptions={{ hideAttribution: true }}
           className="bg-transparent"
+          onMoveEnd={(_, viewport) => onZoomPercentChange(Math.round(viewport.zoom * 100))}
         >
           <Background gap={24} size={1} color="color-mix(in oklab, var(--accent-primary) 22%, transparent)" />
-          <Controls showInteractive={false} position="bottom-right" />
+          <MiniMap
+            pannable
+            zoomable
+            position="bottom-left"
+            className="!bottom-5 !left-5 !h-[110px] !w-[180px] !rounded-[18px] !border !border-[var(--border-soft)] !bg-[color-mix(in_oklab,var(--bg-panel)_92%,transparent)] !shadow-[var(--shadow-soft)]"
+            maskColor="color-mix(in oklab, var(--bg-surface) 28%, transparent)"
+            nodeColor={(node) =>
+              node.data.shapeKind === 'entity'
+                ? 'var(--accent-secondary)'
+                : node.data.shapeKind === 'annotation'
+                  ? 'var(--accent-primary)'
+                  : 'var(--text-muted)'
+            }
+          />
         </ReactFlow>
       ) : (
         <div className="h-full w-full animate-pulse bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--accent-primary)_10%,transparent),transparent_30%)]" />
       )}
-      <div className="pointer-events-none absolute inset-x-5 top-5 flex items-center justify-between gap-4">
-        <div className="rounded-full border border-[var(--border-soft)] bg-[color-mix(in_oklab,var(--bg-panel)_90%,transparent)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)] backdrop-blur">
-          Architecture canvas
-        </div>
-        <div className="rounded-full border border-[color-mix(in_oklab,var(--accent-secondary)_36%,transparent)] bg-[color-mix(in_oklab,var(--accent-secondary)_12%,transparent)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-secondary)] backdrop-blur">
-          Click or drag tools into the board
-        </div>
-      </div>
       {recentlyAddedLabel ? (
         <div className="pointer-events-none absolute left-5 top-20 rounded-full border border-[color-mix(in_oklab,var(--accent-primary)_34%,transparent)] bg-[color-mix(in_oklab,var(--accent-primary)_12%,transparent)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-primary)] backdrop-blur">
           Added {recentlyAddedLabel}
@@ -1025,6 +1264,18 @@ function DataModelingCanvas({
                   </button>
                 );
               })}
+            </div>
+            <div className="mt-3">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]" htmlFor={`relationship-label-${selection.id}`}>
+                Relationship label
+              </label>
+              <input
+                id={`relationship-label-${selection.id}`}
+                value={relationshipSelection?.label ?? ''}
+                onChange={(event) => onRelationshipLabelChange(selection.id, event.target.value)}
+                placeholder="buyer places order, listing belongs to seller"
+                className="mt-2 h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-panel)] px-3 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--border-strong)]"
+              />
             </div>
           </div>
         </div>
@@ -1337,13 +1588,13 @@ function BuilderPalette({
 
   return (
     <div className="self-stretch">
-      <Panel variant="default" className="flex h-full min-h-full flex-col p-4 sm:p-5">
+      <Panel variant="default" className="flex h-full min-h-full flex-col overflow-hidden p-4 sm:p-5">
         <div className="flex items-center gap-2">
           <Boxes className="size-4 text-[var(--accent-secondary)]" />
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">Builder palette</p>
         </div>
         <p className="mt-2 text-xs leading-5 text-[var(--text-secondary)]">
-          Hover to inspect. Click to place. Drag onto canvas.
+          Hover to inspect. Click to Add OR Drag onto canvas.
         </p>
         <div className="mt-3 rounded-[18px] border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-3">
           <div className="flex items-center gap-3">
@@ -1356,7 +1607,8 @@ function BuilderPalette({
             </div>
           </div>
         </div>
-        <div className="mt-3 flex-1 space-y-3 pr-1">
+        <div className="mt-3 flex-1 overflow-y-auto overscroll-contain pr-1">
+          <div className="space-y-3">
           {paletteGroups.map((group) => (
             <div key={group.title} className="rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-3">
               <div className="mb-3">
@@ -1389,8 +1641,57 @@ function BuilderPalette({
               </div>
             </div>
           ))}
+          </div>
         </div>
       </Panel>
+    </div>
+  );
+}
+
+function CanvasHintBar({
+  zoomPercent,
+  onZoomPercentChange,
+}: {
+  zoomPercent: number;
+  onZoomPercentChange: (zoomPercent: number) => void;
+}) {
+  const { zoomIn, zoomOut, getZoom } = useReactFlow<Node<EntityNodeData>, Edge>();
+
+  return (
+    <div className="mb-4 flex flex-col gap-3 rounded-[18px] border border-[var(--border-soft)] bg-[color-mix(in_oklab,var(--bg-panel)_82%,var(--bg-elevated))] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+        <span className="rounded-full border border-[var(--border-soft)] px-3 py-1.5">Ctrl/Cmd + C copy</span>
+        <span className="rounded-full border border-[var(--border-soft)] px-3 py-1.5">Ctrl/Cmd + V paste</span>
+        <span className="rounded-full border border-[var(--border-soft)] px-3 py-1.5">Ctrl/Cmd + Z undo</span>
+        <span className="rounded-full border border-[var(--border-soft)] px-3 py-1.5">Delete remove</span>
+      </div>
+      <div className="flex items-center gap-2 self-start sm:self-auto">
+        <button
+          type="button"
+          onClick={() => {
+            zoomOut({ duration: 180 });
+            window.setTimeout(() => onZoomPercentChange(Math.round(getZoom() * 100)), 200);
+          }}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-[var(--border-soft)] bg-[var(--bg-panel)] text-[var(--text-primary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-elevated)]"
+          aria-label="Zoom out"
+        >
+          <Minus className="size-4" />
+        </button>
+        <div className="rounded-full border border-[var(--border-soft)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+          Zoom {zoomPercent}%
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            zoomIn({ duration: 180 });
+            window.setTimeout(() => onZoomPercentChange(Math.round(getZoom() * 100)), 200);
+          }}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-[var(--border-soft)] bg-[var(--bg-panel)] text-[var(--text-primary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-elevated)]"
+          aria-label="Zoom in"
+        >
+          <Plus className="size-4" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -1598,6 +1899,7 @@ export function DataModelingWorkspace({
   const [feedbackState, setFeedbackState] = useState<FeedbackState>(initialWorkspace.feedbackState);
   const [resultModel, setResultModel] = useState<ResultPanelModel>(buildIdleResult(initialWorkspace.resultPanel.summary));
   const [hasDirtyChanges, setHasDirtyChanges] = useState(false);
+  const [brainstormNotes, setBrainstormNotes] = useState('');
   const [recentlyAddedLabel, setRecentlyAddedLabel] = useState<string | null>(null);
   const [recentlyAddedNodeId, setRecentlyAddedNodeId] = useState<string | null>(null);
   const [editingTarget, setEditingTarget] = useState<CanvasSelection>(null);
@@ -1608,7 +1910,32 @@ export function DataModelingWorkspace({
   } | null>(null);
   const [clipboard, setClipboard] = useState<ClipboardEntry>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
-  const latestSavedPayload = useRef(JSON.stringify({ ...initialBuilderState, supportShapes: [] }));
+  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
+  const [selectedEdgeIds, setSelectedEdgeIds] = useState<string[]>([]);
+  const [focusTarget, setFocusTarget] = useState<CanvasSelection>(null);
+  const [canvasZoomPercent, setCanvasZoomPercent] = useState(100);
+  const latestSavedPayload = useRef(JSON.stringify({ ...initialBuilderState, supportShapes: [], brainstormNotes: '' }));
+  const historyRef = useRef<BuilderSnapshot[]>([
+    cloneSnapshot({
+      entities: initialBuilderState.entities,
+      relationships: initialBuilderState.relationships,
+      supportShapes: [],
+      brainstormNotes: '',
+    }),
+  ]);
+  const historyIndexRef = useRef(0);
+  const restoringSnapshotRef = useRef(false);
+
+  const currentSnapshot = useMemo(
+    () =>
+      cloneSnapshot({
+        entities,
+        relationships,
+        supportShapes,
+        brainstormNotes,
+      }),
+    [entities, relationships, supportShapes, brainstormNotes],
+  );
 
   useEffect(() => {
     const payload = JSON.stringify({
@@ -1616,6 +1943,7 @@ export function DataModelingWorkspace({
       entities,
       relationships,
       supportShapes,
+      brainstormNotes,
       view: initialBuilderState.view,
     });
 
@@ -1630,19 +1958,51 @@ export function DataModelingWorkspace({
     }, 850);
 
     return () => window.clearTimeout(timeout);
-  }, [entities, relationships, supportShapes, initialBuilderState.view]);
+  }, [entities, relationships, supportShapes, brainstormNotes, initialBuilderState.view]);
+
+  useEffect(() => {
+    if (restoringSnapshotRef.current) {
+      restoringSnapshotRef.current = false;
+      return;
+    }
+
+    const nextSerialized = JSON.stringify(currentSnapshot);
+    const currentHistorySerialized = JSON.stringify(historyRef.current[historyIndexRef.current]);
+    if (nextSerialized === currentHistorySerialized) return;
+
+    historyRef.current = [...historyRef.current.slice(0, historyIndexRef.current + 1), cloneSnapshot(currentSnapshot)];
+    historyIndexRef.current = historyRef.current.length - 1;
+  }, [currentSnapshot]);
 
   const nodes = useMemo(
     () => [
-      ...entities.map((entity) => makeEntityNode(entity, issues, selection?.type === 'entity' && selection.id === entity.id)),
-      ...supportShapes.map((shape) => makeShapeNode(shape, selection?.type === 'shape' && selection.id === shape.id)),
+      ...entities.map((entity) =>
+        makeEntityNode(
+          entity,
+          issues,
+          (selection?.type === 'entity' && selection.id === entity.id) || selectedNodeIds.includes(entity.id),
+        ),
+      ),
+      ...supportShapes.map((shape) =>
+        makeShapeNode(
+          shape,
+          (selection?.type === 'shape' && selection.id === shape.id) || selectedNodeIds.includes(shape.id),
+        ),
+      ),
     ],
-    [entities, supportShapes, issues, selection],
+    [entities, supportShapes, issues, selection, selectedNodeIds],
   );
 
   const edges = useMemo(
-    () => relationships.map((relationship) => makeRelationshipEdge(relationship, selection?.type === 'relationship' && selection.id === relationship.id, issues)),
-    [relationships, selection, issues],
+    () =>
+      relationships.map((relationship) =>
+        makeRelationshipEdge(
+          relationship,
+          (selection?.type === 'relationship' && selection.id === relationship.id) || selectedEdgeIds.includes(relationship.id),
+          issues,
+        ),
+      ),
+    [relationships, selection, selectedEdgeIds, issues],
   );
 
   useEffect(() => {
@@ -1783,13 +2143,58 @@ export function DataModelingWorkspace({
     setEntities(initialBuilderState.entities);
     setRelationships(initialBuilderState.relationships);
     setSupportShapes([]);
+    setBrainstormNotes('');
     setSelection(null);
+    setSelectedNodeIds([]);
+    setSelectedEdgeIds([]);
     setIssues([]);
     setFeedbackState('idle');
     setResultModel(buildIdleResult(initialWorkspace.resultPanel.summary));
-    latestSavedPayload.current = JSON.stringify({ ...initialBuilderState, supportShapes: [] });
+    latestSavedPayload.current = JSON.stringify({ ...initialBuilderState, supportShapes: [], brainstormNotes: '' });
+    historyRef.current = [
+      cloneSnapshot({
+        entities: initialBuilderState.entities,
+        relationships: initialBuilderState.relationships,
+        supportShapes: [],
+        brainstormNotes: '',
+      }),
+    ];
+    historyIndexRef.current = 0;
     setHasDirtyChanges(false);
     setSaveState('Canvas reset to the starter architecture frame');
+  }
+
+  function clearSupportShapes() {
+    setSupportShapes([]);
+    setSelection(null);
+    setSelectedNodeIds([]);
+    setSaveState('Support shapes cleared from the canvas');
+  }
+
+  function restoreSnapshot(snapshot: BuilderSnapshot) {
+    restoringSnapshotRef.current = true;
+    setEntities(cloneSnapshot(snapshot).entities);
+    setRelationships(cloneSnapshot(snapshot).relationships);
+    setSupportShapes(cloneSnapshot(snapshot).supportShapes);
+    setBrainstormNotes(snapshot.brainstormNotes);
+    setSelection(null);
+    setSelectedNodeIds([]);
+    setSelectedEdgeIds([]);
+    setEditingTarget(null);
+    setEditingFieldTarget(null);
+    setContextMenu(null);
+  }
+
+  function undoHistory() {
+    if (historyIndexRef.current === 0) return;
+    historyIndexRef.current -= 1;
+    restoreSnapshot(historyRef.current[historyIndexRef.current]);
+  }
+
+  function redoHistory() {
+    if (historyIndexRef.current >= historyRef.current.length - 1) return;
+    historyIndexRef.current += 1;
+    restoreSnapshot(historyRef.current[historyIndexRef.current]);
   }
 
   function deleteSelection() {
@@ -1805,11 +2210,51 @@ export function DataModelingWorkspace({
       setSupportShapes((current) => current.filter((shape) => shape.id !== selection.id));
     }
     setSelection(null);
+    setSelectedNodeIds([]);
+    setSelectedEdgeIds([]);
     setEditingTarget(null);
     setContextMenu(null);
   }
 
   function duplicateSelection() {
+    if (selectedNodeIds.length > 1) {
+      const selectedEntities = entities.filter((entity) => selectedNodeIds.includes(entity.id));
+      const selectedShapes = supportShapes.filter((shape) => selectedNodeIds.includes(shape.id));
+      const entityIdMap = new Map<string, string>();
+      const duplicatedEntities = selectedEntities.map((entity) => {
+        const nextId = makeId('entity');
+        entityIdMap.set(entity.id, nextId);
+        return {
+          ...entity,
+          id: nextId,
+          name: entity.name ? `${entity.name}_copy` : '',
+          position: { x: entity.position.x + 48, y: entity.position.y + 48 },
+          fields: entity.fields.map((field) => ({ ...field, id: makeId('field') })),
+        };
+      });
+      const duplicatedShapes = selectedShapes.map((shape) => ({
+        ...shape,
+        id: makeId(shape.shapeKind),
+        label: `${shape.label} copy`,
+        position: { x: shape.position.x + 48, y: shape.position.y + 48 },
+      }));
+      const duplicatedRelationships = relationships
+        .filter((relationship) => entityIdMap.has(relationship.sourceEntityId) && entityIdMap.has(relationship.targetEntityId))
+        .map((relationship) => ({
+          ...relationship,
+          id: makeId('relationship'),
+          sourceEntityId: entityIdMap.get(relationship.sourceEntityId) ?? relationship.sourceEntityId,
+          targetEntityId: entityIdMap.get(relationship.targetEntityId) ?? relationship.targetEntityId,
+        }));
+
+      setEntities((current) => [...current, ...duplicatedEntities]);
+      setSupportShapes((current) => [...current, ...duplicatedShapes]);
+      setRelationships((current) => [...current, ...duplicatedRelationships]);
+      setSelectedNodeIds([...duplicatedEntities.map((item) => item.id), ...duplicatedShapes.map((item) => item.id)]);
+      setSelection(duplicatedEntities[0] ? { type: 'entity', id: duplicatedEntities[0].id } : duplicatedShapes[0] ? { type: 'shape', id: duplicatedShapes[0].id } : null);
+      return;
+    }
+
     if (!selection) return;
 
     if (selection.type === 'entity') {
@@ -1853,6 +2298,16 @@ export function DataModelingWorkspace({
   }
 
   function copySelection() {
+    if (selectedNodeIds.length > 1) {
+      const selectedEntities = entities.filter((entity) => selectedNodeIds.includes(entity.id));
+      const selectedShapes = supportShapes.filter((shape) => selectedNodeIds.includes(shape.id));
+      const selectedRelationships = relationships.filter(
+        (relationship) => selectedNodeIds.includes(relationship.sourceEntityId) && selectedNodeIds.includes(relationship.targetEntityId),
+      );
+      setClipboard({ type: 'group', entities: selectedEntities, shapes: selectedShapes, relationships: selectedRelationships });
+      setContextMenu(null);
+      return;
+    }
     if (!selection) return;
     if (selection.type === 'entity') {
       const entity = entities.find((item) => item.id === selection.id);
@@ -1900,6 +2355,41 @@ export function DataModelingWorkspace({
       setSelection({ type: 'shape', id: duplicated.id });
       setRecentlyAddedLabel(duplicated.label);
       setRecentlyAddedNodeId(duplicated.id);
+    }
+    if (clipboard.type === 'group') {
+      const entityIdMap = new Map<string, string>();
+      const duplicatedEntities = clipboard.entities.map((entity) => {
+        const nextId = makeId('entity');
+        entityIdMap.set(entity.id, nextId);
+        return {
+          ...entity,
+          id: nextId,
+          name: entity.name ? `${entity.name}_copy` : '',
+          position: { x: entity.position.x + 56, y: entity.position.y + 56 },
+          fields: entity.fields.map((field) => ({ ...field, id: makeId('field') })),
+        };
+      });
+      const duplicatedShapes = clipboard.shapes.map((shape) => ({
+        ...shape,
+        id: makeId(shape.shapeKind),
+        label: `${shape.label} copy`,
+        position: { x: shape.position.x + 56, y: shape.position.y + 56 },
+      }));
+      const duplicatedRelationships = clipboard.relationships.map((relationship) => ({
+        ...relationship,
+        id: makeId('relationship'),
+        sourceEntityId: entityIdMap.get(relationship.sourceEntityId) ?? relationship.sourceEntityId,
+        targetEntityId: entityIdMap.get(relationship.targetEntityId) ?? relationship.targetEntityId,
+      }));
+      setEntities((current) => [...current, ...duplicatedEntities]);
+      setSupportShapes((current) => [...current, ...duplicatedShapes]);
+      setRelationships((current) => [...current, ...duplicatedRelationships]);
+      setSelectedNodeIds([...duplicatedEntities.map((item) => item.id), ...duplicatedShapes.map((item) => item.id)]);
+      if (duplicatedEntities[0]) {
+        setSelection({ type: 'entity', id: duplicatedEntities[0].id });
+        setRecentlyAddedNodeId(duplicatedEntities[0].id);
+      }
+      setRecentlyAddedLabel('selection');
     }
     setEditingTarget(null);
     setContextMenu(null);
@@ -1982,6 +2472,48 @@ export function DataModelingWorkspace({
     );
   }
 
+  function moveField(entityId: string, fieldId: string, direction: 'up' | 'down') {
+    setEntities((current) =>
+      current.map((entity) => {
+        if (entity.id !== entityId) return entity;
+        const index = entity.fields.findIndex((field) => field.id === fieldId);
+        if (index === -1) return entity;
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= entity.fields.length) return entity;
+        const nextFields = [...entity.fields];
+        const [field] = nextFields.splice(index, 1);
+        nextFields.splice(targetIndex, 0, field);
+        return { ...entity, fields: nextFields };
+      }),
+    );
+  }
+
+  function toggleFieldNullable(entityId: string, fieldId: string) {
+    setEntities((current) =>
+      current.map((entity) =>
+        entity.id === entityId
+          ? {
+              ...entity,
+              fields: entity.fields.map((field) =>
+                field.id === fieldId && !field.primaryKey
+                  ? {
+                      ...field,
+                      nullable: !field.nullable,
+                    }
+                  : field,
+              ),
+            }
+          : entity,
+      ),
+    );
+  }
+
+  function setRelationshipLabel(relationshipId: string, label: string) {
+    setRelationships((current) =>
+      current.map((relationship) => (relationship.id === relationshipId ? { ...relationship, label } : relationship)),
+    );
+  }
+
   function updateShapeLabel(shapeId: string, label: string) {
     setSupportShapes((current) => current.map((shape) => (shape.id === shapeId ? { ...shape, label } : shape)));
   }
@@ -1998,6 +2530,59 @@ export function DataModelingWorkspace({
           : shape,
       ),
     );
+  }
+
+  function alignSelection() {
+    if (selectedNodeIds.length < 2) return;
+    const selectedEntities = entities.filter((entity) => selectedNodeIds.includes(entity.id));
+    const selectedShapes = supportShapes.filter((shape) => selectedNodeIds.includes(shape.id));
+    const allY = [...selectedEntities.map((entity) => entity.position.y), ...selectedShapes.map((shape) => shape.position.y)];
+    if (!allY.length) return;
+    const targetY = Math.min(...allY);
+    setEntities((current) => current.map((entity) => (selectedNodeIds.includes(entity.id) ? { ...entity, position: { ...entity.position, y: targetY } } : entity)));
+    setSupportShapes((current) => current.map((shape) => (selectedNodeIds.includes(shape.id) ? { ...shape, position: { ...shape.position, y: targetY } } : shape)));
+  }
+
+  function distributeSelection() {
+    if (selectedNodeIds.length < 3) return;
+    const selectedItems = [
+      ...entities.filter((entity) => selectedNodeIds.includes(entity.id)).map((entity) => ({ id: entity.id, x: entity.position.x, kind: 'entity' as const })),
+      ...supportShapes.filter((shape) => selectedNodeIds.includes(shape.id)).map((shape) => ({ id: shape.id, x: shape.position.x, kind: 'shape' as const })),
+    ].sort((a, b) => a.x - b.x);
+    if (selectedItems.length < 3) return;
+    const gap = (selectedItems[selectedItems.length - 1].x - selectedItems[0].x) / (selectedItems.length - 1);
+    const nextMap = new Map(selectedItems.map((item, index) => [item.id, selectedItems[0].x + gap * index]));
+    setEntities((current) => current.map((entity) => (nextMap.has(entity.id) ? { ...entity, position: { ...entity.position, x: nextMap.get(entity.id) ?? entity.position.x } } : entity)));
+    setSupportShapes((current) => current.map((shape) => (nextMap.has(shape.id) ? { ...shape, position: { ...shape.position, x: nextMap.get(shape.id) ?? shape.position.x } } : shape)));
+  }
+
+  function groupSelection() {
+    if (selectedNodeIds.length < 2) return;
+    const selectedEntityNodes = entities.filter((entity) => selectedNodeIds.includes(entity.id));
+    const selectedShapeNodes = supportShapes.filter((shape) => selectedNodeIds.includes(shape.id));
+    const allX = [...selectedEntityNodes.map((item) => item.position.x), ...selectedShapeNodes.map((item) => item.position.x)];
+    const allY = [...selectedEntityNodes.map((item) => item.position.y), ...selectedShapeNodes.map((item) => item.position.y)];
+    if (!allX.length || !allY.length) return;
+    const group = createSupportingShape(
+      {
+        id: makeId('palette-grouping'),
+        label: 'Grouping boundary',
+        hint: '',
+        shapeKind: 'container',
+        category: 'erd',
+        icon: Boxes,
+        tone: 'gold',
+      },
+      supportShapes.length,
+      { x: Math.min(...allX) - 40, y: Math.min(...allY) - 50 },
+    );
+    group.width = Math.max(...allX) - Math.min(...allX) + 320;
+    group.height = Math.max(...allY) - Math.min(...allY) + 240;
+    group.label = 'Selected group';
+    setSupportShapes((current) => [...current, group]);
+    setSelection({ type: 'shape', id: group.id });
+    setRecentlyAddedLabel('group');
+    setRecentlyAddedNodeId(group.id);
   }
 
   useEffect(() => {
@@ -2027,24 +2612,75 @@ export function DataModelingWorkspace({
         event.preventDefault();
         pasteClipboard();
       }
+
+      if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === 'z') {
+        event.preventDefault();
+        undoHistory();
+      }
+
+      if (((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === 'z') || ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'y')) {
+        event.preventDefault();
+        redoHistory();
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selection, clipboard]);
+  }, [selection, clipboard, currentSnapshot]);
 
   const issueCounts = {
     errors: issues.filter((issue) => issue.severity === 'error').length,
     warnings: issues.filter((issue) => issue.severity === 'warning').length,
   };
+  const handleFocusTargetHandled = useCallback(() => setFocusTarget(null), []);
 
   return (
     <div className="space-y-6">
-      <PromptPanel
-        sections={initialWorkspace.promptSections}
-        starterHint=""
-        className="border-[var(--border-strong)] bg-[color-mix(in_oklab,var(--bg-panel)_94%,var(--accent-primary)_6%)] p-4 sm:p-5 [&_.mt-5]:mt-4 [&_.mt-6]:mt-4 [&_.space-y-5]:space-y-4 [&_p]:leading-6"
-      />
+      <Panel variant="elevated" className="overflow-hidden p-0">
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.6fr)_minmax(340px,0.85fr)]">
+          <div className="border-b border-[var(--border-soft)] px-5 py-4 sm:px-6 lg:border-b-0 lg:border-r">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                  Prompt
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--text-secondary)]">
+                  {initialWorkspace.promptSections[0]?.body}
+                </p>
+              </div>
+              <Badge variant="neutral">Visible context</Badge>
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {initialWorkspace.promptSections.slice(1).map((section) => (
+                <div key={section.label} className="rounded-[18px] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">{section.label}</p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{section.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="px-5 py-4 sm:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="font-[family-name:var(--font-heading)] text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                  Brainstorming scratchpad
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+                  Capture assumptions, interview talk-track, and the architecture story you want the canvas to tell.
+                </p>
+              </div>
+              <Badge variant="info">Local only</Badge>
+            </div>
+            <textarea
+              value={brainstormNotes}
+              onChange={(event) => setBrainstormNotes(event.target.value)}
+              placeholder="Start with entity boundaries, then note tradeoffs, missing domains, or any assumptions about history, payments, and lifecycle."
+              rows={7}
+              className="mt-3 w-full rounded-[18px] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-4 py-3 text-sm leading-6 text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--border-strong)]"
+            />
+          </div>
+        </div>
+      </Panel>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-stretch">
         <div className="space-y-6">
           <Panel variant="elevated" className="overflow-hidden p-0">
@@ -2052,37 +2688,55 @@ export function DataModelingWorkspace({
               <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                 Architecture and ERD canvas
               </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--text-secondary)]">
-                Build the real data model first, then layer supporting architecture shapes only where they make the design story clearer. The canvas is meant to feel premium, spatial, and presentation-ready.
-              </p>
             </div>
             <div className="p-5 sm:p-6">
-              <div className="mb-4 flex flex-wrap gap-2">
-                <Badge variant="neutral">Hybrid design surface</Badge>
-                <Badge variant="neutral">ERD-first validation</Badge>
-                <Badge variant="neutral">Curated cloud context</Badge>
-              </div>
               <ReactFlowProvider>
+                <CanvasHintBar zoomPercent={canvasZoomPercent} onZoomPercentChange={setCanvasZoomPercent} />
                 <DataModelingCanvas
                   nodes={nodes}
                   edges={edges}
                   selection={selection}
+                  selectedNodeIds={selectedNodeIds}
+                  selectedEdgeIds={selectedEdgeIds}
                   entities={entities}
                   relationships={relationships}
+                  issues={issues}
                   onNodesChange={handleNodesChange}
                   onEdgesChange={handleEdgesChange}
                   onNodeClick={(nodeId) => {
                     setContextMenu(null);
                     setEditingFieldTarget(null);
+                    setSelectedNodeIds([nodeId]);
+                    setSelectedEdgeIds([]);
                     if (entities.some((entity) => entity.id === nodeId)) {
                       setSelection({ type: 'entity', id: nodeId });
                       return;
                     }
                     setSelection({ type: 'shape', id: nodeId });
                   }}
+                  onSelectionChange={({ nodeIds, edgeIds }) => {
+                    if (nodeIds.length === 0 && edgeIds.length === 0) {
+                      return;
+                    }
+
+                    setSelectedNodeIds((current) => (arrayShallowEqual(current, nodeIds) ? current : nodeIds));
+                    setSelectedEdgeIds((current) => (arrayShallowEqual(current, edgeIds) ? current : edgeIds));
+
+                    const nextSelection: CanvasSelection = edgeIds[0]
+                      ? { type: 'relationship', id: edgeIds[0] }
+                      : nodeIds[0]
+                        ? entities.some((entity) => entity.id === nodeIds[0])
+                          ? { type: 'entity', id: nodeIds[0] }
+                          : { type: 'shape', id: nodeIds[0] }
+                        : null;
+
+                    setSelection((current) => (selectionEqual(current, nextSelection) ? current : nextSelection));
+                  }}
                   onNodeDoubleClick={(nodeId) => {
                     setContextMenu(null);
                     setEditingFieldTarget(null);
+                    setSelectedNodeIds([nodeId]);
+                    setSelectedEdgeIds([]);
                     if (entities.some((entity) => entity.id === nodeId)) {
                       setSelection({ type: 'entity', id: nodeId });
                       setEditingTarget({ type: 'entity', id: nodeId });
@@ -2093,6 +2747,8 @@ export function DataModelingWorkspace({
                   }}
                   onNodeContextMenu={(nodeId, x, y) => {
                     setEditingFieldTarget(null);
+                    setSelectedNodeIds([nodeId]);
+                    setSelectedEdgeIds([]);
                     if (entities.some((entity) => entity.id === nodeId)) {
                       setSelection({ type: 'entity', id: nodeId });
                       setContextMenu({ x, y, target: { type: 'entity', id: nodeId } });
@@ -2101,9 +2757,15 @@ export function DataModelingWorkspace({
                     setSelection({ type: 'shape', id: nodeId });
                     setContextMenu({ x, y, target: { type: 'shape', id: nodeId } });
                   }}
-                  onEdgeClick={(edgeId) => setSelection({ type: 'relationship', id: edgeId })}
+                  onEdgeClick={(edgeId) => {
+                    setSelectedNodeIds([]);
+                    setSelectedEdgeIds([edgeId]);
+                    setSelection({ type: 'relationship', id: edgeId });
+                  }}
                   onPaneClick={() => {
                     setSelection(null);
+                    setSelectedNodeIds([]);
+                    setSelectedEdgeIds([]);
                     setEditingTarget(null);
                     setEditingFieldTarget(null);
                     setContextMenu(null);
@@ -2132,11 +2794,70 @@ export function DataModelingWorkspace({
                   onDuplicateSelection={duplicateSelection}
                   onDeleteSelection={deleteSelection}
                   onAddField={addField}
+                  onDeleteField={deleteField}
+                  onMoveField={moveField}
+                  onToggleFieldNullable={toggleFieldNullable}
                   onSetRelationshipCardinality={setRelationshipCardinality}
+                  onRelationshipLabelChange={setRelationshipLabel}
+                  onClearSelection={() => {
+                    setSelection(null);
+                    setSelectedNodeIds([]);
+                    setSelectedEdgeIds([]);
+                    setEditingTarget(null);
+                    setEditingFieldTarget(null);
+                    setContextMenu(null);
+                  }}
+                  focusTarget={focusTarget}
+                  onFocusTargetHandled={handleFocusTargetHandled}
+                  onZoomPercentChange={setCanvasZoomPercent}
                 />
               </ReactFlowProvider>
               <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-panel)] px-4 py-4">
                 <div className="flex flex-col gap-4">
+                  {issues.length ? (
+                    <div className="rounded-[18px] border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">Validation map</p>
+                          <p className="mt-1 text-sm text-[var(--text-secondary)]">Jump directly to blockers and review notes on the canvas.</p>
+                        </div>
+                        <Badge variant={issueCounts.errors ? 'warning' : 'info'}>
+                          {issueCounts.errors ? 'Structural blockers present' : 'Warnings only'}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 grid gap-2">
+                        {issues.map((issue) => (
+                          <button
+                            key={issue.id}
+                            type="button"
+                            onClick={() => {
+                              if (!issue.target) return;
+                              setSelection(issue.target.id ? issue.target : null);
+                              setSelectedNodeIds(issue.target.type === 'entity' || issue.target.type === 'shape' ? [issue.target.id] : []);
+                              setSelectedEdgeIds(issue.target.type === 'relationship' ? [issue.target.id] : []);
+                              setFocusTarget(issue.target.id ? issue.target : null);
+                            }}
+                            className={cn(
+                              'rounded-[16px] border px-4 py-3 text-left transition-colors',
+                              issue.severity === 'error'
+                                ? 'border-[color-mix(in_oklab,var(--accent-error)_28%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-error)_8%,transparent)]'
+                                : 'border-[color-mix(in_oklab,var(--accent-warning)_28%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-warning)_8%,transparent)]',
+                            )}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-medium text-[var(--text-primary)]">{issue.issue}</p>
+                                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{issue.suggestedFix}</p>
+                              </div>
+                              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                                {issue.severity === 'error' ? 'blocker' : 'warning'}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="flex flex-wrap gap-2">
                     <Badge variant={issueCounts.errors ? 'warning' : 'neutral'}>{issueCounts.errors} errors</Badge>
                     <Badge variant={issueCounts.warnings ? 'info' : 'neutral'}>{issueCounts.warnings} warnings</Badge>
@@ -2144,10 +2865,14 @@ export function DataModelingWorkspace({
                     <Badge variant="neutral">{relationships.length} relationships</Badge>
                     <Badge variant="neutral">{supportShapes.length} support shapes</Badge>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-4">
                     <Button size="lg" variant="outline" onClick={handleReset} className="w-full">
                       <RefreshCcw className="size-4" />
-                      Reset
+                      Reset starter
+                    </Button>
+                    <Button size="lg" variant="outline" onClick={clearSupportShapes} className="w-full">
+                      <Layers3 className="size-4" />
+                      Clear shapes
                     </Button>
                     <Button size="lg" variant="secondary" onClick={() => runValidation('validate')} className="w-full">
                       <ShieldCheck className="size-4" />

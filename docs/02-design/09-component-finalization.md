@@ -55,7 +55,7 @@ Component specification document.
 | `WorkspaceStatusBar` | Lightweight status and feedback strip | save state, review state, idle/loading-style messaging |
 | `SqlWorkspace` | Dedicated SQL exercise workspace | top header route chrome, sticky prompt rail, Monaco editor, action row under editor, schema browser, sticky review rail, FastAPI-backed preview states |
 | `PythonWorkspace` | Dedicated Python exercise workspace | same focused exercise layout as SQL, Monaco editor, action row under editor, mocked preview/review states, reference section below editor |
-| `DataModelingWorkspace` | Dedicated architecture and ERD builder workspace | top header route chrome without the route-level exercise header, full-width prompt section, React Flow canvas, full-height builder palette, inline node editing, relationship overlay tools, full-width validation/review surface, ERD-only blocking validation |
+| `DataModelingWorkspace` | Dedicated architecture and ERD builder workspace | top header route chrome without the route-level exercise header, compact full-width prompt plus brainstorming scratchpad, React Flow canvas, full-height builder palette, inline node editing, relationship overlay tools, canvas toolbar + mini-map, full-width validation/review surface, ERD-only blocking validation |
 | `WorkSurface` | Mock module-first center surface | pipeline canvas placeholder and any legacy generic mocked surfaces where dedicated workspaces are not used |
 
 ## Visual Builder Components
@@ -64,11 +64,11 @@ Component specification document.
 | `BuilderCanvas` | Main drag-and-drop area | mode, zoom, read-only, selection state |
 | `NodePalette` | Node library | filterable by type and category |
 | `PipelineNodeCard` | ETL step on canvas | type, status, validation state, selected |
-| `DataModelEntityCard` | ERD entity representation | columns, keys, selected, invalid |
+| `DataModelEntityCard` | ERD entity representation | inline rename, field add/remove/reorder, PK/nullable controls, selected, invalid |
 | `EdgeRenderer` | Relationship or dependency line | valid, invalid, warning |
 | `ConfigDrawer` | Node/entity configuration | open state, validation, save/cancel |
 | `SimulationTimeline` | Step playback | idle, running, paused, failed, completed |
-| `CanvasToolbar` | Zoom, validate, simulate, reset | availability tied to current mode |
+| `CanvasToolbar` | Fit, center, zoom, undo/redo, selection organization | availability tied to current mode |
 
 ## Validation Rules
 - Form components must surface inline validation before submission.

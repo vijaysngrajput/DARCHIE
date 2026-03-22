@@ -19,7 +19,7 @@ The frontend foundation is implemented with:
 
 The backend is now partially wired for the SQL module preview path. Python, data-modeling, pipeline-builder, auth, billing, and persistence are still incomplete.
 Python now mirrors the SQL workspace UI structure in the browser, but its run and submit flows remain mocked and frontend-only.
-Data Modeling now has a frontend-interactive React Flow design canvas with real ERD validation, a full-width prompt section, a palette-first builder workflow, and mocked submit/review behavior.
+Data Modeling now has a frontend-interactive React Flow design canvas with real ERD validation, a compact full-width prompt plus brainstorming scratchpad, a toolbar/minimap workflow, and mocked submit/review behavior.
 
 ## Recommended Setup
 Use the devcontainer.
@@ -42,6 +42,25 @@ If dependencies are not installed yet, run:
 ```bash
 pnpm install
 ```
+
+## Run Frontend And Backend
+From the repo root, use two terminals.
+
+Terminal 1:
+
+```bash
+pnpm dev:api
+```
+
+Terminal 2:
+
+```bash
+pnpm dev:web
+```
+
+Then open:
+- frontend: `http://localhost:3000`
+- backend: `http://localhost:8000`
 
 ## Run The Website
 From the repo root:
@@ -135,8 +154,10 @@ pnpm test:api
 - SQL, Python, and Data Modeling exercise routes now use a focused top-header layout instead of the heavier desktop sidebar.
 - Python currently matches the SQL workspace UX structure, but its execution/review behavior is still mocked.
 - SQL and Python keep the sticky prompt-left, work-surface-center, sticky-review-right structure.
-- Data Modeling now uses a full-width prompt section above the workspace, a dominant React Flow architecture canvas, a full-height builder palette on the right, and a full-width validation/review surface beneath the canvas.
-- Data Modeling is now canvas-first: entity and shape labels are renamed inline, entity fields can be added and edited directly in the node card, and the older left inspector / below-canvas action-strip pattern has been removed.
+- Data Modeling now uses a compact full-width prompt plus brainstorming scratchpad above the workspace, a dominant React Flow architecture canvas, a full-height builder palette on the right, and a full-width validation/review surface beneath the canvas.
+- Data Modeling is now canvas-first: entity and shape labels are renamed inline, entity fields can be added, reordered, removed, and edited directly in the node card, relationship labels/cardinality are edited near the edge, and the older left inspector / below-canvas action-strip pattern has been removed.
+- Data Modeling now includes a canvas toolbar with fit-all, center-selection, zoom state, undo/redo, clear-selection, keyboard-shortcut help, and a mini-map for larger diagrams.
+- Data Modeling validation issues are now clickable from the review surface and jump the user back to the relevant entity or relationship on the canvas.
 - Data Modeling no longer shows the `Starter hint` block in the prompt area.
 - Data Modeling supports hybrid architecture shapes for canvas composition, but only ERD entities and relationships participate in blocking validation in this slice.
 

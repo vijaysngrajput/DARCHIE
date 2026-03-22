@@ -15,6 +15,8 @@ vi.mock('@xyflow/react', async () => {
       onNodeDoubleClick,
       onEdgeClick,
       onConnect,
+      onSelectionChange,
+      onMoveEnd,
       children,
     }: {
       nodes: Array<{
@@ -32,11 +34,19 @@ vi.mock('@xyflow/react', async () => {
       onNodeDoubleClick?: (event: unknown, node: { id: string }) => void;
       onEdgeClick?: (event: unknown, edge: { id: string }) => void;
       onConnect?: (connection: { source: string; target: string }) => void;
+      onSelectionChange?: (selection: { nodes: Array<{ id: string }>; edges: Array<{ id: string }> }) => void;
+      onMoveEnd?: (_event: unknown, viewport: { zoom: number }) => void;
       children?: React.ReactNode;
     }) => (
       <div>
         <button type="button" onClick={() => onConnect?.({ source: nodes[0]?.id, target: nodes[1]?.id })}>
           Mock connect
+        </button>
+        <button type="button" onClick={() => onSelectionChange?.({ nodes: nodes.slice(0, 2).map((node) => ({ id: node.id })), edges: [] })}>
+          Mock multi-select
+        </button>
+        <button type="button" onClick={() => onMoveEnd?.({}, { zoom: 1.2 })}>
+          Mock move end
         </button>
         {nodes.map((node) => (
           <React.Fragment key={node.id}>
@@ -57,12 +67,17 @@ vi.mock('@xyflow/react', async () => {
       </div>
     ),
     Background: () => <div>Canvas background</div>,
+    MiniMap: () => <div>Canvas mini map</div>,
     Controls: () => <div>Canvas controls</div>,
     Handle: () => <div data-testid="flow-handle" />,
     NodeResizer: () => <div data-testid="node-resizer" />,
     useReactFlow: () => ({
       screenToFlowPosition: ({ x, y }: { x: number; y: number }) => ({ x, y }),
       setCenter: vi.fn(),
+      fitView: vi.fn(),
+      getZoom: () => 1,
+      zoomIn: vi.fn(),
+      zoomOut: vi.fn(),
     }),
     Position: { Left: 'left', Right: 'right' },
     MarkerType: { ArrowClosed: 'arrowclosed' },

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Background,
+  BackgroundVariant,
   ConnectionMode,
   Controls,
   Handle,
@@ -1092,7 +1093,7 @@ function DataModelingCanvas({
 
   return (
     <div
-      className="relative h-[780px] overflow-hidden rounded-[28px] border border-[var(--border-strong)] bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--accent-primary)_12%,transparent),transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--bg-elevated)_88%,transparent),color-mix(in_oklab,var(--bg-surface)_74%,transparent))] shadow-[var(--shadow-panel)]"
+      className="relative h-[780px] overflow-hidden rounded-[28px] border border-[var(--border-strong)] bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--accent-primary)_8%,transparent),transparent_24%),linear-gradient(180deg,color-mix(in_oklab,var(--bg-elevated)_84%,transparent),color-mix(in_oklab,var(--bg-surface)_68%,transparent))] shadow-[var(--shadow-panel)]"
       onDragOver={(event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'copy';
@@ -1216,7 +1217,12 @@ function DataModelingCanvas({
           className="bg-transparent"
           onMoveEnd={(_, viewport) => onZoomPercentChange(Math.round(viewport.zoom * 100))}
         >
-          <Background gap={24} size={1} color="color-mix(in oklab, var(--accent-primary) 22%, transparent)" />
+          <Background
+            variant={BackgroundVariant.Dots}
+            gap={22}
+            size={1.8}
+            color="color-mix(in oklab, var(--accent-primary) 30%, transparent)"
+          />
           <MiniMap
             pannable
             zoomable

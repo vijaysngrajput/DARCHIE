@@ -80,6 +80,7 @@ vi.mock('@xyflow/react', async () => {
       zoomOut: vi.fn(),
     }),
     Position: { Left: 'left', Right: 'right' },
+    ConnectionMode: { Loose: 'loose' },
     MarkerType: { ArrowClosed: 'arrowclosed' },
     applyNodeChanges: (_changes: unknown, nodes: unknown) => nodes,
     applyEdgeChanges: (_changes: unknown, edges: unknown) => edges,

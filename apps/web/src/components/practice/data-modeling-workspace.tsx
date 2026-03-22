@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Background,
+  ConnectionMode,
   Controls,
   Handle,
   MarkerType,
@@ -141,7 +142,12 @@ type EntityNodeData = {
   onFieldChange?: (entityId: string, fieldId: string, updates: Partial<DataModelEntity['fields'][number]>) => void;
   onDeleteField?: (entityId: string, fieldId: string) => void;
   onMoveField?: (entityId: string, fieldId: string, direction: 'up' | 'down') => void;
+  onStartFieldDrag?: (entityId: string, fieldId: string) => void;
+  onDropField?: (entityId: string, targetFieldId: string) => void;
+  onEndFieldDrag?: () => void;
+  draggedFieldId?: string | null;
   onToggleFieldNullable?: (entityId: string, fieldId: string) => void;
+  onToggleFieldForeignKey?: (entityId: string, fieldId: string) => void;
 };
 
 type ClipboardEntry =
@@ -526,22 +532,22 @@ function makeEntityNode(entity: DataModelEntity, issues: Issue[], selected: bool
     targetPosition: Position.Left,
     handles: [
       {
-        id: `${entity.id}-target`,
+        id: `${entity.id}-left-handle`,
         type: 'target',
         position: Position.Left,
         x: 0,
         y: estimatedHeight / 2,
-        width: 12,
-        height: 12,
+        width: 20,
+        height: 20,
       },
       {
-        id: `${entity.id}-source`,
+        id: `${entity.id}-right-handle`,
         type: 'source',
         position: Position.Right,
         x: 240,
         y: estimatedHeight / 2,
-        width: 12,
-        height: 12,
+        width: 20,
+        height: 20,
       },
     ],
     data: {
@@ -616,9 +622,10 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
   if (data.shapeKind === 'entity' && data.entity) {
     return (
       <div
-        onMouseDownCapture={() => data.onSelect?.(data.id)}
-        onClickCapture={(event) => {
-          event.stopPropagation();
+        onMouseDownCapture={(event) => {
+          if ((event.target as HTMLElement).closest('.react-flow__handle')) {
+            return;
+          }
           data.onSelect?.(data.id);
         }}
         className={cn(
@@ -632,7 +639,12 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                 : 'border-[var(--border-soft)]',
         )}
       >
-        <Handle type="target" position={Position.Left} className="!h-3 !w-3 !border-2 !border-[var(--bg-panel)] !bg-[var(--accent-primary)]" />
+        <Handle
+          id={`${data.id}-left-handle`}
+          type="target"
+          position={Position.Left}
+          className="!h-5 !w-5 !border-[3px] !border-[var(--bg-panel)] !bg-[var(--accent-primary)] !shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent-primary)_28%,transparent)]"
+        />
         <div className="flex items-start justify-between gap-4 border-b border-[var(--border-soft)] pb-3">
           <div>
             {data.isEditing ? (
@@ -647,7 +659,7 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                     data.onFinishEditing?.();
                   }
                 }}
-                className="h-9 w-full rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 text-base font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--border-strong)]"
+                className="nodrag nopan h-9 w-full rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 text-base font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--border-strong)]"
               />
             ) : (
               <button
@@ -655,13 +667,9 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                 onClick={(event) => {
                   event.stopPropagation();
                   data.onSelect?.(data.id);
-                }}
-                onDoubleClick={(event) => {
-                  event.stopPropagation();
-                  data.onSelect?.(data.id);
                   data.onStartEditing?.(data.id);
                 }}
-                className="text-left font-[family-name:var(--font-heading)] text-lg font-semibold tracking-[-0.02em] text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
+                className="nodrag nopan text-left font-[family-name:var(--font-heading)] text-lg font-semibold tracking-[-0.02em] text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
               >
                 {data.label}
               </button>
@@ -676,7 +684,23 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
           {data.entity.fields.map((field, index) => {
             const fieldCount = data.entity?.fields.length ?? 0;
             return (
-            <div key={field.id} className="rounded-[var(--radius-md)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm">
+            <div
+              key={field.id}
+              onDragOver={(event) => {
+                if (data.draggedFieldId && data.draggedFieldId !== field.id) {
+                  event.preventDefault();
+                }
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                data.onDropField?.(data.id, field.id);
+              }}
+              className={cn(
+                'rounded-[var(--radius-md)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm',
+                data.draggedFieldId === field.id && 'ring-1 ring-[var(--focus-ring)]',
+              )}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                 {data.editingField?.fieldId === field.id && data.editingField.mode === 'name' ? (
@@ -691,7 +715,7 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                         data.onFinishFieldEditing?.();
                       }
                     }}
-                    className="h-8 w-full rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-panel)] px-2.5 text-sm font-medium text-[var(--text-primary)] outline-none focus:border-[var(--border-strong)]"
+                    className="nodrag nopan h-8 w-full rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-panel)] px-2.5 text-sm font-medium text-[var(--text-primary)] outline-none focus:border-[var(--border-strong)]"
                   />
                 ) : (
                   <button
@@ -700,42 +724,28 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                       event.stopPropagation();
                       data.onStartFieldEditing?.(data.id, field.id, 'name');
                     }}
-                    className="truncate font-medium text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
+                    className="nodrag nopan truncate font-medium text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
                   >
                     {field.name || 'unnamed_field'}
                   </button>
                 )}
-                {data.editingField?.fieldId === field.id && data.editingField.mode === 'type' ? (
-                  <select
-                    autoFocus
-                    value={field.type}
-                    onChange={(event) =>
-                      data.onFieldChange?.(data.id, field.id, {
-                        type: event.target.value as DataModelEntity['fields'][number]['type'],
-                      })
-                    }
-                    onBlur={() => data.onFinishFieldEditing?.()}
-                    className="mt-1 h-7 rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-panel)] px-2 text-[11px] uppercase tracking-[0.12em] text-[var(--text-muted)] outline-none focus:border-[var(--border-strong)]"
-                  >
-                    <option value="uuid">uuid</option>
-                    <option value="integer">integer</option>
-                    <option value="string">string</option>
-                    <option value="timestamp">timestamp</option>
-                    <option value="decimal">decimal</option>
-                    <option value="boolean">boolean</option>
-                  </select>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      data.onStartFieldEditing?.(data.id, field.id, 'type');
-                    }}
-                    className="text-xs uppercase tracking-[0.12em] text-[var(--text-muted)] transition-colors hover:text-[var(--accent-primary)]"
-                  >
-                    {field.type}
-                  </button>
-                )}
+                <select
+                  value={field.type}
+                  onChange={(event) =>
+                    data.onFieldChange?.(data.id, field.id, {
+                      type: event.target.value as DataModelEntity['fields'][number]['type'],
+                    })
+                  }
+                  onClick={(event) => event.stopPropagation()}
+                  className="nodrag nopan mt-1 h-7 rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-panel)] px-2 text-[11px] uppercase tracking-[0.12em] text-[var(--text-muted)] outline-none focus:border-[var(--border-strong)]"
+                >
+                  <option value="uuid">uuid</option>
+                  <option value="integer">integer</option>
+                  <option value="string">string</option>
+                  <option value="timestamp">timestamp</option>
+                  <option value="decimal">decimal</option>
+                  <option value="boolean">boolean</option>
+                </select>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
@@ -748,7 +758,7 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                       });
                     }}
                     className={cn(
-                      'rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
+                      'nodrag nopan rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
                       field.primaryKey
                         ? 'border-[color-mix(in_oklab,var(--accent-secondary)_34%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-secondary)_10%,transparent)] text-[var(--accent-secondary)]'
                         : 'border-[var(--border-soft)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]',
@@ -763,7 +773,7 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                       data.onToggleFieldNullable?.(data.id, field.id);
                     }}
                     className={cn(
-                      'rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
+                      'nodrag nopan rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
                       field.nullable
                         ? 'border-[color-mix(in_oklab,var(--accent-primary)_34%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-primary)_10%,transparent)] text-[var(--accent-primary)]'
                         : 'border-[var(--border-soft)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]',
@@ -771,34 +781,37 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                   >
                     null
                   </button>
-                  {field.foreignKey ? <Badge variant="neutral">FK</Badge> : null}
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      data.onToggleFieldForeignKey?.(data.id, field.id);
+                    }}
+                    className={cn(
+                      'nodrag nopan rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
+                      field.foreignKey
+                        ? 'border-[color-mix(in_oklab,var(--accent-primary)_34%,var(--border-soft))] bg-[color-mix(in_oklab,var(--accent-primary)_10%,transparent)] text-[var(--accent-primary)]'
+                        : 'border-[var(--border-soft)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]',
+                    )}
+                  >
+                    FK
+                  </button>
                 </div>
               </div>
               <div className="mt-2 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={(event) => {
+                    draggable
+                    onDragStart={(event) => {
                       event.stopPropagation();
-                      data.onMoveField?.(data.id, field.id, 'up');
+                      data.onStartFieldDrag?.(data.id, field.id);
                     }}
-                    disabled={index === 0}
-                    className="rounded-[10px] border border-[var(--border-soft)] px-1.5 py-1 text-[11px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] disabled:opacity-35"
-                    aria-label={`Move ${field.name || 'field'} up`}
+                    onDragEnd={() => data.onEndFieldDrag?.()}
+                    className="nodrag nopan cursor-grab rounded-[10px] border border-[var(--border-soft)] px-1.5 py-1 text-[11px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] active:cursor-grabbing"
+                    aria-label={`Drag ${field.name || 'field'} to reorder`}
                   >
-                    <Move className="size-3.5 rotate-90" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      data.onMoveField?.(data.id, field.id, 'down');
-                    }}
-                    disabled={index === fieldCount - 1}
-                    className="rounded-[10px] border border-[var(--border-soft)] px-1.5 py-1 text-[11px] text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] disabled:opacity-35"
-                    aria-label={`Move ${field.name || 'field'} down`}
-                  >
-                    <Move className="size-3.5 -rotate-90" />
+                    <Move className="size-3.5" />
                   </button>
                 </div>
                 <button
@@ -807,7 +820,7 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                     event.stopPropagation();
                     data.onDeleteField?.(data.id, field.id);
                   }}
-                  className="rounded-[10px] border border-[var(--border-soft)] px-2 py-1 text-[11px] font-medium text-[var(--accent-error)] transition-colors hover:border-[color-mix(in_oklab,var(--accent-error)_28%,var(--border-soft))] hover:bg-[color-mix(in_oklab,var(--accent-error)_8%,transparent)]"
+                  className="nodrag nopan rounded-[10px] border border-[var(--border-soft)] px-2 py-1 text-[11px] font-medium text-[var(--accent-error)] transition-colors hover:border-[color-mix(in_oklab,var(--accent-error)_28%,var(--border-soft))] hover:bg-[color-mix(in_oklab,var(--accent-error)_8%,transparent)]"
                 >
                   Remove
                 </button>
@@ -822,12 +835,17 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
             event.stopPropagation();
             data.onAddField?.(data.id);
           }}
-          className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] border border-dashed border-[var(--border-soft)] bg-[color-mix(in_oklab,var(--bg-elevated)_72%,transparent)] text-sm font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
+          className="nodrag nopan mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] border border-dashed border-[var(--border-soft)] bg-[color-mix(in_oklab,var(--bg-elevated)_72%,transparent)] text-sm font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
         >
           <span className="text-base leading-none">+</span>
           <span>Add field</span>
         </button>
-        <Handle type="source" position={Position.Right} className="!h-3 !w-3 !border-2 !border-[var(--bg-panel)] !bg-[var(--accent-secondary)]" />
+        <Handle
+          id={`${data.id}-right-handle`}
+          type="source"
+          position={Position.Right}
+          className="!h-5 !w-5 !border-[3px] !border-[var(--bg-panel)] !bg-[var(--accent-secondary)] !shadow-[0_0_0_1px_color-mix(in_oklab,var(--accent-secondary)_28%,transparent)]"
+        />
       </div>
     );
   }
@@ -837,9 +855,10 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
 
   return (
     <div
-      onMouseDownCapture={() => data.onSelect?.(data.id)}
-      onClickCapture={(event) => {
-        event.stopPropagation();
+      onMouseDownCapture={(event) => {
+        if ((event.target as HTMLElement).closest('.react-flow__handle')) {
+          return;
+        }
         data.onSelect?.(data.id);
       }}
       className={cn(
@@ -883,7 +902,7 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
                   data.onFinishEditing?.();
                 }
               }}
-              className="h-8 w-[120px] rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 text-center text-sm font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--border-strong)]"
+              className="nodrag nopan h-8 w-[120px] rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 text-center text-sm font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--border-strong)]"
             />
           ) : (
             <button
@@ -891,13 +910,9 @@ function CanvasNode({ data, selected }: NodeProps<Node<EntityNodeData>>) {
               onClick={(event) => {
                 event.stopPropagation();
                 data.onSelect?.(data.id);
-              }}
-              onDoubleClick={(event) => {
-                event.stopPropagation();
-                data.onSelect?.(data.id);
                 data.onStartEditing?.(data.id);
               }}
-              className="text-sm font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
+              className="nodrag nopan text-sm font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)]"
             >
               {data.label}
             </button>
@@ -939,6 +954,7 @@ function DataModelingCanvas({
   onPaneClick,
   editingTarget,
   editingFieldTarget,
+  draggedFieldTarget,
   onStartFieldEditing,
   onFinishFieldEditing,
   onUpdateField,
@@ -953,7 +969,11 @@ function DataModelingCanvas({
   onAddField,
   onDeleteField,
   onMoveField,
+  onStartFieldDrag,
+  onDropField,
+  onEndFieldDrag,
   onToggleFieldNullable,
+  onToggleFieldForeignKey,
   onSetRelationshipCardinality,
   onRelationshipLabelChange,
   onClearSelection,
@@ -983,6 +1003,7 @@ function DataModelingCanvas({
   onPaneClick: () => void;
   editingTarget: CanvasSelection;
   editingFieldTarget: { entityId: string; fieldId: string; mode: 'name' | 'type' } | null;
+  draggedFieldTarget: { entityId: string; fieldId: string } | null;
   onStartFieldEditing: (entityId: string, fieldId: string, mode: 'name' | 'type') => void;
   onFinishFieldEditing: () => void;
   onUpdateField: (entityId: string, fieldId: string, updates: Partial<DataModelEntity['fields'][number]>) => void;
@@ -997,7 +1018,11 @@ function DataModelingCanvas({
   onAddField: (entityId: string) => void;
   onDeleteField: (entityId: string, fieldId: string) => void;
   onMoveField: (entityId: string, fieldId: string, direction: 'up' | 'down') => void;
+  onStartFieldDrag: (entityId: string, fieldId: string) => void;
+  onDropField: (entityId: string, targetFieldId: string) => void;
+  onEndFieldDrag: () => void;
   onToggleFieldNullable: (entityId: string, fieldId: string) => void;
+  onToggleFieldForeignKey: (entityId: string, fieldId: string) => void;
   onSetRelationshipCardinality: (relationshipId: string, cardinality: DataModelRelationshipCardinality) => void;
   onRelationshipLabelChange: (relationshipId: string, label: string) => void;
   onClearSelection: () => void;
@@ -1132,9 +1157,26 @@ function DataModelingCanvas({
                 node.data.shapeKind === 'entity'
                   ? (entityId: string, fieldId: string, direction: 'up' | 'down') => onMoveField(entityId, fieldId, direction)
                   : undefined,
+              onStartFieldDrag:
+                node.data.shapeKind === 'entity'
+                  ? (entityId: string, fieldId: string) => onStartFieldDrag(entityId, fieldId)
+                  : undefined,
+              onDropField:
+                node.data.shapeKind === 'entity'
+                  ? (entityId: string, targetFieldId: string) => onDropField(entityId, targetFieldId)
+                  : undefined,
+              onEndFieldDrag: node.data.shapeKind === 'entity' ? () => onEndFieldDrag() : undefined,
+              draggedFieldId:
+                node.data.shapeKind === 'entity' && draggedFieldTarget?.entityId === node.id
+                  ? draggedFieldTarget.fieldId
+                  : null,
               onToggleFieldNullable:
                 node.data.shapeKind === 'entity'
                   ? (entityId: string, fieldId: string) => onToggleFieldNullable(entityId, fieldId)
+                  : undefined,
+              onToggleFieldForeignKey:
+                node.data.shapeKind === 'entity'
+                  ? (entityId: string, fieldId: string) => onToggleFieldForeignKey(entityId, fieldId)
                   : undefined,
             },
           }))}
@@ -1157,11 +1199,16 @@ function DataModelingCanvas({
           onEdgeClick={(_, edge) => onEdgeClick(edge.id)}
           onPaneClick={onPaneClick}
           onConnect={onConnect}
+          connectionMode={ConnectionMode.Loose}
+          connectionLineStyle={{
+            stroke: 'var(--accent-primary)',
+            strokeWidth: 3,
+          }}
           selectionOnDrag
           elementsSelectable
           elevateNodesOnSelect
           multiSelectionKeyCode={['Meta', 'Control']}
-          fitView
+          defaultViewport={{ x: 0, y: 0, zoom: 0.4 }}
           minZoom={0.3}
           maxZoom={1.9}
           defaultEdgeOptions={{ type: 'smoothstep' }}
@@ -1908,6 +1955,7 @@ export function DataModelingWorkspace({
     fieldId: string;
     mode: 'name' | 'type';
   } | null>(null);
+  const [draggedFieldTarget, setDraggedFieldTarget] = useState<{ entityId: string; fieldId: string } | null>(null);
   const [clipboard, setClipboard] = useState<ClipboardEntry>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
@@ -2488,6 +2536,22 @@ export function DataModelingWorkspace({
     );
   }
 
+  function dropField(entityId: string, targetFieldId: string) {
+    setEntities((current) =>
+      current.map((entity) => {
+        if (entity.id !== entityId || draggedFieldTarget?.entityId !== entityId) return entity;
+        const sourceIndex = entity.fields.findIndex((field) => field.id === draggedFieldTarget.fieldId);
+        const targetIndex = entity.fields.findIndex((field) => field.id === targetFieldId);
+        if (sourceIndex === -1 || targetIndex === -1 || sourceIndex === targetIndex) return entity;
+        const nextFields = [...entity.fields];
+        const [field] = nextFields.splice(sourceIndex, 1);
+        nextFields.splice(targetIndex, 0, field);
+        return { ...entity, fields: nextFields };
+      }),
+    );
+    setDraggedFieldTarget(null);
+  }
+
   function toggleFieldNullable(entityId: string, fieldId: string) {
     setEntities((current) =>
       current.map((entity) =>
@@ -2499,6 +2563,31 @@ export function DataModelingWorkspace({
                   ? {
                       ...field,
                       nullable: !field.nullable,
+                    }
+                  : field,
+              ),
+            }
+          : entity,
+      ),
+    );
+  }
+
+  function toggleFieldForeignKey(entityId: string, fieldId: string) {
+    setEntities((current) =>
+      current.map((entity) =>
+        entity.id === entityId
+          ? {
+              ...entity,
+              fields: entity.fields.map((field) =>
+                field.id === fieldId
+                  ? {
+                      ...field,
+                      foreignKey: field.foreignKey
+                        ? null
+                        : {
+                            entityId,
+                            fieldId,
+                          },
                     }
                   : field,
               ),
@@ -2776,6 +2865,7 @@ export function DataModelingWorkspace({
                   recentlyAddedNodeId={recentlyAddedNodeId}
                   editingTarget={editingTarget}
                   editingFieldTarget={editingFieldTarget}
+                  draggedFieldTarget={draggedFieldTarget}
                   onStartFieldEditing={(entityId, fieldId, mode) => setEditingFieldTarget({ entityId, fieldId, mode })}
                   onFinishFieldEditing={() => setEditingFieldTarget(null)}
                   onUpdateField={updateField}
@@ -2796,7 +2886,11 @@ export function DataModelingWorkspace({
                   onAddField={addField}
                   onDeleteField={deleteField}
                   onMoveField={moveField}
+                  onStartFieldDrag={(entityId, fieldId) => setDraggedFieldTarget({ entityId, fieldId })}
+                  onDropField={dropField}
+                  onEndFieldDrag={() => setDraggedFieldTarget(null)}
                   onToggleFieldNullable={toggleFieldNullable}
+                  onToggleFieldForeignKey={toggleFieldForeignKey}
                   onSetRelationshipCardinality={setRelationshipCardinality}
                   onRelationshipLabelChange={setRelationshipLabel}
                   onClearSelection={() => {
